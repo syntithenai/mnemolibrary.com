@@ -1,0 +1,20 @@
+<script>
+  function getHashValue(key) {
+	var matches = location.hash.match(new RegExp(key+'=([^&]*)'));
+	return matches ? matches[1] : null;
+  }
+console.log('LOGINREDIR')
+console.log(window.location)
+  if (getHashValue('access_token') || getHashValue('id_token')) {
+	  if (window.opener) window.opener.postMessage({
+		AccessToken: getHashValue('access_token'),
+		ExpiresIn: getHashValue('expires_in'),
+		IdToken: getHashValue('id_token'),
+		TokenType: getHashValue('token_type')
+	  }, '*');
+	} else {
+//		window.location="/"
+	}  
+  
+ // window.close();
+</script>

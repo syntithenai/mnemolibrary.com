@@ -1,0 +1,494 @@
+/*@font-face {
+    font-family: 'sans_forgeticaregular';
+    src: url('sansforgetica-regular-webfont.woff2') format('woff2'),
+         url('sansforgetica-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}*/
+a:hover, a:visited, a:link, a:active
+{
+    text-decoration: none;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  padding-top: 8rem;
+  padding-left: 0rem;
+  
+}
+kanji {
+  font-size: 1.4em;
+  letter-spacing: 0.3em;
+  
+}
+#quickmemo label, #newssubmission label {
+  font-weight: bold;
+}
+.alasearch input {
+  width: 300px;
+}
+.answerletter {
+  font-weight: bold;
+  font-size: 1.2em;
+  background-color: white;
+  color: black;
+  border-radius:10px;
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+  margin-right: 0.5em;
+}
+.fadeMeIn {
+  animation: cssAnimation 0s 1.5s forwards;
+  visibility: hidden;
+}
+
+@keyframes cssAnimation {
+  to   { visibility: visible; }
+}
+
+
+.btn {
+box-shadow: 2px 2px 2px grey;
+}
+#recentcomments .commentsubheader {
+  display: none;
+  font-size: 1.4em;
+}
+.media-preview label,.media-preview input {
+    display: inline;
+}
+.toggle-handle {
+    border: none !important;
+}
+.quiz-collection-questions h4 {
+    margin-top: 0.4em;
+}
+#sharetopicdialog {
+    z-index: 9999 !important;
+}
+.carousel-item {
+    color: black;
+    border: 1px solid black;
+    background-color: white;
+}
+
+.carousel-item h5 {
+    color: black;
+    font-weight: bold;
+    font-size: 1.7em;
+}
+.carousel-item p {
+    color: black;
+}
+.carousel-caption {
+    border: 1px solid black;
+    background-color: #dfeceb;
+    bottom: 200px;
+    opacity: 0.8;
+}
+.carousel-control-next,.carousel-control-prev {
+    right: 2px;
+    padding: 0em;
+    background-color: black;
+    border-radius: 20px;
+    color: black;
+    border: 1px solid black;
+    height: 2em;
+    width: 2em;
+    top: 50%;
+}
+.aboutpage div {
+    padding-bottom: 1em;
+}
+.spage-title {
+    float:'right';
+    color:'yellow';
+    font-size:'1.2em';
+    position: 'fixed';
+    right: '1em';
+    z-index: 99;
+    background-color: lightgrey;
+    opacity: 0.6;
+}
+.questionwrap  {
+    margin-right: 0;
+    padding-right: 0;
+    margin-left: 0;
+    padding-left: 0;
+    width: 100%;
+}
+.questionwrap .question {
+    margin-top:1em;
+    padding-top:1em;
+    width: 100%;
+    margin-right: 0;
+    padding-right: 0;
+    margin-left: 0;
+    padding-left: 0;
+}
+.questionwrap .question.review {
+    margin-top:4em;
+}
+.dddquestionwrap .blocked-tags {
+margin-top:2em;
+}
+.holds-the-iframe {
+  background:url(/loading.gif) center center no-repeat;
+  min-height: 3em;
+}
+.scrollbuttons {
+    border-top: 6px solid lightsteelblue;
+}
+.questionwrap .buttons {
+    top:6.5em;
+    position: fixed;
+    width: 100%;
+    z-index: 999;
+    opacity: 1;
+}
+.question.card {
+    padding-left:1em;
+}
+
+.videotutorials,.aboutpage,.intropage,.faq,.termsofuse ,.findquestions{
+    padding-left:1em;
+}
+
+.question,.tags .btn {
+   text-align:left !important;
+}
+.question .buttons button {  }
+
+.question .answer span {
+    font-size: 1.2em;
+}
+
+.shortanswer {
+    font-size: 1.2em;
+    font-style: italic;
+}
+
+.container {
+    max-width: none !important;
+}
+
+iframe#wikiiframe {
+    width: 100%;
+}
+.footer {
+    background-color: lightgrey;
+}
+#topiceditorheader {
+    position: fixed;
+    background-color: white;
+    min-height: 4em;
+    width: 100%;
+    z-index:999;
+}
+
+#answer {
+    min-height: 7em;
+}
+.questionform label {
+    font-weight: bold;
+}
+
+.questionErrors,#warningmessage {
+    color: red;    
+}
+
+.questionform .form-inline label {
+    margin-right: 1em;
+}
+
+.question .card-title.questionheader {
+    color: blue;
+    width: 100%;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding: 1rem;
+    sborder: 1px solid black;
+    font-size: 1.3em;   
+}
+
+.warning-message {
+  color: red;
+  font-size: 1.6em;   
+}
+.row {
+    margin-left: 0rem !important;
+    margin-right: 0rem !important;    
+}
+
+.navbar .nav-item {
+    font-size: 1.5em;
+}
+.navbar .btn-secondary {
+  background-color:rgb(255, 255, 0);
+  color:black;  
+  font-weight:bold;
+  opacity:0.9; 
+}
+
+.question .buttons .btn {
+    margin-top: 0.2em;
+}
+
+pre {
+    white-space: pre-wrap;
+    font-family: sans-serif;
+}
+pre.mnemonic {
+    color :  red;
+    font-size: 1.2em;
+}
+pre.mnemonicalternative {
+    color :  black;
+    font-size: 1.2em;
+
+}
+.loginbutton {
+    margin-top: 3.6em;
+}
+
+.navbar-toggler {
+    margin-top: 3em;
+}
+
+.btn {
+    border: 1px solid black;
+    border-radius: 10px;
+    dbox-shadow: 2px 2px #888888;
+    margin-right: 3px;
+}
+
+
+h4.graphTitle::before { 
+  z-index: 0;
+  display: block; 
+  content: " "; 
+  margin-top: -175px; 
+  height: 175px; 
+  visibility: hidden; 
+  pointer-events: none;
+}
+
+.topmenu {
+    margin-top: 2.0em;
+}
+
+.topmenu .btn {
+    min-width: 5em;
+    font-size: large;
+    padding-bottom: 5px;
+}
+
+
+.react-tags {
+  position: relative;
+  padding: 6px 0 0 6px;
+  border: 1px solid #D1D1D1;
+  border-radius: 1px;
+
+  /* shared font styles */
+  font-size: 1em;
+  line-height: 1.2;
+
+  /* clicking anywhere will focus the input */
+  cursor: text;
+}
+
+.react-tags.is-focused {
+  border-color: #B1B1B1;
+}
+
+.react-tags__selected {
+  display: inline;
+}
+
+.react-tags__selected-tag {
+  display: inline-block;
+  box-sizing: border-box;
+  margin: 0 6px 6px 0;
+  padding: 6px 8px;
+  border: 1px solid #D1D1D1;
+  border-radius: 2px;
+  background: #F1F1F1;
+
+  /* match the font styles */
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.react-tags__selected-tag:after {
+  content: '\2715';
+  color: #AAA;
+  margin-left: 8px;
+}
+
+.react-tags__selected-tag:hover,
+.react-tags__selected-tag:focus {
+  border-color: #B1B1B1;
+}
+
+.react-tags__search {
+  display: inline-block;
+
+  /* match tag layout */
+  padding: 7px 2px;
+  margin-bottom: 6px;
+
+  /* prevent autoresize overflowing the container */
+  max-width: 100%;
+}
+
+@media screen and (min-width: 30em) {
+
+  .react-tags__search {
+    /* this will become the offsetParent for suggestions */
+    position: relative;
+  }
+
+}
+
+.react-tags__search input {
+  /* prevent autoresize overflowing the container */
+  max-width: 100%;
+
+  /* remove styles and layout from this element */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+
+  /* match the font styles */
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.react-tags__search input::-ms-clear {
+  display: none;
+}
+
+.react-tags__suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+}
+
+@media screen and (min-width: 30em) {
+
+  .react-tags__suggestions {
+    width: 240px;
+  }
+
+}
+
+.react-tags__suggestions ul {
+  margin: 4px -1px;
+  padding: 0;
+  list-style: none;
+  background: white;
+  border: 1px solid #D1D1D1;
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.react-tags__suggestions li {
+  border-bottom: 1px solid #ddd;
+  padding: 6px 8px;
+}
+
+.react-tags__suggestions li mark {
+  text-decoration: underline;
+  background: none;
+  font-weight: 600;
+}
+
+.react-tags__suggestions li:hover {
+  cursor: pointer;
+  background: #eee;
+}
+
+.react-tags__suggestions li.is-active {
+  background: #b7cfe0;
+}
+
+.react-tags__suggestions li.is-disabled {
+  opacity: 0.5;
+  cursor: auto;
+}
+
+/* The Modal (background) */
+.modaldialog {
+  display: block; /* none Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 100000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+
+
+/* The Close Button */
+.modaldialog-close {
+  color: #aaa;
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+
+/* Modal Header */
+.modaldialog-header h2 {
+  font-size:1.5em;
+}
+.modaldialog-header {
+  padding: 1px 16px;
+  background-color: black;
+  color: white;
+}
+
+/* Modal Body */
+.modaldialog-body {padding: 2px 16px;}
+
+/* Modal Footer */
+.modaldialog-footer {
+  height: 1.5em;
+  background-color: black;
+  color: white;
+}
+/* Modal Content/Box */
+.modaldialog-content {
+  background-color: #fefefe;
+  margin: 0% auto; /* 15% from the top and centered */
+  padding: 0.2em;
+  border: 1px solid #888;
+  width: 90%; /* Could be more or less, depending on screen size */
+}
+/* Modal Content */
+.smodaldialog-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 80%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@keyframes animatetop {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
+}

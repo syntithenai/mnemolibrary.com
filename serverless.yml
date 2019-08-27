@@ -1,0 +1,432 @@
+# https://www.serverlessops.io/blog/static-websites-on-aws-s3-with-serverless-framework
+# https://gist.github.com/singledigit/2c4d7232fa96d9e98a3de89cf6ebe7a5
+# after deploy, use AWS web console to
+# create ssl certificate, associate cert with cloudfront 
+# - create domain for userpool
+# - enable federated identies 
+# copy userPoolARN and userPoolId into custom constants
+# - route53 domain maps to cloudfront
+# s3 error handler /review/mytop  -> /
+# enable ses send email - select from email, enable ses (general settings)
+
+service: storytellerwizard
+org: syntithenai
+app: storyteller
+
+# for development
+#REACT_APP_IDENTITY_POOL_ID=us-west-2:45db8ed6-22c8-4427-a288-f4f008b9aa47  REACT_APP_AUTH_DOMAIN=storytellerwizard.auth.us-west-2.amazoncognito.com REACT_APP_CLIENT_ID=74fs9u8kovst7215k30a661blv  REACT_APP_CLIENT_SECRET=1bj35lkuhg7gqbu1qv6t3l3771lvm5v5eg4aas6qq566n72brva0 REACT_APP_REDIRECT_URL=http://localhost:300 REACT_APP_REGION=us-west-2 npm start
+
+custom:
+  # CUSTOMISE ME 
+  servicename: storytellerwizard
+  region: us-west-2
+  stage: dev
+  fromEmail: syntithenai@gmail.com
+  websiteDomain: storytellerwizard.com
+  redirectUrl_live: https://${self:custom.websiteDomain}/
+  redirectUrl_dev: http://localhost:3000/
+  authDomain: storytellerwizard.auth.us-west-2.amazoncognito.com
+  certificate: arn:aws:acm:us-east-1:462798946277:certificate/ab1bd706-d7ab-42b7-b3f0-50644cd88f4d
+  # mnemo 	arn:aws:acm:us-west-2:462798946277:certificate/a24f1a50-823a-4714-9804-a8f09c744e81
+  #  
+  cognitoPoolId: us-west-2:6d006b81-c582-4331-9ca9-14fcd3d6924f
+  #!Ref IdentityPool
+   
+  #!GetAtt UserPool.id 
+  #!Ref IdentityPool::Id
+  # !GetAtt UserPool.id
+  # orig  
+  #us-west-2:45db8ed6-22c8-4427-a288-f4f008b9aa47
+  # 
+  cognitoUserPoolArn: arn:aws:cognito-idp:us-west-2:462798946277:userpool/us-west-2_vDJvQKDKA
+  #!GetAtt UserPool.arn
+  #!GetAtt UserPool.arn
+  #
+  # arn:aws:cognito-idp:us-west-2:462798946277:userpool/us-west-2_xCNiLG8vF
+  #######################
+
+  #dynamodb:
+   #stages:
+      #- dev
+      #- prod
+   #start:
+      #port: 8000
+      #inMemory: true
+      #migrate: true
+      ##migration:
+        ##dir: api/offline/migrations
+
+  AuthName: ${self:custom.servicename}auth
+  authUrl: https://${self:custom.authDomain}  
+  #us-west-2:220f37d7-abc7-4e88-bc0e-75cf862a8c0f
+  #cognitoPoolId: ${cf:${self:custom.AuthName}.Id}
+  #!Ref IdentityPool::Id    
+  secrets: ${file(secrets.${opt:stage, self:provider.stage}.yml)}
+  fullstack:
+    domain: 
+      - ${self:custom.websiteDomain}   
+      - www.${self:custom.websiteDomain}
+    bucketName: fullstack${self:custom.servicename}
+    certificate: ${self:custom.certificate}
+    
+    clientCommand:  echo "REACT_APP_IDENTITY_POOL_ID=${self:custom.cognitoPoolId}  REACT_APP_AUTH_DOMAIN=${self:custom.authDomain} REACT_APP_CLIENT_ID=${self:custom.secrets.clientId} REACT_APP_CLIENT_SECRET=${self:custom.secrets.clientSecret} REACT_APP_REDIRECT_URL=${self:custom.redirectUrl_dev} REACT_APP_REGION=${self:custom.region} REACT_APP_S3_BUCKET=${self:custom.websiteDomain}-${self:custom.stage}-files " > ./.env; REACT_APP_IDENTITY_POOL_ID=${self:custom.cognitoPoolId}  REACT_APP_AUTH_DOMAIN=${self:custom.authDomain} REACT_APP_CLIENT_ID=${self:custom.secrets.clientId} REACT_APP_CLIENT_SECRET=${self:custom.secrets.clientSecret} REACT_APP_REDIRECT_URL=${self:custom.redirectUrl_live} REACT_APP_REGION=${self:custom.region} REACT_APP_S3_BUCKET=${self:custom.websiteDomain}=${self:custom.stage}-files npm run build
+    errorDocument: index.html
+    clientSrcPath: client
+    apiPath: api
+    distributionFolder: client/build
+  
+plugins:
+#  - serverless-s3-sync
+  - fullstack-serverless
+  - serverless-secrets-plugin
+#  - serverless-dynamodb-local
+  - serverless-offline
+
+package:
+  exclude:
+    - client/**
+    - old/**
+    
+provider:
+  name: aws
+  runtime: nodejs10.x
+  region: ${self:custom.region}  
+  stage: ${self:custom.stage}
+  environment:
+    MONGODB: ${self:custom.secrets.MONGODB}
+    fromEmail: ${self:custom.fromEmail}
+    websiteUrl: https://${self:custom.websiteDomain}
+    authUrl: ${self:custom.authUrl}
+    authClientId: ${self:custom.secrets.clientId}
+    authClientSecret: ${self:custom.secrets.clientSecret}
+   # cognitoPoolId: ${self:custom.cognitoPoolId}
+    importSheets_0: ${self:custom.secrets.importSheets.0}
+    importSheets_1: ${self:custom.secrets.importSheets.1}
+    importSheets_2: ${self:custom.secrets.importSheets.2}
+    importMultipleChoice_0: ${self:custom.secrets.importMultipleChoice.0} 
+    importMultipleChoice_1: ${self:custom.secrets.importMultipleChoice.1} 
+    REACT_APP_USER_POOL_ARN: ${self:custom.cognitoUserPoolArn}
+    REACT_APP_IDENTITY_POOL_ID: ${self:custom.cognitoPoolId}
+    REACT_APP_AUTH_DOMAIN: ${self:custom.authDomain}
+    REACT_APP_CLIENT_ID: ${self:custom.secrets.clientId}
+    REACT_APP_CLIENT_SECRET: ${self:custom.secrets.clientSecret}
+    REACT_APP_REDIRECT_URL: ${self:custom.redirectUrl_live}
+    REACT_APP_REGION: ${self:custom.region}
+    REACT_APP_S3_BUCKET: ${self:custom.websiteDomain}-${self:custom.stage}-files
+    
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "ses:SendEmail"
+      Resource:
+        - "*"
+      #Condition:
+        #StringEquals:
+          #ses:FromAddress:
+            #- ${self:custom.fromEmail}
+    -  Effect: "Allow"
+       Action:
+         - "s3:*"
+       Resource:
+         - arn:aws:s3:::${self:custom.websiteDomain}-${self:custom.stage}-files
+  
+  #cfdDomain:
+    #domainNames:
+      #- storytellerwizard.com
+      #- www.storytellerwizard.com
+      #- auth.storytellerwizard.com
+    #cloudFront: CloudFrontDistribution
+    #retries: 15
+    #minimumProtocolVersion: TLSv1.2_2018
+
+
+ 
+   
+
+functions:
+  message:
+    handler: api/api.handler
+    timeout: 30
+    authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+    events:
+      - http:
+          path: ${self:custom.fullstack.apiPath}/{proxy+}
+          method: ANY
+
+resources:  
+  Resources: 
+
+    ApiGatewayAuthorizer: 
+      Type: AWS::ApiGateway::Authorizer
+      Properties: 
+        AuthorizerResultTtlInSeconds: 300
+        IdentitySource: method.request.header.Authorization
+        Name: ${self:custom.servicename}_authorizer
+        RestApiId: 
+          Ref: "ApiGatewayRestApi"
+        Type: COGNITO_USER_POOLS
+        ProviderARNs: 
+          - ${self:custom.cognitoUserPoolArn}
+          
+    SNSRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument: 
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal: 
+                Service: 
+                  - "cognito-idp.amazonaws.com"
+              Action: 
+                - "sts:AssumeRole"
+        Policies:
+          - PolicyName: "CognitoSNSPolicy"
+            PolicyDocument: 
+              Version: "2012-10-17"
+              Statement: 
+                - Effect: "Allow"
+                  Action: "sns:publish"
+                  Resource: "*"
+
+  # Creates a user pool in cognito for your app to auth against
+  # This example requires MFA and validates the phone number to use as MFA
+  # Other fields can be added to the schema
+    UserPool:
+      Type: "AWS::Cognito::UserPool"
+      Properties:
+        UserPoolName: !Sub ${self:custom.AuthName}-user-pool
+        AutoVerifiedAttributes:
+          - phone_number
+        MfaConfiguration: "ON"
+        SmsConfiguration:
+          ExternalId: !Sub ${self:custom.AuthName}-external
+          SnsCallerArn: !GetAtt SNSRole.Arn
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Mutable: true
+            Required: true
+          - Name: name
+            AttributeDataType: String
+            Mutable: true
+  # Creates a User Pool Client to be used by the identity pool
+    UserPoolClient:
+      Type: "AWS::Cognito::UserPoolClient"
+      Properties:
+        ClientName: !Sub ${self:custom.AuthName}-client
+        UserPoolId: !Ref UserPool
+        AllowedOAuthFlows: 
+          - implicit
+        AllowedOAuthFlowsUserPoolClient: true
+        AllowedOAuthScopes: 
+          - email
+          - openid 
+        CallbackURLs: 
+          - ${self:custom.redirectUrl_live}
+          - ${self:custom.redirectUrl_live}review
+          - ${self:custom.redirectUrl_live}profile
+          - ${self:custom.redirectUrl_live}settings
+          - ${self:custom.redirectUrl_live}create
+          - ${self:custom.redirectUrl_live}ala
+          - ${self:custom.redirectUrl_live}musicbrainz
+          - ${self:custom.redirectUrl_live}leaderboard
+          - ${self:custom.redirectUrl_live}newsletter
+          - ${self:custom.redirectUrl_live}feedmuncher
+          - ${self:custom.redirectUrl_live}quickmemo
+          - ${self:custom.redirectUrl_dev}
+          - ${self:custom.redirectUrl_dev}review
+          - ${self:custom.redirectUrl_dev}profile
+          - ${self:custom.redirectUrl_dev}settings
+          - ${self:custom.redirectUrl_dev}create
+          - ${self:custom.redirectUrl_dev}ala
+          - ${self:custom.redirectUrl_dev}musicbrainz
+          - ${self:custom.redirectUrl_dev}leaderboard
+          - ${self:custom.redirectUrl_dev}newsletter
+          - ${self:custom.redirectUrl_dev}feedmuncher
+          - ${self:custom.redirectUrl_dev}quickmemo  
+                  
+        DefaultRedirectURI: ${self:custom.redirectUrl_live}
+        GenerateSecret: true
+        LogoutURLs: 
+          - ${self:custom.redirectUrl_live}
+          - ${self:custom.redirectUrl_dev}
+        RefreshTokenValidity: 3650
+        SupportedIdentityProviders: 
+          - COGNITO
+          - Facebook
+          - Google 
+          - LoginWithAmazon
+        
+      
+  # Creates a federeated Identity pool
+    IdentityPool:
+      Type: "AWS::Cognito::IdentityPool"
+      Properties:
+        IdentityPoolName: !Sub ${self:custom.AuthName}Identity
+        AllowUnauthenticatedIdentities: true
+        CognitoIdentityProviders: 
+          - ClientId: !Ref UserPoolClient
+            ProviderName: !GetAtt UserPool.ProviderName
+       # SupportedLoginProviders: 
+        #  - graph.facebook.com : ${self:custom.secrets.federatedLoginClientIds.facebook} 
+        #  - accounts.google.com : ${self:custom.secrets.federatedLoginClientIds.google}
+       #   - www.amazon.com : ${self:custom.secrets.federatedLoginClientIds.amazon}
+       #   - api.twitter.com : ${self:custom.secrets.federatedLoginClientIds.twitter}
+        
+
+
+  # Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
+    CognitoUnAuthorizedRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument: 
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal: 
+                Federated: "cognito-identity.amazonaws.com"
+              Action: 
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals: 
+                  "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": unauthenticated
+        Policies:
+          - PolicyName: "CognitoUnauthorizedPolicy"
+            PolicyDocument: 
+              Version: "2012-10-17"
+              Statement: 
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                  Resource: "*"
+
+  # Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
+  # Only allows users in the previously created Identity Pool
+    CognitoAuthorizedRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+        AssumeRolePolicyDocument: 
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal: 
+                Federated: "cognito-identity.amazonaws.com"
+              Action: 
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals: 
+                  "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": authenticated
+        Policies:
+          - PolicyName: "CognitoAuthorizedPolicy"
+            PolicyDocument: 
+              Version: "2012-10-17"
+              Statement: 
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                    - "cognito-identity:*"
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource: "*"
+  
+  # Assigns the roles to the Identity Pool
+    IdentityPoolRoleMapping:
+      Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+      Properties:
+        IdentityPoolId: !Ref IdentityPool
+        Roles:
+          authenticated: !GetAtt CognitoAuthorizedRole.Arn
+          unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
+
+    S3WebsiteUploads:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.websiteDomain}-${self:custom.stage}-files 
+        # Set the CORS policy
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              
+                               #- Fn::Join:
+                   #- ""
+                   #- - "https://"
+                     #- Ref: ApiGatewayRestApi
+                     #- ".execute-api.${self:custom.region}.amazonaws.com"
+    #StaticSite:
+      #Type: AWS::S3::Bucket
+      #Properties:
+        #AccessControl: PublicRead
+        #BucketName: ${self:custom.siteName}
+        #WebsiteConfiguration:
+          #IndexDocument: index.html
+    #StaticSiteS3BucketPolicy:
+      #Type: AWS::S3::BucketPolicy
+      #Properties:
+        #Bucket:
+          #Ref: StaticSite
+        #PolicyDocument:
+          #Statement:
+            #- Sid: PublicReadGetObject
+              #Effect: Allow
+              #Principal: "*"
+              #Action:
+              #- s3:GetObject
+              #Resource:
+                #Fn::Join: [
+                  #"", [
+                    #"arn:aws:s3:::",
+                    #{
+                      #"Ref": "StaticSite"
+                    #},
+                    #"/*"
+                  #]
+                #]
+    #DnsRecord:
+      #Type: "AWS::Route53::RecordSet"
+      #Properties:
+        #AliasTarget:
+          #DNSName: ${self:custom.aliasDNSName}
+          #HostedZoneId: ${self:custom.aliasHostedZoneId}
+        #HostedZoneName: ${self:custom.siteName}.
+        #Name:
+          #Ref: StaticSite
+        #Type: 'A'
+
+
+
+
+Outputs:
+  UserPoolId:
+    Value: !Ref UserPool
+    Export:
+      Name: "UserPool::Id"
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+    Export:
+      Name: "UserPoolClient::Id"
+  IdentityPoolId:
+    Value: !Ref IdentityPool
+    Export:
+      Name: "IdentityPool::Id"
