@@ -10,6 +10,8 @@ import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
 import { withRouter } from "react-router-dom";
+import scrollToComponent from 'react-scroll-to-component'
+
     
 export default withRouter( class QuizCarousel extends Component {
     constructor(props) {
@@ -27,7 +29,8 @@ export default withRouter( class QuizCarousel extends Component {
             showQuestionListDetails: false,
             exitRedirect:null
         };
-        this.handleQuestionResponse = this.handleQuestionResponse.bind(this);
+        this.scrollTo = {}
+		this.handleQuestionResponse = this.handleQuestionResponse.bind(this);
         this.currentQuestion = this.currentQuestion.bind(this);
         this.getQuestions = this.getQuestions.bind(this);
         this.setQuizQuestion = this.setQuizQuestion.bind(this);
@@ -200,7 +203,7 @@ export default withRouter( class QuizCarousel extends Component {
   };
       
   logStatus(status,question,preview,topic) {
-     //console.log(['log status',status,question,preview,topic,this.props.user,this.state.logged[status]]);
+     console.log(['log status',status,question,preview,topic,this.props.user,this.state.logged[status]]);
      if (!this.state.logged[status]) {
          let logged = this.state.logged;
          logged[status]={};
@@ -211,9 +214,9 @@ export default withRouter( class QuizCarousel extends Component {
           if (!question) question = this.props.questions[this.props.indexedQuestions[this.props.currentQuestion]]._id;
           //console.log(['logging status',question]);
           if (this.state.logged[status].hasOwnProperty(question)) {
-              //console.log(['ignore duplicate logs']);
+              console.log(['ignore duplicate logs']);
           } else {
-              //console.log(['REALLY log status',status,question]);
+              console.log(['REALLY log status',status,question]);
               let logged = this.state.logged;
               logged[status][question] = true;
               this.setState({logged:logged});
@@ -225,7 +228,10 @@ export default withRouter( class QuizCarousel extends Component {
                     'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({'user':this.props.user._id,'question':question,topic:topic})
-                }).catch(function(err) {
+                }).then(function() {
+					console.log('saved log status')  
+				}).catch(function(err) {
+                    console.log(err)
                     that.setState({'message':'Not Saved'});
                 });              
           }
@@ -269,7 +275,7 @@ export default withRouter( class QuizCarousel extends Component {
   handleQuestionResponse(question,response) {
       this.props.setMessage('');
       const id = question._id;
-      ////console.log(['handle response',response,id,question]);
+      console.log(['handle response',response,id,question]);
       const time = new Date().getTime();
       if (response === "list") {
          this.setState({'showList':true});  
@@ -291,7 +297,7 @@ export default withRouter( class QuizCarousel extends Component {
             }  else {
                 //questions.successTally[id] = questions.successTally.hasOwnProperty(id) ? questions.successTally[id] + 1 : 1;
                 this.setState({ 'success': success});
-                ////console.log(['success',this.props.currentQuestion]);
+                console.log(['success',this.props.currentQuestion]);
                 this.props.setCurrentQuestion(parseInt(this.props.currentQuestion,10) + 1);
                 this.logStatus('success',id,question.isPreview);
 				//this.gotoQuestion(parseInt(this.props.currentQuestion,10) + 1)
@@ -441,7 +447,7 @@ export default withRouter( class QuizCarousel extends Component {
             } else {
                 //setTimeout(function() {
                     //that.props.getQuestionsForReview();
-                    that.goto("/review")
+                    that.goto("/review?nocache="+Math.random())
                 //},1000);
             }
        
@@ -506,8 +512,17 @@ export default withRouter( class QuizCarousel extends Component {
 			}).then(function(response) {
 				return response.json();
 			}).then(function(res) {
-				console.log('done add all to review')
-				that.props.setMessage('Added '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' to your review list')
+				//console.log('done add all to review')
+				//console.log(that.props.setMessage)
+				//console.log('Marked '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' successfully reviewed.')
+				that.props.setMessage('Marked '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' successfully reviewed.')
+				//setTimeout(function() {
+					that.props.reviewQuestions();
+					that.setState({'showQuestionListDetails':false});
+					scrollToComponent(that.scrollTo.topOfPage,{align:'top',offset:-130});
+					
+					//that.reviewQuestions(); 
+				//},1500)
 				//confirmAlert({
 				  //title: 'Questions Added For Review',
 				  //message: 'Added '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' to your review list',
@@ -557,6 +572,8 @@ export default withRouter( class QuizCarousel extends Component {
                         label='Continue' ;
                     }
                     content = (<div>
+					<div  ref={(section) => { this.scrollTo.topOfPage = section; }} ></div>
+
                     <button className='btn btn-success' onClick={() => this.setQuizQuestion(this.currentQuestion())}   >
                     <Play size={25} /> {label}
                     </button>

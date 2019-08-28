@@ -1532,7 +1532,7 @@ console.log(auth,this.state.user)
 			<div style={{width:'100%'}} className="mnemo">
 				{(this.state.waiting) && <div onClick={this.stopWaiting} style ={{position: 'fixed', top: 0, left: 0, width:'100%',height:'100%',backgroundColor:'grey',zIndex:9999999,opacity:0.3}}  ><img style={{height:'7em' }} src='/loading.gif' /></div>}
 				
-				{this.state.message && <b style={{position:'fixed',top:'7em',left:'50%',backgroundColor:'pink',border:'1px solid black',color:'black',padding:'0.8em'}}>{this.state.message}</b>}
+				{this.state.message && <b style={{zIndex:99999999,position:'fixed',top:'7em',left:'50%',backgroundColor:'pink',border:'1px solid black',color:'black',padding:'0.8em'}}>{this.state.message}</b>}
 				
 				{false && this.state.message && <div className='page-message' ><b>{this.state.message}</b></div>}
 				<PropsRoute  path="/" component={Navigation}  setCurrentTopic={this.setCurrentTopic} shout={this.shout} user={this.state.user} isLoggedIn={this.isLoggedIn} setCurrentPage={this.setCurrentPage} login={this.login} setQuizFromDiscovery={this.setQuizFromDiscovery} title={this.state.title} hideCollection={this.hideCollection} newCommentReply={this.newCommentReply} 	analyticsEvent={this.analyticsEvent} fetch={this.fetch}  openLoginWindow={this.openLoginWindow} />

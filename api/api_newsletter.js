@@ -5,7 +5,7 @@ const get = require('simple-get');
 
 var fetch = require('node-fetch');
 
-function initRoutes(router,db) {
+function initRoutes(router,initdb) {
 
 	function generateNewsletter(content,user,token) {
 		let html = ''
@@ -125,14 +125,14 @@ function initRoutes(router,db) {
 			db.collection('users').findOne({_id:ObjectId(req.body.user)}).then(function(user) {
 				
 				db.collection('newsletters').findOne({_id:ObjectId(req.body.id)}).then(function(newsletter) {
-					//console.log(['publish u',	user])
+					console.log(['publish u',	user])
 					if (user && newsletter && newsletter.publishKey && newsletter.publishKey.length > 0 && newsletter.publishKey === req.body.publishKey) {
 				
 					//console.log(['publish u',	user])
 					//if (user && user.publishKey && user.publishKey.length > 0 && user.publishKey === req.body.publishKey) {
 						//console.log(['publish matck key',	user])
 						if (req.body.content && req.body.content.length > 0) {
-						//	console.log(['publish is test',	req.body.userEmail])
+							console.log(['publish is test',	req.body.userEmail])
 							// get auth key
 							//var params={
 								//username: user.username,

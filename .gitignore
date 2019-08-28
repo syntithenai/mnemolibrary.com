@@ -1,3 +1,4 @@
+deploy.sh
 .dynamodb
 old/
 uploaderendpoints.js

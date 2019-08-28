@@ -91,7 +91,7 @@ export default class QuestionList extends Component {
 						title = <b>{title}</b>
 						details=<div>
 							{this.state.mnemonics.hasOwnProperty(question._id) && <div style={{marginTop:'0.2em'}}>
-								<b>Memory Aid: </b><i>{this.state.mnemonics[question._id]}</i>
+								<b>Memory Aid: </b><i><pre>{this.state.mnemonics[question._id]}</pre></i>
 							</div>}
 							<div style={{marginTop:'0.2em'}}>
 								<b>Answer: </b><pre>{question.answer}</pre>
@@ -119,6 +119,7 @@ export default class QuestionList extends Component {
             })
             return (
               <div style={{fontSize:'1.2em'}} className="questions list-group">
+            
                   {
                     questions
                   }

@@ -5,62 +5,34 @@
 # - create domain for userpool
 # - enable federated identies 
 # copy userPoolARN and userPoolId into custom constants
-# - route53 domain maps to cloudfront
-# s3 error handler /review/mytop  -> /
 # enable ses send email - select from email, enable ses (general settings)
+# FINALLY - route53 domain maps to cloudfront
 
-service: storytellerwizard
+
+service: mnemolibrary
 org: syntithenai
-app: storyteller
+app: mnemolibrary
 
-# for development
-#REACT_APP_IDENTITY_POOL_ID=us-west-2:45db8ed6-22c8-4427-a288-f4f008b9aa47  REACT_APP_AUTH_DOMAIN=storytellerwizard.auth.us-west-2.amazoncognito.com REACT_APP_CLIENT_ID=74fs9u8kovst7215k30a661blv  REACT_APP_CLIENT_SECRET=1bj35lkuhg7gqbu1qv6t3l3771lvm5v5eg4aas6qq566n72brva0 REACT_APP_REDIRECT_URL=http://localhost:300 REACT_APP_REGION=us-west-2 npm start
 
 custom:
   # CUSTOMISE ME 
-  servicename: storytellerwizard
+  servicename: mnemolibrary
   region: us-west-2
-  stage: dev
+  stage: prod
   fromEmail: syntithenai@gmail.com
-  websiteDomain: storytellerwizard.com
+  websiteDomain: mnemolibrary.com
   redirectUrl_live: https://${self:custom.websiteDomain}/
   redirectUrl_dev: http://localhost:3000/
-  authDomain: storytellerwizard.auth.us-west-2.amazoncognito.com
-  certificate: arn:aws:acm:us-east-1:462798946277:certificate/ab1bd706-d7ab-42b7-b3f0-50644cd88f4d
-  # mnemo 	arn:aws:acm:us-west-2:462798946277:certificate/a24f1a50-823a-4714-9804-a8f09c744e81
-  #  
-  cognitoPoolId: us-west-2:6d006b81-c582-4331-9ca9-14fcd3d6924f
+  authDomain: mnemolibrary.auth.us-west-2.amazoncognito.com
+  certificate: 	arn:aws:acm:us-east-1:462798946277:certificate/2c628a57-9edd-4df8-8690-1caa9f70673a
+  cognitoPoolId: us-west-2:aad855c1-2df8-4549-bc0f-2bcb2b72eb3c
+  #us-west-2:6d006b81-c582-4331-9ca9-14fcd3d6924f
   #!Ref IdentityPool
-   
-  #!GetAtt UserPool.id 
-  #!Ref IdentityPool::Id
-  # !GetAtt UserPool.id
-  # orig  
-  #us-west-2:45db8ed6-22c8-4427-a288-f4f008b9aa47
-  # 
-  cognitoUserPoolArn: arn:aws:cognito-idp:us-west-2:462798946277:userpool/us-west-2_vDJvQKDKA
+  cognitoUserPoolArn: arn:aws:cognito-idp:us-west-2:462798946277:userpool/us-west-2_7kjBi5swD
+  #arn:aws:cognito-idp:us-west-2:462798946277:userpool/us-west-2_vDJvQKDKA
   #!GetAtt UserPool.arn
-  #!GetAtt UserPool.arn
-  #
-  # arn:aws:cognito-idp:us-west-2:462798946277:userpool/us-west-2_xCNiLG8vF
-  #######################
-
-  #dynamodb:
-   #stages:
-      #- dev
-      #- prod
-   #start:
-      #port: 8000
-      #inMemory: true
-      #migrate: true
-      ##migration:
-        ##dir: api/offline/migrations
-
   AuthName: ${self:custom.servicename}auth
   authUrl: https://${self:custom.authDomain}  
-  #us-west-2:220f37d7-abc7-4e88-bc0e-75cf862a8c0f
-  #cognitoPoolId: ${cf:${self:custom.AuthName}.Id}
-  #!Ref IdentityPool::Id    
   secrets: ${file(secrets.${opt:stage, self:provider.stage}.yml)}
   fullstack:
     domain: 
@@ -99,7 +71,6 @@ provider:
     authUrl: ${self:custom.authUrl}
     authClientId: ${self:custom.secrets.clientId}
     authClientSecret: ${self:custom.secrets.clientSecret}
-   # cognitoPoolId: ${self:custom.cognitoPoolId}
     importSheets_0: ${self:custom.secrets.importSheets.0}
     importSheets_1: ${self:custom.secrets.importSheets.1}
     importSheets_2: ${self:custom.secrets.importSheets.2}
@@ -120,28 +91,12 @@ provider:
         - "ses:SendEmail"
       Resource:
         - "*"
-      #Condition:
-        #StringEquals:
-          #ses:FromAddress:
-            #- ${self:custom.fromEmail}
     -  Effect: "Allow"
        Action:
          - "s3:*"
        Resource:
          - arn:aws:s3:::${self:custom.websiteDomain}-${self:custom.stage}-files
-  
-  #cfdDomain:
-    #domainNames:
-      #- storytellerwizard.com
-      #- www.storytellerwizard.com
-      #- auth.storytellerwizard.com
-    #cloudFront: CloudFrontDistribution
-    #retries: 15
-    #minimumProtocolVersion: TLSv1.2_2018
-
-
  
-   
 
 functions:
   message:
@@ -257,9 +212,9 @@ resources:
         RefreshTokenValidity: 3650
         SupportedIdentityProviders: 
           - COGNITO
-          - Facebook
-          - Google 
-          - LoginWithAmazon
+          #- Facebook
+          #- Google 
+          #- LoginWithAmazon
         
       
   # Creates a federeated Identity pool

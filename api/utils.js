@@ -114,6 +114,7 @@ let utilFunctions =  {
 		})
    },
 	sendMail : function(from,to,subject,htmlBody) {
+		console.log(['SENDMAIL',from,to,subject])
         return new Promise(function(resolve,reject) {
 			const replyTo = from
 			const fromBase64 = Buffer.from(from).toString('base64');
@@ -138,6 +139,8 @@ let utilFunctions =  {
 			};
 
 			SES.sendEmail(sesParams);
+			console.log(['SENDMAIL done',from,to,subject])
+        
 			resolve();
 		})
 	},
