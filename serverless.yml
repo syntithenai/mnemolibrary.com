@@ -71,9 +71,12 @@ provider:
     authUrl: ${self:custom.authUrl}
     authClientId: ${self:custom.secrets.clientId}
     authClientSecret: ${self:custom.secrets.clientSecret}
+    emailUsername: ${self:custom.secrets.emailUsername}
+    emailPassword: ${self:custom.secrets.emailPassword}
     importSheets_0: ${self:custom.secrets.importSheets.0}
     importSheets_1: ${self:custom.secrets.importSheets.1}
     importSheets_2: ${self:custom.secrets.importSheets.2}
+    importSheets_3: ${self:custom.secrets.importSheets.3}
     importMultipleChoice_0: ${self:custom.secrets.importMultipleChoice.0} 
     importMultipleChoice_1: ${self:custom.secrets.importMultipleChoice.1} 
     REACT_APP_USER_POOL_ARN: ${self:custom.cognitoUserPoolArn}
@@ -84,6 +87,7 @@ provider:
     REACT_APP_REDIRECT_URL: ${self:custom.redirectUrl_live}
     REACT_APP_REGION: ${self:custom.region}
     REACT_APP_S3_BUCKET: ${self:custom.websiteDomain}-${self:custom.stage}-files
+    REACT_APP_ANALYTICS_KEY: ${self:custom.secrets.analyticsKey}
     
   iamRoleStatements:
     - Effect: "Allow"
@@ -91,6 +95,7 @@ provider:
         - "ses:SendEmail"
       Resource:
         - "*"
+        
     -  Effect: "Allow"
        Action:
          - "s3:*"
@@ -110,6 +115,21 @@ functions:
       - http:
           path: ${self:custom.fullstack.apiPath}/{proxy+}
           method: ANY
+
+  importmessage:
+    handler: api/api_import.handler
+    timeout: 300
+    memorySize: 2048
+   # reservedConcurrency: 1
+    authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
+    events:
+      - http:
+          path: import/{proxy+}
+          method: POST
+
 
 resources:  
   Resources: 

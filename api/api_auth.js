@@ -108,19 +108,19 @@ function initRoutes(router,initdb) {
 		//if (id_token) {
 			//const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(id_token, { complete: true });
 			//var emailDirect = unverifiedDecodedAuthorizationCodeIdToken && unverifiedDecodedAuthorizationCodeIdToken.payload ? unverifiedDecodedAuthorizationCodeIdToken.payload.email : 'noemail';
-		console.log('ME')
-		console.log(req.user)
+		//console.log('ME')
+		//console.log(req.user)
 		let emailDirect = req.user && req.user.email ? req.user.email : ''
 		if (emailDirect.length > 0) { 
 			initdb().then(function(db) {
 				//res.send({email:emailDirect})
-							console.log('FIND')
-							console.log(emailDirect);
+							//console.log('FIND')
+							//console.log(emailDirect);
 				
 					db.collection('users').findOne({username:emailDirect}).then(function(user) {
 						if (user && user._id) {
-							console.log('found')
-							console.log(user);
+							//console.log('found')
+							//console.log(user);
 							res.send(user);
 						} else {
 							user = {}
@@ -132,8 +132,8 @@ function initRoutes(router,initdb) {
 							user.avatar = faker.commerce.productAdjective()+faker.name.firstName()
 						
 							db.collection('users').insertOne(user).then(function() {
-								console.log('inserted')
-								console.log(user);
+								//console.log('inserted')
+								//console.log(user);
 								res.send(user);
 							})
 						}

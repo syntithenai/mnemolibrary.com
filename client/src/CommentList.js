@@ -52,9 +52,9 @@ export default class CommentList extends Component {
 	}
     
     componentDidUpdate(props) {
-		console.log(['comment',props])
+		//console.log(['comment',props])
         if (this.props.match && this.props.match.params && this.props.match.params.comment) {
-			console.log(['comment scroll to',this.scrollTo[this.props.match.params.comment]])
+			//console.log(['comment scroll to',this.scrollTo[this.props.match.params.comment]])
 			scrollToComponent(this.scrollTo[this.props.match.params.comment],{align:'top',offset:-130});
         } 
     }

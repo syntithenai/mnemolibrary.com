@@ -147,17 +147,17 @@ export default class FeedMuncher extends Component {
 				let expanded = that.state.expanded;
 				let guid = item.guid["#"];
 				expanded[guid] = Object.assign(docInfo,{guid:guid,date:item.pubDate,lines:jsonarray,item:item});
-				console.log(['JJ',guid,expanded[guid]])
+				//console.log(['JJ',guid,expanded[guid]])
 				//expanded:expanded,
 				// load existing questions by feed guid
 				that.props.fetch('/api/guid/?guid='+guid).then(response => {
 					return response.json()
 				}).then(function(question) {
 					let saveForReview= expanded[guid];
-					console.log(['LOADED EXISTING Q',guid,saveForReview])
+					//console.log(['LOADED EXISTING Q',guid,saveForReview])
 					// update editor with loaded q fields
 					if (saveForReview) { 
-						console.log('overide with loaded',question,saveForReview)
+						//console.log('overide with loaded',question,saveForReview)
 						if (question && question.question && question.question.length > 0) saveForReview.question = question.question;
 						if (question && question.answer && question.answer.length > 0) saveForReview.answer = question.answer;
 						if (question && question.mnemonic && question.mnemonic.length > 0) saveForReview.mnemonic = question.mnemonic;
@@ -178,13 +178,13 @@ export default class FeedMuncher extends Component {
 						
 						
 						that.setState({expanded:expanded})
-						console.log(['DONE OVERRIDE',that.state.saveForReview])
+						//console.log(['DONE OVERRIDE',that.state.saveForReview])
 					}
 					if (question && question._id) {
 						that.props.fetch('/api/mcguid?guid='+guid).then(response => {
 							return response.json()
 						}).then(function(mcQuestions) {
-							console.log(['LOADED EXISTING MCQ',mcQuestions])
+							//console.log(['LOADED EXISTING MCQ',mcQuestions])
 							expanded[guid].db = {question: question,mcQuestions:mcQuestions}
 							that.setState({expanded:expanded})
 						})
@@ -289,7 +289,7 @@ export default class FeedMuncher extends Component {
 		if (item) {
 			let that = this;	
 			let tags = item.category.join(",").toLowerCase().split(",");
-			console.log(['SENDREVIEW',item,sentence])	
+			//console.log(['SENDREVIEW',item,sentence])	
 			//let oldSaveForReview = this.state.oldSaveForReview ? this.state.oldSaveForReview : {}
 			this.setState({
 				saveForReviewKey:itemKey,
@@ -310,14 +310,14 @@ export default class FeedMuncher extends Component {
 						newtag :''
 					})
 				})
-			console.log(['DID SET review',this.state.saveForReview,item])
+			//console.log(['DID SET review',this.state.saveForReview,item])
 		} else {
 			this.setState({saveForReview:null,oldSaveForReview:this.state.saveForReview});
 		}
 	}
 	
 	reallySendToReview() {
-		console.log(['reaaly send review',this.state.saveForReview])
+		//console.log(['reaaly send review',this.state.saveForReview])
 		let that = this;
 		let record = this.state.saveForReview;
 		// defaults
@@ -335,7 +335,7 @@ export default class FeedMuncher extends Component {
 		//let quiz = 'World News'
 		let headlineFacts = {};
 		if (record && record.question) {
-			console.log(['send review',this.state.saveForReview])
+			//console.log(['send review',this.state.saveForReview])
 			if (record.mnemonic && record.mnemonic.length > 0) {
 				let mcQuestions=[];
 				let options = record.multiple_choices.split("|||")
@@ -346,7 +346,7 @@ export default class FeedMuncher extends Component {
 						that.showMessage('You must provide more information for your multiple choice question')
 					}	
 				}
-				console.log(['sendmnem'])
+				//console.log(['sendmnem'])
 				that.props.fetch('/api/importquestion', {
 				  method: 'POST',
 				  headers: {
@@ -358,11 +358,11 @@ export default class FeedMuncher extends Component {
 					that.setState({saveForReview:null})
 				});
 			} else {
-				console.log(['sendmnem mis'])
+				//console.log(['sendmnem mis'])
 				that.showMessage('You must enter a memory aid for this news article')
 			}
 		} else {
-			console.log(['sendmnem q mis'])
+			//console.log(['sendmnem q mis'])
 			that.showMessage('You must enter a main question for this news article')
 		}
 	}
@@ -403,7 +403,7 @@ export default class FeedMuncher extends Component {
 	addTag(tag) {
 		let that = this;
 		if (!tag || tag.length === 0) tag = this.state.saveForReview.newtag;
-		console.log(['ADD TAG',tag])
+		//console.log(['ADD TAG',tag])
 		let saveForReview = this.state.saveForReview
 		if (saveForReview) {
 			let newTag = tag
@@ -413,7 +413,7 @@ export default class FeedMuncher extends Component {
 			saveForReview.atags = saveForReview.atags ? saveForReview.atags : []
 			saveForReview.atags.push(newTag)
 			saveForReview.newtag = '';
-			console.log(saveForReview.atags)
+			//console.log(saveForReview.atags)
 			this.setState({saveForReview:saveForReview,showTagSelector:null,})
 		}that.state.saveForReview.newtag
 	}
@@ -456,7 +456,7 @@ export default class FeedMuncher extends Component {
 	}
 	
 	swipeRight(key) {
-		console.log('sw ri')
+		//console.log('sw ri')
 		this.deleteItem(key)
 	}
     
@@ -505,7 +505,7 @@ export default class FeedMuncher extends Component {
 							//that.submitFormOnSelect();
 						}}
 						onChange={(event, value) => {
-							console.log(['CHANGE',value])
+							//console.log(['CHANGE',value])
 							if (value != null && value != undefined) {
 								let reviewItem = that.state.saveForReview
 								reviewItem.topic = value
@@ -551,7 +551,7 @@ export default class FeedMuncher extends Component {
 							//that.submitFormOnSelect();
 						}}
 						onChange={(event, value) => {
-							console.log(['CHANGE',value])
+							//console.log(['CHANGE',value])
 							if (value != null && value != undefined) {
 								that.setState({ lineSearch1:this.html2Text(value)})
 							}
@@ -592,7 +592,7 @@ export default class FeedMuncher extends Component {
 							//that.submitFormOnSelect();
 						}}
 						onChange={(event, value) => {
-							console.log(['CHANGE',value])
+							//console.log(['CHANGE',value])
 							if (value != null && value != undefined) {
 								that.setState({ lineSearch2:this.html2Text(value)})
 							}
@@ -638,7 +638,7 @@ export default class FeedMuncher extends Component {
 							//that.submitFormOnSelect();
 						}}
 						onChange={(event, value) => {
-							console.log(['CHANGE',value])
+							//console.log(['CHANGE',value])
 							if (value != null && value != undefined) {
 								that.setState({ lineSearch3:this.html2Text(value)})
 							}
@@ -766,7 +766,7 @@ export default class FeedMuncher extends Component {
 							//that.submitFormOnSelect();
 						}}
 						onChange={(event, value) => {
-							console.log(['CHANGE',value])
+							//console.log(['CHANGE',value])
 							if (value != null && value != undefined) {
 								that.setState({ lineSearch4:this.html2Text(value)})
 							}
@@ -827,7 +827,7 @@ export default class FeedMuncher extends Component {
 							//that.submitFormOnSelect();
 						}}
 						onChange={(event, value) => {
-							console.log(['CHANGE',value])
+							//console.log(['CHANGE',value])
 							if (value != null && value != undefined) {
 								that.setState({ lineSearch:this.html2Text(value)})
 							}

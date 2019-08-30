@@ -69,7 +69,7 @@ export default class CommentEditor extends Component {
 			toSave.user = this.props.user ? this.props.user._id : null;
 			toSave.userAvatar = this.props.user ? this.props.user.avatar : null;
 			toSave.comment = this.props.comment && this.props.comment ? this.props.comment.comment : '';
-			console.log(['REPORT PROBLEM',toSave])
+			//console.log(['REPORT PROBLEM',toSave])
 			if (toSave.question && toSave.user && toSave.comment && toSave.comment.length > 0) {
 				that.props.fetch('/api/reportproblem', {
 				  method: 'POST',
@@ -78,7 +78,7 @@ export default class CommentEditor extends Component {
 				  },
 				  body: JSON.stringify(toSave)
 				}).then(function() {
-					console.log(['REPORTed PROBLEM',toSave])
+					//console.log(['REPORTed PROBLEM',toSave])
 					that.props.analyticsEvent('report problem');
         
 					//that.setState({'comment':''});                

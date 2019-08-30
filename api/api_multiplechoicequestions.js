@@ -455,7 +455,7 @@ function initRoutes(router,initdb) {
 												db.collection(mcQuestion.options_generator_collection).find(filter).limit(100).toArray().then(function(options) {
 													
 													function deref(key,obj) {
-														console.log(['DEREF',key,obj])
+														//console.log(['DEREF',key,obj])
 														if (key && obj) {
 															let res = key.split('.').reduce(function (obj,i) {return obj[i]}, obj)
 															// array value eg tags
@@ -464,7 +464,7 @@ function initRoutes(router,initdb) {
 														}
 													}
 													
-													console.log(['OPTIONS FOUND',options ? options.length : 0,filter])
+													//console.log(['OPTIONS FOUND',options ? options.length : 0,filter])
 													let multiple_choices = [];
 													if (options.length > 0) {
 														let option1Index = parseInt(Math.random()*options.length)
@@ -491,7 +491,7 @@ function initRoutes(router,initdb) {
 														}
 													}	
 													
-													console.log(['GENERATED OPTIONS',multiple_choices])
+//console.log(['GENERATED OPTIONS',multiple_choices])
 													 
 													mcQuestion.multiple_choices= multiple_choices.join('|||');
 													resolve(mcQuestion)

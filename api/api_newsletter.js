@@ -51,7 +51,7 @@ function initRoutes(router,initdb) {
 	
 	router.post('/savenewsletter', (req, res) => {
 		let status = 'new';
-		console.log(['snpost',JSON.stringify(req.body)])
+		//console.log(['snpost',JSON.stringify(req.body)])
 		if (req.body.status && req.body.status.length > 0) status = req.body.status;
 		// if long delay since last message update status to paused
 		let newsletter = {
@@ -66,16 +66,16 @@ function initRoutes(router,initdb) {
 			status: status
 		}
 		initdb().then(function(db) {
-			console.log(['SAVE NEWSLETTER',newsletter]);
+			//console.log(['SAVE NEWSLETTER',newsletter]);
 			if (req.body._id && req.body._id.length > 0) {
 				db.collection('newsletters').updateOne({_id:ObjectId(req.body._id)},{$set:newsletter}).then(function(result) {
-					console.log([' update SNLETTER',result.result])
+					//console.log([' update SNLETTER',result.result])
 					res.send(newsletter)
 				});
 			} else {
 				newsletter._id =  ObjectId()
 				db.collection('newsletters').insertOne(newsletter).then(function(result) {
-					console.log(['insert SNLETTER',result.result])
+					//console.log(['insert SNLETTER',result.result])
 					newsletter._id = result.insertedId
 					res.send(newsletter)
 				});
@@ -84,7 +84,7 @@ function initRoutes(router,initdb) {
 	})
 	
 	function sendNewsletterTo(newsletter,user) {
-		console.log(['SEND NEWSLETTER TO ',user,newsletter])
+		//console.log(['SEND NEWSLETTER TO ',user,newsletter])
 		let p = new Promise(function(resolve,reject) {
 			//var params={
 				//username: user.username,
@@ -125,14 +125,14 @@ function initRoutes(router,initdb) {
 			db.collection('users').findOne({_id:ObjectId(req.body.user)}).then(function(user) {
 				
 				db.collection('newsletters').findOne({_id:ObjectId(req.body.id)}).then(function(newsletter) {
-					console.log(['publish u',	user])
+					//console.log(['publish u',	user])
 					if (user && newsletter && newsletter.publishKey && newsletter.publishKey.length > 0 && newsletter.publishKey === req.body.publishKey) {
 				
 					//console.log(['publish u',	user])
 					//if (user && user.publishKey && user.publishKey.length > 0 && user.publishKey === req.body.publishKey) {
 						//console.log(['publish matck key',	user])
 						if (req.body.content && req.body.content.length > 0) {
-							console.log(['publish is test',	req.body.userEmail])
+							//console.log(['publish is test',	req.body.userEmail])
 							// get auth key
 							//var params={
 								//username: user.username,
@@ -268,7 +268,7 @@ function initRoutes(router,initdb) {
 							// wait for all messages to send then update newsletter
 							Promise.all(promises).then(function(sendMessages) {
 								db.collection('newsletters').save(newsletter).then(function(mailMessages) {
-									console.log(['NEWSLETTERS SENT',mailMessages])
+									//console.log(['NEWSLETTERS SENT',mailMessages])
 									res.send({ok:true,newsletters:newsletters,message:JSON.stringify(mailMessages)})
 								})
 							});

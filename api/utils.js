@@ -1,11 +1,20 @@
 const mustache = require('mustache');
-//const nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 // ses sendmail
 const AWS = require('aws-sdk');
 const SES = new AWS.SES({ region: 'us-west-2' });
 
+
 //const config=require('./config');
-var config={}
+var config={
+    transport :{
+      service: 'gmail',
+      auth: {
+        user: process.env.emailUsername,
+        pass: process.env.emailPassword
+      }
+    }
+}
 var ObjectId = require('mongodb').ObjectID;
 //var removeDiacritics=require('./diacritics');
     
@@ -89,31 +98,39 @@ let utilFunctions =  {
        //});
     //return Object.keys(set);
   //},
-  osendMail : function(from,to,subject,html) {
+  sendMail : function(from,to,subject,html) {
+       // console.log(['out START SEND',config.transport,from,to,subject,html])
+			
         return new Promise(function(resolve,reject) {
-			var transporter = nodemailer.createTransport(config.transport);
-
+		//	console.log(['START SEND',config.transport])
+			//console.log(config.transport)
+			try {
+				var transporter = nodemailer.createTransport(config.transport);
+			} catch (e) {
+				console.log(e);
+			}
+			//console.log(['created transport'])
 			var mailOptions = {
 			  from: from,
 			  to: to,
 			  subject: subject,
 			  html: html
 			};
-
+			//console.log(['SEND MAIL ',JSON.stringify(mailOptions)])
 			transporter.sendMail(mailOptions, function(error, info){
 			  if (error) {
-				//console.log(error);
+				console.log(error);
 				reject(error)
 				res.send('FAIL');
 			  } else {
-				console.log('Email sent: ' + info.response);
+				//console.log('Email sent: ' + info.response);
 				resolve(info);
 				//res.send('OK');
 			  }
 			});
 		})
    },
-	sendMail : function(from,to,subject,htmlBody) {
+	awssendMail : function(from,to,subject,htmlBody) {
 		console.log(['SENDMAIL',from,to,subject])
         return new Promise(function(resolve,reject) {
 			const replyTo = from
@@ -139,7 +156,7 @@ let utilFunctions =  {
 			};
 
 			SES.sendEmail(sesParams);
-			console.log(['SENDMAIL done',from,to,subject])
+			console.log(['SENDMAIL done',from,to,subject,sesParams])
         
 			resolve();
 		})

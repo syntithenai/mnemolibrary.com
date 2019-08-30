@@ -26,7 +26,7 @@ function initRoutes(router,initdb) {
 	});
 
 	router.post('/savecomment', (req, res) => {
-		console.log(['TRY save comment',req.body]);
+		//console.log(['TRY save comment',req.body]);
 			
 		if (req.body.user && (req.body.type === 'note' || req.body.type === 'comment'|| req.body.type === 'question')) {
 			let data = req.body;
@@ -45,7 +45,7 @@ function initRoutes(router,initdb) {
 			// send mail when reply is added/updated
 			if (req.body.isReply && req.body.userEmail  && req.body.userEmail.length > 0) {
 				if (req.body.userEmailPreferences && req.body.userEmailPreferences === "none") {
-					console.log('USER PREFERS NO EMAIL')
+				//	console.log('USER PREFERS NO EMAIL')
 					
 				} else { 
 					if (req.body.replies && req.body.replies.length > 0) {
@@ -61,7 +61,7 @@ function initRoutes(router,initdb) {
 						content += '\n\n<br/><br/><b>You can change your email notification preferences on the <a href="'+linkProfile+'" >Profile Page</a>'
 						
 						utils.sendMail(process.env.fromEmail,req.body.userEmail,"Reply to your comment on Mnemo's Library ",content);
-						console.log('SENT COMMENT REPLY')
+						//console.log('SENT COMMENT REPLY')
 					}
 				}
 			}
@@ -95,7 +95,7 @@ function initRoutes(router,initdb) {
 	});
 	
 	router.get('/comments', (req, res) => {
-		console.log(['FIND COMMENTS',req.query])
+	//	console.log(['FIND COMMENTS',req.query])
 			
 		let filter = []
 		if (req.query.filter && req.query.filter.length > 0) {
@@ -106,7 +106,7 @@ function initRoutes(router,initdb) {
 			})
 			filter.push({$and:innerFilter})
 		}
-		console.log(['FIND COMMENTS F',filter])
+	//	console.log(['FIND COMMENTS F',filter])
 		initdb().then(function(db) {
 			// filter by question
 			if (req.query.question) {
@@ -124,7 +124,7 @@ function initRoutes(router,initdb) {
 			// recent comments
 			} else {
 				let limit = req.query.limit && req.query.limit > 0 ? parseInt(req.query.limit,10) : 30;
-				console.log(['FIND COMMENTS Q',JSON.stringify({$and:filter})])
+				//console.log(['FIND COMMENTS Q',JSON.stringify({$and:filter})])
 				filter.push({$or:[{type:{$eq:'question'}},{type:{$eq:'comment'}}]})
 				db.collection('comments').find({$and:filter}).sort({createDate:-1}).limit(limit).toArray(function(err,results) {
 					//console.log(['FOUND COMMENTS',err,results])
@@ -136,7 +136,7 @@ function initRoutes(router,initdb) {
 	
 	
 	router.get('/notes', (req, res) => {
-		console.log(['FIND NOTES',req.query])
+		//console.log(['FIND NOTES',req.query])
 			
 		let filter = []
 		if (req.query.filter && req.query.filter.length > 0) {
@@ -153,7 +153,7 @@ function initRoutes(router,initdb) {
 		} 
 		if (req.query.user) {
 			filter.push({$and:[{type:{$eq:'note'}},{user:{$eq:ObjectId(req.query.user)}}]});
-			console.log(['FIND COMMENTS note',JSON.stringify({$and:filter})])
+			//console.log(['FIND COMMENTS note',JSON.stringify({$and:filter})])
 			initdb().then(function(db) {
 					db.collection('comments').find({$and:filter}).sort({createDate:-1}).toArray(function(err,results) {
 					console.log(['FOUND COMMENTSnote',err,results])

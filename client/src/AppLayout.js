@@ -136,7 +136,7 @@ export default class AppLayout extends Component {
           id_token:null,
           loginCallback:''
       }
-      console.log(['REACT___VARS',process.env.REACT_APP_TEST,process.env.REACT_APP_IDENTITY_POOL_ID,process.env.REACT_APP_AUTH_DOMAIN,process.env.REACT_APP_CLIENT_ID,process.env.REACT_APP_CLIENT_SECRET,process.env.REACT_APP_REDIRECT_URL,process.env.REACT_APP_REGION])
+     // console.log(['REACT___VARS',process.env.REACT_APP_TEST,process.env.REACT_APP_IDENTITY_POOL_ID,process.env.REACT_APP_AUTH_DOMAIN,process.env.REACT_APP_CLIENT_ID,process.env.REACT_APP_CLIENT_SECRET,process.env.REACT_APP_REDIRECT_URL,process.env.REACT_APP_REGION])
     
       // Initialize the Amazon Cognito credentials provider
 		this.IdentityPoolId= process.env.REACT_APP_IDENTITY_POOL_ID
@@ -252,6 +252,7 @@ export default class AppLayout extends Component {
   
     componentDidMount() {
       ReactGA.initialize(process.env.REACT_APP_ANALYTICS_KEY);
+	//  console.log('mount layout GA key '+process.env.REACT_APP_ANALYTICS_KEY)
       this.handleLogin()
       this.fetchTopicCollections(); 
   };
@@ -342,17 +343,17 @@ export default class AppLayout extends Component {
 		};
 		console.log(['AUTH DATA',authData])
 		function fetchUser(session) {
-			console.log('fetch user')
+			//console.log('fetch user')
 			//console.log(
 			if (session) {
-			console.log('fetch user session')
-			console.log(session)
+			//console.log('fetch user session')
+			//console.log(session)
 				var idToken = session.getIdToken() ? session.getIdToken().getJwtToken() : null;
 				var accessToken = session.getAccessToken() ? session.getAccessToken().getJwtToken() : null;
 				var refreshToken = session.getRefreshToken() ? session.getRefreshToken().getToken() : null;
 				//that.setState({})
-				console.log('fetch user real')
-				console.log(idToken);
+				//console.log('fetch user real')
+				//console.log(idToken);
 				that.startWaiting()
 				that.fetch("/api/me?id_token="+idToken,{headers:{Authorization:idToken}}).then(function(me) {
 					me.json().then(function(user) {
@@ -364,15 +365,15 @@ export default class AppLayout extends Component {
 						that.stopWaiting()	
 						that.setState({user:user,token:{access_token:accessToken,id_token:idToken,refresh_token:refreshToken}});
 						let state = decodeURIComponent(getHashValue('state'))
-						console.log('CHECK REDIR IN STATE')
-						console.log(state);
-						if (state.length > 0 && state !== null && state !== 'null') {
+						//console.log('CHECK REDIR IN STATE')
+						//console.log(state);
+						//if (state.length > 0 && state !== null && state !== 'null') {
 							//window.location = state
-							console.log('CHECK REDIR IN STATE YES')
+							//console.log('CHECK REDIR IN STATE YES')
 							//that.setState({exitRedirect:state})
-						}
-						console.log('ME');
-						console.log(user);
+						//}
+						//console.log('ME');
+						//console.log(user);
 					})
 				})		
 			}
@@ -382,8 +383,8 @@ export default class AppLayout extends Component {
 		var auth = new CognitoAuth(authData);
 		auth.userhandler = {
 			onSuccess: function(result) {
-				console.log("Sign in success");
-				console.log(result);
+				//console.log("Sign in success");
+				//console.log(result);
 				session = result;
 				fetchUser(result);
 			},
@@ -406,12 +407,12 @@ export default class AppLayout extends Component {
 		// pull session from storage
 		//setTimeout(function() {
 			let cached = auth.getCachedSession();
-			console.log(cached);
+			//console.log(cached);
 			if (cached && cached.getIdToken().getJwtToken().length > 0) {
-				console.log('usersession from cached')
+				//console.log('usersession from cached')
 				fetchUser(cached);
 			} else {
-				console.log('nouser')
+				//console.log('nouser')
 					var cognitoidentity = new AWS.CognitoIdentity();
 					var params = {
 						IdentityPoolId: this.IdentityPoolId
@@ -427,8 +428,8 @@ export default class AppLayout extends Component {
 								IdentityPoolId: this.IdentityPoolId,
 								IdentityId: data.IdentityId
 							});
-							console.log('GOTID')
-							console.log(data)
+							//console.log('GOTID')
+							//console.log(data)
 							var params = {
 							  IdentityId: data.IdentityId,
 							};
@@ -436,9 +437,9 @@ export default class AppLayout extends Component {
 							  if (err) console.log(err, err.stack); // an error occurred
 							  else     {
 									let accessToken = data && data.Credentials ? data.Credentials.SessionToken : null;
-									console.log('no user access token')
+									//console.log('no user access token')
 							
-									console.log(accessToken);           // successful response
+									//console.log(accessToken);           // successful response
 									that.setState({token:{access_token:accessToken}})
 							  }
 							});
@@ -456,7 +457,7 @@ export default class AppLayout extends Component {
 	}
   
 	loadNotes(question,user,limitP,filter) {
-		console.log(['notes',question,user,limitP,filter])
+		//console.log(['notes',question,user,limitP,filter])
 		let that=this;
 		let query='';
 		//let currentQuestion = this.getCurrentQuestion()
@@ -476,7 +477,7 @@ export default class AppLayout extends Component {
 		  .then(function(response) {
 			return response.json()
 		  }).then(function(json) {
-			console.log(['loaded comments', json])
+			//console.log(['loaded comments', json])
 			that.setState({comments:json});
 		  }).catch(function(ex) {
 			console.log(['error loading comments', ex])
@@ -504,7 +505,7 @@ export default class AppLayout extends Component {
 		  .then(function(response) {
 			return response.json()
 		  }).then(function(json) {
-			console.log(['loaded comments', json])
+			//console.log(['loaded comments', json])
 			that.setState({comments:json});
 		  }).catch(function(ex) {
 			console.log(['error loading comments', ex])
@@ -520,7 +521,7 @@ export default class AppLayout extends Component {
 	}
 	
 	toggleCommentDialog() {
-		console.log(['TOGGLE COMMENT',this.state.showCommentDialog])
+		//console.log(['TOGGLE COMMENT',this.state.showCommentDialog])
 		//// 
 		//if (this.state.showCommentDialog) {
 			//this.setState({'editingComment':null})
@@ -536,16 +537,16 @@ export default class AppLayout extends Component {
 		
 	newComment() {
 		//this.setVisible('comments')
-		console.log(['NEW COMMENT s'])
+		//console.log(['NEW COMMENT s'])
 		let comment = {_id:null,comment:'',type:'',createDate:new Date(),user:this.state.user ? this.state.user._id : null,userEmail:this.state.user ? this.state.user.username : null,userEmailPreference:this.state.user ? this.state.user.email_me : null,userAvatar:this.state.user ? this.state.user.avatar : null,question:this.getCurrentQuestion()};
 		this.setState({comment:comment,editCommentReply:null})
-		console.log(['NEW COMMENT',comment,this.state.comment])
+		//console.log(['NEW COMMENT',comment,this.state.comment])
 	//	this.toggleCommentDialog()
 		
 	}
 	
 	reallyDeleteComment(comment) {
-		console.log(['really delete COMMENT',comment])
+		//console.log(['really delete COMMENT',comment])
 				
 		// refresh single view comments list
 		let that = this;
@@ -555,7 +556,7 @@ export default class AppLayout extends Component {
 		toSave.comment = comment ? comment._id : null
 		
 		if (toSave.question && toSave.user && toSave.comment) {
-			console.log(['really really delete COMMENT',toSave])
+			//console.log(['really really delete COMMENT',toSave])
 		
 			this.fetch('/api/deletecomment', {
 			  method: 'POST',
@@ -564,7 +565,7 @@ export default class AppLayout extends Component {
 			  },
 			  body: JSON.stringify(toSave)
 			}).then(function() {
-				console.log(['NOW RELOAD COMMENTS'])
+				//console.log(['NOW RELOAD COMMENTS'])
 				that.loadComments(toSave.question,toSave.user)
 			});
 		}
@@ -611,7 +612,7 @@ export default class AppLayout extends Component {
 			
 			//toSave.user = !toSave.user && this.state.user ? this.state.user._id : null
 			//toSave.userAvatar = !toSave.userAvatar && this.state.user ? this.state.user.avatar : null
-			console.log(['do save ',toSave]);
+			//console.log(['do save ',toSave]);
 						
 			if (toSave.question && toSave.user && toSave.comment && toSave.comment.length > 0) {
 				//if (!this.props.comment._id) {
@@ -626,11 +627,11 @@ export default class AppLayout extends Component {
 				  
 				  body: JSON.stringify(toSave)
 				}).then(function() {
-					console.log('done save '+toSave);
+					//console.log('done save '+toSave);
 			
 					that.setComment(null);
 					that.setState({commentReply:null,commentReplyIndex:null,editCommentReply:false})
-					console.log(['NOW RELOAD COMMENTS',that.loadComments])
+					//console.log(['NOW RELOAD COMMENTS',that.loadComments])
 					that.loadComments(toSave.question,(that.state.user ? that.state.user._id  : null))
 				});
 			}
@@ -638,7 +639,7 @@ export default class AppLayout extends Component {
   
   // COMMENT REPLY FUNCTIONS  
 	editCommentReply(comment,replyIndex) {
-		console.log(['EDIT REPLY',comment,replyIndex])
+		//console.log(['EDIT REPLY',comment,replyIndex])
 		this.setState({comment:comment,commentReplyIndex:replyIndex,editCommentReply:true});	
 	}
 		
@@ -653,7 +654,7 @@ export default class AppLayout extends Component {
 	}
 	
 	reallyDeleteCommentReply(comment,replyIndex) {
-		console.log(['really delete COMMENT reply',comment,replyIndex])
+		//console.log(['really delete COMMENT reply',comment,replyIndex])
 		if (comment && comment.replies && comment.replies.length > replyIndex) {
 			comment.replies = comment.replies.splice(replyIndex,1);
 			this.setState({comment:comment});
@@ -1251,7 +1252,7 @@ export default class AppLayout extends Component {
   import(importId) {
       let that = this;
       that.startWaiting()
-      this.fetch('/api/import', {
+      this.fetch('/import/import', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1276,7 +1277,7 @@ export default class AppLayout extends Component {
   importMultipleChoice(importId) {
       let that = this;
       that.startWaiting()
-      this.fetch('/api/importmultiplechoicequestions', {
+      this.fetch('/import/importmultiplechoicequestions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1360,7 +1361,7 @@ export default class AppLayout extends Component {
 			questions.map(function(question) {
 				if (question) ids.push(question._id);
 			})
-			console.log(['SEND Q R',ids,questions])
+			//console.log(['SEND Q R',ids,questions])
 			this.fetch('/api/sendallquestionsforreview', {
 			  method: 'POST',
 			   headers: {
@@ -1374,7 +1375,7 @@ export default class AppLayout extends Component {
 			}).then(function(response) {
 				return response.json();
 			}).then(function(res) {
-				console.log('done add all to review')
+				//console.log('done add all to review')
 				that.setMessage('Added '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' to your review list')
 				//confirmAlert({
 				  //title: 'Questions Added For Review',
@@ -1466,7 +1467,7 @@ export default class AppLayout extends Component {
     if (this.state.user && this.state.user._id && this.state.user._id.length > 0 && oauth==="alexa" && authRequest && authRequest.length > 0) {
         //console.log([authRequest,this.props.token,this.props.user]);
         if (!auth) auth={};
-console.log(auth,this.state.user)
+//console.log(auth,this.state.user)
         return (    
             <div className='row'>
 				<div className="navbar-dark fixed-top bg-dark" >
@@ -1669,7 +1670,7 @@ console.log(auth,this.state.user)
 						<PropsRoute  path="/leaderboard"  component={LeaderBoardPage}  user={this.state.user} analyticsEvent={this.analyticsEvent}  fetch={this.fetch}  token={this.state.token}  user={this.state.user}  openLoginWindow={this.openLoginWindow} />
 						
 						<PropsRoute exact={true} analyticsEvent={this.analyticsEvent} user={this.state.user} path='/feedmuncher' startWaiting={this.startWaiting} stopWaiting={this.stopWaiting}  component={FeedMuncher} fetch={this.fetch}  />
-						<PropsRoute exact={true} analyticsEvent={this.analyticsEvent} user={this.state.user} path='/quickmemo'  component={QuickMemo} fetch={this.fetch}   token={this.state.token}  user={this.state.user}  openLoginWindow={this.openLoginWindow} />
+						<PropsRoute exact={true} analyticsEvent={this.analyticsEvent} user={this.state.user} path='/quickmemo'  component={QuickMemo} fetch={this.fetch}   startWaiting={this.startWaiting} stopWaiting={this.stopWaiting}  token={this.state.token}  user={this.state.user}  openLoginWindow={this.openLoginWindow} />
 						
 						
 						

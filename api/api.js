@@ -36,7 +36,7 @@ app.use(function(req,res,next) {
 			const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(token, { complete: true });
 			emailDirect = unverifiedDecodedAuthorizationCodeIdToken && unverifiedDecodedAuthorizationCodeIdToken.payload ? unverifiedDecodedAuthorizationCodeIdToken.payload.email : '';
 			req.user={email:emailDirect}
-			console.log(['set user from token',emailDirect])
+		//	console.log(['set user from token',emailDirect])
 		} catch (e) {
 			console.log(e)
 		}
@@ -75,6 +75,8 @@ const fs = require('fs')
 var router = express.Router();
 
 var ObjectId = require('mongodb').ObjectID;
+var LongInt = require('mongodb').Long;
+
 const get = require('simple-get');
 const mustache = require('mustache');
 var fetch = require('node-fetch');
@@ -146,12 +148,12 @@ var initAuthRoutes = require('./api_auth')
 	
 
 	router.get('/guid', (req, res) => {
-		console.log(['guid',req.query.guid]);
+		//console.log(['guid',req.query.guid]);
 				
 		if (req.query.guid && req.query.guid.length > 0) {
 			initdb().then(function(db) {
 				db.collection('questions').findOne({guid:{$eq:req.query.guid}}).then(function(question) {
-					console.log(['guid res',question]);
+				//	console.log(['guid res',question]);
 					res.send(question && question._id ? question : {});
 				});
 			})
@@ -161,12 +163,12 @@ var initAuthRoutes = require('./api_auth')
 	})
 	
 	router.get('/mcguid', (req, res) => {
-		console.log(['mcguid',req.query.guid]);
+		//console.log(['mcguid',req.query.guid]);
 		
 		if (req.query.guid && req.query.guid.length > 0) {
 			initdb().then(function(db) {
 				db.collection('multiplechoicequestions').find({guid:{$eq:req.query.guid}}).toArray().then(function(questions) {
-					console.log(['mcguid res',questions]);
+				//	console.log(['mcguid res',questions]);
 					res.send(questions ? questions : []);
 				});
 			})
@@ -177,7 +179,7 @@ var initAuthRoutes = require('./api_auth')
 		
 	// proxy feed request and convert xml to json
 	router.get('/feedproxy', (req, res) => {
-		console.log(['FEEDPROXY',req.query.url])
+		//console.log(['FEEDPROXY',req.query.url])
 		if (req.query.url) {// && req.query.url.indexOf('abc.net.au' !== -1)) {
 			var expat = require('node-expat');
 			var Slicer = require('node-xml-slicer');
@@ -189,7 +191,7 @@ var initAuthRoutes = require('./api_auth')
 			}).then(function(response) {
 				return response.text();
 			}).then(function(text) {
-				console.log('got data');
+				//console.log('got data');
 				//console.log(text);
 				//console.log('========================================');
 				let parts = text.split("&#039;");
@@ -257,7 +259,7 @@ var initAuthRoutes = require('./api_auth')
 		if (req.body.question && req.body.question.length > 0 && req.body.importtype && req.body.importtype.length > 0) {
 			initdb().then(function(db) {
 
-				console.log('import question')
+			//	console.log('import question')
 				//console.log(JSON.stringify(req.body));
 				let user = req.body.user;
 				function saveToReviewFeed(user,question) {
@@ -265,8 +267,9 @@ var initAuthRoutes = require('./api_auth')
 					db.collection('seen').insertOne({user:ObjectId(user),question:ObjectId(question._id),timestamp:ts}).then(function(inserted) {
 					   //console.log(['seen inserted']);
 						// collate tally of all seen, calculate success percentage to successScore
-						updateQuestionTallies(req.body.user,question._id);
-						res.send({message:'Sent question to review'});
+						updateQuestionTallies(req.body.user,question._id).then(function() {
+							res.send({message:'Sent question to review'});
+						})
 					}).catch(function(e) {
 						res.send({error:e});
 					});
@@ -300,10 +303,10 @@ var initAuthRoutes = require('./api_auth')
 							})
 						}
 						if (question.mnemonic && question.mnemonic.length> 0) {
-							 console.log('sdel mnem '+question.mnemonic);
+							 //console.log('sdel mnem '+question.mnemonic);
 							 db.collection('mnemonics').remove({$and:[{user:'default'},{importId:'userimport'},{importtype:'abcnews'},{question:question._id}]}).then(function(dresults) {
-							   console.log('sdel mnem deleted0')
-							   console.log(dresults);
+							   //console.log('sdel mnem deleted0')
+							   //console.log(dresults);
 							   db.collection('mnemonics').insert({user:'default',question:question._id,mnemonic:question.mnemonic,questionText:question.question,technique:question.mnemonic_technique,importId:'userimport',importype:'abcnews'});
 							})	
 						}
@@ -312,17 +315,25 @@ var initAuthRoutes = require('./api_auth')
 							saveToReviewFeed(req.body.user,question);
 						});
 					} else {
-						console.log('use new question')
+						//console.log('use new question')
 						// otherwise create the question
 						let question = req.body;
 						question._id = new ObjectId()
 						question.importId = "userimport"
 						//console.log(['GEN QUESTIONS',req.body.mcQuestions])
+						if (question.mnemonic && question.mnemonic.length> 0) {
+							 //console.log('sdel mnem '+question.mnemonic);
+							 db.collection('mnemonics').remove({$and:[{user:'default'},{importId:'userimport'},{importtype:'abcnews'},{question:question._id}]}).then(function(dresults) {
+							   //console.log('sdel mnem deleted0')
+							   //console.log(dresults);
+							   db.collection('mnemonics').insert({user:'default',question:question._id,mnemonic:question.mnemonic,questionText:question.question,technique:question.mnemonic_technique,importId:'userimport',importype:'abcnews'});
+							})	
+						}
 							
 						if (req.body.mcQuestions) {
 							//console.log(['GEN QUESTIONS',req.body.mcQuestions])
 							req.body.mcQuestions.map(function(mc) {
-								console.log(['save mc',mc]);
+								//console.log(['save mc',mc]);
 								mc.questionId = question._id;
 								db.collection('multiplechoicequestions').insertOne(mc).then(function(mcres) {
 								//	console.log(['saved mc',mc,mcres]);
@@ -828,7 +839,7 @@ var initAuthRoutes = require('./api_auth')
 	})
 	
 	router.post('/discover', (req, res) => {
-	   console.log(['discover',req.body]);
+	 //  console.log(['discover',req.body]);
 		let orderBy = req.body.orderBy ? req.body.orderBy : 'successRate';
 		let sortFilter={};
 		let limit = req.body.limit ? req.body.limit : 5;
@@ -1018,32 +1029,32 @@ var initAuthRoutes = require('./api_auth')
 				 //// no time filter for search based
 			 //} else {
 				function getTsXHoursBack(x) {
-					return new Date().getTime() - (3600000 * x)
+					return parseInt(new Date().getTime()/1000 - (3600 * x),10)
 				}
 				//let oneHourBack = new Date().getTime() - 3600000;
 				//let oneDayBack = new Date().getTime() - 86400000;
 				//let oneWeekBack = new Date().getTime() - 86400000 * 7;
 				//let twoWeeksBack = new Date().getTime() - 86400000 * 14;
-				//let oneMonthBack = new Date().getTime() - 86400000 * 31;
+				//let oneMonthBack = new Date().getTime() - 86400000 * 31; 
 				//let twoMonthBack = oneMonthBack * 2;
 				//criteria.push({seen:{$lt:oneHourBack}});   
 				criteria.push({$or:[
 					 {$and:[{seen:{$lt:getTsXHoursBack(1)}},{successTally:{$eq:1}}]},
 					 {$and:[{seen:{$lt:getTsXHoursBack(1)}},{successTally:{$eq:2}}]},
-					 {$and:[{seen:{$lt:(8*getTsXHoursBack(8))}},{successTally:{$eq:3}}]},
-					 {$and:[{seen:{$lt:(27*getTsXHoursBack(27))}},{successTally:{$eq:4}}]},
-					 {$and:[{seen:{$lt:(64*getTsXHoursBack(64))}},{successTally:{$eq:5}}]},
-					 {$and:[{seen:{$lt:(125*getTsXHoursBack(125))}},{successTally:{$eq:6}}]},
-					 {$and:[{seen:{$lt:(216*getTsXHoursBack(216))}},{successTally:{$eq:7}}]},
-					 {$and:[{seen:{$lt:(343*getTsXHoursBack(343))}},{successTally:{$eq:8}}]},
-					 {$and:[{seen:{$lt:(512*getTsXHoursBack(512))}},{successTally:{$eq:9}}]},
-					 {$and:[{seen:{$lt:(729*getTsXHoursBack(729))}},{successTally:{$eq:10}}]},
-					 {$and:[{seen:{$lt:(1000*getTsXHoursBack(1000))}},{successTally:{$eq:11}}]},
-					 {$and:[{seen:{$lt:(1331*getTsXHoursBack(1331))}},{successTally:{$eq:12}}]},
-					 {$and:[{seen:{$lt:(1728*getTsXHoursBack(1728))}},{successTally:{$eq:13}}]},
-					 {$and:[{seen:{$lt:(2197*getTsXHoursBack(2197))}},{successTally:{$eq:14}}]},
-					 {$and:[{seen:{$lt:(2744*getTsXHoursBack(2744))}},{successTally:{$eq:15}}]},
-					 {$and:[{seen:{$lt:(3375*getTsXHoursBack(3375))}},{successTally:{$eq:16}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(8))}},{successTally:{$eq:3}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(27))}},{successTally:{$eq:4}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(64))}},{successTally:{$eq:5}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(125))}},{successTally:{$eq:6}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(216))}},{successTally:{$eq:7}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(343))}},{successTally:{$eq:8}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(512))}},{successTally:{$eq:9}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(729))}},{successTally:{$eq:10}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(1000))}},{successTally:{$eq:11}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(1331))}},{successTally:{$eq:12}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(1728))}},{successTally:{$eq:13}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(2197))}},{successTally:{$eq:14}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(2744))}},{successTally:{$eq:15}}]},
+					 {$and:[{seen:{$lt:(getTsXHoursBack(3375))}},{successTally:{$eq:16}}]},
 					 {successTally:{$not:{$gt:0}}}
 				]});    
 			 //}
@@ -1059,7 +1070,7 @@ var initAuthRoutes = require('./api_auth')
 			 ////console.log({seen:{$lt:oneHourBack}});
 			 if (req.query.user && req.query.user.length > 0) {
 				 // sort by successTally and then most recently seen first
-				console.log(JSON.stringify(criteria));
+				//console.log(JSON.stringify(criteria));
 				db.collection('userquestionprogress').find({$and:criteria}).sort({'successTally':1,'seen':-1}).limit(limit).toArray().then(function(questions,error) {
 					////console.log('llll');
 					////console.log(questions);
@@ -1172,7 +1183,7 @@ var initAuthRoutes = require('./api_auth')
 				   //       //console.log(['q',err,orderedResults]);
 							//res.send({'currentQuestion':'0','currentQuiz':questionIds,'questions':results,indexedQuestions:indexedQuestions});
 							let endTime = new Date().getTime();
-							console.log(['REVIEW SEARCH IN ',endTime - startTime])
+							//console.log(['REVIEW SEARCH IN ',endTime - startTime])
 							res.send({'questions':orderedResults});
 							//res.send({'questions':results});
 						}) 
@@ -1202,7 +1213,7 @@ var initAuthRoutes = require('./api_auth')
 		initdb().then(function(db) {
 
 			function theRest() {
-				console.log(['THEREST',req.query.search,JSON.stringify(criteria)]);
+				//console.log(['THEREST',req.query.search,JSON.stringify(criteria)]);
 			   // //console.log(['questions request',req.query.search,req.query.technique]);
 				if (req.query.search && req.query.search.trim().length > 0) {
 					// SEARCH BY technique and text query
@@ -1246,12 +1257,12 @@ var initAuthRoutes = require('./api_auth')
 						////console.log(['topic search',req.query.topic,{'quiz': {$eq:req.query.topic}}]);
 						let topic = req.query.topic.trim(); //.toLowerCase(); 
 						criteria.push({'quiz': {$eq:topic}});
-						console.log(['topic search C    ',JSON.stringify(criteria)]);
+						//console.log(['topic search C    ',JSON.stringify(criteria)]);
 						//if (req.query.missingMnemonicsOnly > 0) {
 							//criteria.push({ $where: "this.hasMnemonic !== true"});
 						//} 
 						db.collection('questions').find({$and:criteria}).limit(limit*40).sort({sort:1}).toArray(function(err, results) {
-							console.log(['topic search res    ',results]);
+							//console.log(['topic search res    ',results]);
 						
 						  res.send({'questions':results});
 						})
@@ -1290,7 +1301,7 @@ var initAuthRoutes = require('./api_auth')
 			// tags and topics
 			let criteria=[];
 			if (req.query.user) {
-				console.log(['user',req.query.user]);
+				//console.log(['user',req.query.user]);
 				let user = req.query.user ? req.query.user : null;
 				db.collection('users').find({_id:{$eq:ObjectId(user)}}).toArray().then(function(users) {
 					if (users.length > 0) {
@@ -1319,7 +1330,7 @@ var initAuthRoutes = require('./api_auth')
 						criteria.push({
 							$or:orParts
 						})
-						console.log(['USER criteria',JSON.stringify(criteria)]);
+						//console.log(['USER criteria',JSON.stringify(criteria)]);
 						
 						theRest()
 				
@@ -1452,138 +1463,155 @@ var initAuthRoutes = require('./api_auth')
 
 	// update question stats into the questions collection
 	function updateQuestionTallies(user,question,tallySuccess=false) {
-		console.log(['update question tallies',user,question,tallySuccess]);
-		initdb().then(function(db) {
-			db.collection('questions').findOne({_id:ObjectId(question)}).then(function(result) {
-					if (result && result._id) {
-						let data={};
-						data.seenTally = result.seenTally ? parseInt(result.seenTally,10) + 1 : 1;
-						let successTally = result.successTally > 0 ? result.successTally : 0 ;
-						if (tallySuccess) {
-							successTally = parseInt(successTally,10) + 1 ;
+		//console.log(['update question tallies',user,question,tallySuccess]);
+		return new Promise(function(resolve,reject) {
+			initdb().then(function(db) {
+				db.collection('questions').findOne({_id:ObjectId(question)}).then(function(result) {
+						if (result && result._id) {
+							let data={};
+							data.seenTally = result.seenTally ? parseInt(result.seenTally,10) + 1 : 1;
+							let successTally = result.successTally > 0 ? result.successTally : 0 ;
+							if (tallySuccess) {
+								successTally = parseInt(successTally,10) + 1 ;
+							}
+							data.successTally = successTally;
+							data.successRate = data.seenTally > 0 ? successTally/data.seenTally : 0;
+							db.collection('questions').update({_id: question},{$set:data}).then(function(qres) {
+							///   console.log(['saved questions',qres]);
+							});
+							updateUserQuestionProgress(user,question,result.quiz,result.tags,result.ok_for_alexa,tallySuccess).then(function() {
+								resolve();
+							});
+						  //  console.log(['update question tallies done']);
 						}
-						data.successTally = successTally;
-						data.successRate = data.seenTally > 0 ? successTally/data.seenTally : 0;
-						db.collection('questions').update({_id: question},{$set:data}).then(function(qres) {
-						///   console.log(['saved questions',qres]);
-						});
-						updateUserQuestionProgress(user,question,result.quiz,result.tags,result.ok_for_alexa,tallySuccess);
-					  //  console.log(['update question tallies done']);
-					}
-			}).catch(function(e) {
-				console.log(['update q err',e]);
-			});
-		})
-		 
+				}).catch(function(e) {
+					console.log(['update q err',e]);
+				});
+			})
+		}) 
 
 	}
 
 	// update per user progress stats into the userquestionprogress collection
 	function updateUserQuestionProgress(user,question,quiz,tags,ok_for_alexa,tallySuccess) {
-		console.log(['update progress',user,question,quiz,tags,ok_for_alexa,tallySuccess]);
-		initdb().then(function(db) {
-			db.collection('userquestionprogress').findOne({$and:[{'user': {$eq:ObjectId(user)}},{question:ObjectId(question)} , {block:{ $not: { $gt: 0 } }}]}).then(function(progress) {
-				console.log(['UPDATE PROGRESS FOUND',progress])
-				var isNew = false;
-				if (!progress) {
-					isNew = true;
-					progress = {user:ObjectId(user),question:ObjectId(question)};
-				}
-				progress.topic=quiz;
-				progress.tags=tags;
-				progress.ok_for_alexa=ok_for_alexa;
-				progress.seenTally = parseInt(progress.seenTally,10) > 0 ? parseInt(progress.seenTally,10) + 1 : 1;
-				progress.seen = new Date().getTime();
-				if (tallySuccess) {
-					progress.successTally = parseInt(progress.successTally,10) > 0 ? parseInt(progress.successTally,10) + 1 : 1;
-					progress.success = progress.seen;
-				}
-				progress.successRate = (parseInt(progress.successTally,10) > 0 && parseInt(progress.seenTally,10) > 0) ? progress.successTally/progress.seenTally : 0;
-				progress.block=0;
-			    console.log(['update progress NOW',progress]);
-				if (isNew) {
-					 db.collection('userquestionprogress').insertOne(progress).then(function(res) {
-						console.log(['inserted progre00ss',res])
-						updateUserStats(user,question,tallySuccess)
-					}).catch(function(e) {
-					  console.log(['err',e]);
-				    });
-				} else {
-					db.collection('userquestionprogress').updateOne({_id:ObjectId(progress._id)},{$set:progress}).then(function(res) {
-						console.log(['updated progre00ss',res])
-						updateUserStats(user,question,tallySuccess)
-					}).catch(function(e) {
-					  console.log(['err',e]);
-				    });
-				}    
-		  }).catch(function(e) {
-			  console.log(['err',e]);
-		  });
+	//	console.log(['update progress',user,question,quiz,tags,ok_for_alexa,tallySuccess]);
+		return new Promise(function(resolve,reject) {
+			initdb().then(function(db) {
+				db.collection('userquestionprogress').findOne({$and:[{'user': {$eq:ObjectId(user)}},{question:ObjectId(question)} , {block:{ $not: { $gt: 0 } }}]}).then(function(progress) {
+					//console.log(['UPDATE PROGRESS FOUND',progress])
+					var isNew = false;
+					if (!progress) {
+						isNew = true;
+						progress = {user:ObjectId(user),question:ObjectId(question)};
+					}
+					progress.topic=quiz;
+					progress.tags=tags;
+					progress.ok_for_alexa=ok_for_alexa;
+					progress.seenTally = parseInt(progress.seenTally,10) > 0 ? parseInt(progress.seenTally,10) + 1 : 1;
+					//console.log(['trySETSEEN',new Date().getTime()/1000])
+					progress.seen = parseInt(new Date().getTime()/1000,10);
+					//console.log(['SETSEEN',progress.seen])
+					if (tallySuccess) {
+						progress.successTally = parseInt(progress.successTally,10) > 0 ? parseInt(progress.successTally,10) + 1 : 1;
+						progress.success = progress.seen;
+					}
+					progress.successRate = (parseInt(progress.successTally,10) > 0 && parseInt(progress.seenTally,10) > 0) ? progress.successTally/progress.seenTally : 0;
+					progress.block=0;
+				  //  console.log(['update progress NOW',progress]);
+					if (isNew) {
+						db.collection('userquestionprogress').insertOne(progress).then(function(res) {
+						//	console.log(['inserted progre00ss',res])
+							updateUserStats(user,question,tallySuccess).then(function() {
+								resolve()
+							})
+						}).catch(function(e) {
+						  console.log(['err',e]);
+						});
+					} else {
+						db.collection('userquestionprogress').updateOne({_id:ObjectId(progress._id)},{$set:progress}).then(function(res) {
+						//	console.log(['updated progre00ss',res])
+							updateUserStats(user,question,tallySuccess).then(function() {
+								resolve()
+							})
+						}).catch(function(e) {
+						  console.log(['err',e]);
+						});
+					}    
+			  }).catch(function(e) {
+				  console.log(['err',e]);
+			  });
+			})
 		})
 	}
 
 	function updateUserStats(userId,question,tallySuccess) {
-		console.log(['update stats',userId,question,tallySuccess]);
+		//console.log(['update stats',userId,question,tallySuccess]);
 		let criteria = {_id: new ObjectId(userId)};
 		//console.log(['update stats have criteria ',criteria]);
-		initdb().then(function(db) {
-			db.collection('users').findOne(criteria).then(function(user) {
-			//	console.log(['update stats have user',user]);
-				
-				if (user) {
-					 //user.seen = user.seen > 0 : user.seen + 1 : 1;
-					 //let userSuccess = user.success > 0 : user.success  : 0;
-					 //if (tallySuccess) {
-						 //userSuccess += 1;
-					 //}
-					 //user.success = userSuccess;
-					 //user.successRate = user.seen > 0 ? userSuccess/user.seen : 0;
-					 // total unique questions seen
-					 //let lastSeen = 0;
-					 db.collection('userquestionprogress').find({$and:[{user: {$eq:ObjectId(userId)}}, {block:{ $not: { $gt: 0 }}}]}).sort({seen:-1}).toArray().then(function(uniqueQuestionResults) {
-						user.questions = uniqueQuestionResults ? uniqueQuestionResults.length : 0;
-					//	console.log('UPDATING USER STATS '+(uniqueQuestionResults ? uniqueQuestionResults.length: 0));
-						let seen = 0;
-						let success = 0;
-						uniqueQuestionResults.slice(0,100).map(function(progress) {
-							//console.log(['SEENSUCC II',progress.successTally])
-							if (parseInt(progress.seenTally,10) > 0) seen += parseInt(progress.seenTally,10);
-							if (parseInt(progress.successTally,10) > 0) success += parseInt(progress.successTally,10);
-							//lastSeen = Math.max(lastSeen,progress.seen);
-						});
-						//console.log(['SEENSUCC',seen,success])
-						if (seen > 0) {
-							user.recall =  success/seen ; 
-						} else {
-							user.recall =  0; 
-						}
-						//console.log('set recall '+user.recall);
-						// streak
-						let now = new Date().getTime();
-						let startStreak = user.startStreak > 0 ? user.startStreak : new Date().getTime();
-						let lastSeen = user.lastSeen > 0 ? user.lastSeen : 0;
-						// more that 48 hours and we lose our streak
-						if (now - lastSeen > 172800000) {
-							startStreak = new Date().getTime(); 
-						}
-						user.startStreak = startStreak;
-						// days
-						user.streak = parseInt((now - startStreak)/86400000,10) + 1;
-						user.lastSeen = new Date().getTime();
-						//console.log(['update stats save user',user]);
-						db.collection('users').save(user).then(function(res) {
-							//console.log(['SAVED USER',res])
+		return new Promise(function(resolve,reject) {
+			initdb().then(function(db) {
+				db.collection('users').findOne(criteria).then(function(user) {
+				//	console.log(['update stats have user',user]);
+					
+					if (user) {
+						 //user.seen = user.seen > 0 : user.seen + 1 : 1;
+						 //let userSuccess = user.success > 0 : user.success  : 0;
+						 //if (tallySuccess) {
+							 //userSuccess += 1;
+						 //}
+						 //user.success = userSuccess;
+						 //user.successRate = user.seen > 0 ? userSuccess/user.seen : 0;
+						 // total unique questions seen
+						 //let lastSeen = 0;
+						 db.collection('userquestionprogress').find({$and:[{user: {$eq:ObjectId(userId)}}, {block:{ $not: { $gt: 0 }}}]}).sort({seen:-1}).toArray().then(function(uniqueQuestionResults) {
+							user.questions = uniqueQuestionResults ? uniqueQuestionResults.length : 0;
+						//	console.log('UPDATING USER STATS '+(uniqueQuestionResults ? uniqueQuestionResults.length: 0));
+							let seen = 0;
+							let success = 0;
+							uniqueQuestionResults.slice(0,100).map(function(progress) {
+								//console.log(['SEENSUCC II',progress.successTally])
+								if (parseInt(progress.seenTally,10) > 0) seen += parseInt(progress.seenTally,10);
+								if (parseInt(progress.successTally,10) > 0) success += parseInt(progress.successTally,10);
+								//lastSeen = Math.max(lastSeen,progress.seen);
+							});
+							//console.log(['SEENSUCC',seen,success])
+							if (seen > 0) {
+								user.recall =  success/seen ; 
+							} else {
+								user.recall =  0; 
+							}
+							//console.log('set recall '+user.recall);
+							// streak
+							let now = new Date().getTime();
+							let startStreak = user.startStreak > 0 ? user.startStreak : new Date().getTime();
+							let lastSeen = user.lastSeen > 0 ? user.lastSeen : 0;
+							// more that 48 hours and we lose our streak
+							if (now - lastSeen > 172800000) {
+								startStreak = new Date().getTime(); 
+							}
+							user.startStreak = startStreak;
+							// days
+							user.streak = parseInt((now - startStreak)/86400000,10) + 1;
+							user.lastSeen = new Date().getTime();
+							//console.log(['update stats save user',user]);
+							db.collection('users').save(user).then(function(res) {
+								//console.log(['SAVED USER',res])
+								resolve()
+							}).catch(function(e) {
+								console.log(e);
+							}); ;
 						}).catch(function(e) {
 							console.log(e);
-						}); ;
-					}).catch(function(e) {
-						console.log(e);
-					});    
-						
-				}
-			 }).catch(function(e) {
-				 console.log(e);
-			 });
+						});    
+							
+					} else {
+						resolve()
+					}
+				 }).catch(function(e) {
+					 console.log(e);
+					 reject()
+				 });
+			})
 		})
 	}
 
@@ -1601,15 +1629,19 @@ var initAuthRoutes = require('./api_auth')
 			questions.map(function(question) {
 				seenRecords.push({user:ObjectId(user),question:ObjectId(question),timestamp:ts})
 			})
+			let promises=[];
 				//console.log('insert seen record for question '+question);
 			initdb().then(function(db) {
 				db.collection('seen').insertMany(seenRecords).then(function(inserted) {
 			  //      //console.log(['seen inserted']);
 					// collate tally of all seen, calculate success percentage to successScore
 					questions.map(function(question) {
-						updateQuestionTallies(user,question);
+						promises.push(updateQuestionTallies(user,question));
 					})
-					res.send({message:'Sent all questions for review'});
+					Promise.all(promises).then(function() {
+						res.send({message:'Sent all questions for review'});
+					})
+					
 				}).catch(function(e) {
 					res.send({error:e});
 				});
@@ -1621,7 +1653,7 @@ var initAuthRoutes = require('./api_auth')
 	
 	router.post('/markallreviewed', (req, res) => {
 		if (req.body.user && req.body.user.length > 0 && req.body.questions && req.body.questions.length > 0 ) {
-		    console.log(['sendallquestionsforreview',req.body.user,JSON.stringify(req.body.questions)]);
+		    //console.log(['sendallquestionsforreview',req.body.user,JSON.stringify(req.body.questions)]);
 			let user = req.body.user;
 			let questions = req.body.questions;
 			let ts = new Date().getTime();
@@ -1629,16 +1661,20 @@ var initAuthRoutes = require('./api_auth')
 			questions.map(function(question) {
 				seenRecords.push({user:ObjectId(user),question:ObjectId(question),timestamp:ts})
 			})
-			console.log(['insert success record for questions ',questions]);
+			//console.log(['insert success record for questions ',questions]);
+			let promises=[];
+			
 			initdb().then(function(db) {
 				db.collection('successes').insertMany(seenRecords).then(function(inserted) {
 			        
-			        console.log(['success inserted']);
+			       // console.log(['success inserted']);
 					// collate tally of all seen, calculate success percentage to successScore
 					questions.map(function(question) {
-						updateQuestionTallies(user,question,true);
+						promises.push(updateQuestionTallies(user,question,true));
 					})
-					res.send({message:'Sent all questions for review'});
+					Promise.all(promises).then(function() {
+						res.send({message:'Sent all questions for review'});
+					})
 				}).catch(function(e) {
 					res.send({error:e});
 				});
@@ -1674,8 +1710,9 @@ var initAuthRoutes = require('./api_auth')
 						db.collection('seen').insert({user:ObjectId(user),question:ObjectId(question),timestamp:ts}).then(function(inserted) {
 					  //      //console.log(['seen inserted']);
 							// collate tally of all seen, calculate success percentage to successScore
-							updateQuestionTallies(user,question);
-							res.send('inserted');
+							updateQuestionTallies(user,question).then(function() {
+								res.send('inserted');
+							})
 						}).catch(function(e) {
 							res.send('error on insert');
 						});
@@ -1717,8 +1754,9 @@ var initAuthRoutes = require('./api_auth')
 					let ts = new Date().getTime();
 					initdb().then(function(db) {
 						db.collection('successes').insert({user:ObjectId(user),question:ObjectId(question),timestamp:ts}).then(function(inserted) {
-							updateQuestionTallies(user,question,true);
-							res.send('inserted');
+							updateQuestionTallies(user,question,true).then(function() {
+								res.send('inserted');
+							})
 						}).catch(function(e) {
 							//console.log(e);
 							res.send('err on insert');

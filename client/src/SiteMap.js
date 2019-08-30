@@ -51,11 +51,35 @@ export default class SiteMap extends Component {
             },
             {
               label: 'Master',
-              onClick: () => this.props.import(1)
+              onClick: () => this.props.import(2)
+            },
+            {
+              label: 'Master 2',
+              onClick: () => this.props.import(3)
+            },
+            {
+              label: 'Master 3',
+              onClick: () => this.props.import(4)
+            },
+            {
+              label: 'Master 4',
+              onClick: () => this.props.import(5)
             },
             {
               label: 'Active',
-              onClick: () => this.props.import(2)
+              onClick: () => this.props.import(6)
+            },
+            {
+              label: 'Active 2',
+              onClick: () => this.props.import(7)
+            },
+            {
+              label: 'Active 3',
+              onClick: () => this.props.import(8)
+            },
+            {
+              label: 'Active 4',
+              onClick: () => this.props.import(9)
             },
             {
 			  label: 'MC only',
@@ -63,7 +87,7 @@ export default class SiteMap extends Component {
             },
             {
               label: 'Steve',
-              onClick: () => this.props.import(3)
+              onClick: () => this.props.import(1)
             },
             {
 			  label: 'MC Steve',

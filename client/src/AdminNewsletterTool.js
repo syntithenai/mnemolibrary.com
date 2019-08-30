@@ -95,12 +95,12 @@ export default class AdminNewsletterTool extends Component {
 		that.props.fetch("/api/newsletters").then(function(response) {
 			return response.json()
 		}).then(function(json) {
-			console.log(['LOADED news',json,that.props.match && that.props.match.params ? that.props.match.params : 'no id' ])
+			//console.log(['LOADED news',json,that.props.match && that.props.match.params ? that.props.match.params : 'no id' ])
 			//that.startWaiting()
 			that.setState({newsletters: json});
 			
 			if (that.props.match && that.props.match.params && that.props.match.params.id && that.props.match.params.id.length > 0  ) {
-			console.log(['find single news',json,that.props.match && that.props.match.params ? that.props.match.params.id : '' ])
+			//console.log(['find single news',json,that.props.match && that.props.match.params ? that.props.match.params.id : '' ])
 				json.map(function(newsletter) {
 					if (newsletter._id === that.props.match.params.id) {
 						that.setState({currentNewsletter: newsletter});
@@ -147,21 +147,21 @@ export default class AdminNewsletterTool extends Component {
 	  
 	  startSending() {
 		  let that = this;
-		  console.log('START SENDING')
+		  //console.log('START SENDING')
 		  if (this.sendInterval) clearInterval(this.sendInterval);
 		  this.sendInterval = setInterval(function() {
-		  console.log('STATUS UPDATES START')
+		  //console.log('STATUS UPDATES START')
 			that.props.fetch("/api/newslettersend",{method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify({})}).then(function(response) {
 				return response.json()
 			}).then(function(json) {
-				console.log('STATUS UPDATES DONE',json)
+			//	console.log('STATUS UPDATES DONE',json)
 				if (json.newsletters) {
 					that.setState({newsletters:json.newsletters});
 				}
 				if (json.finished) {
 					that.stopSending()
 				}
-				console.log(['newsletter send request complete ',json])
+				//console.log(['newsletter send request complete ',json])
 			})
 		  
 		  },1000);
@@ -183,7 +183,7 @@ export default class AdminNewsletterTool extends Component {
 		if (isTest) {
 			this.setState({isTested:true})
 		}
-		console.log(['SEND NEWSLETTER',this.state.value])
+	//	console.log(['SEND NEWSLETTER',this.state.value])
 		if (isTest) {
 			this.reallySendNewsletter(isTest,this.state.value)
 		} else {
@@ -227,12 +227,12 @@ export default class AdminNewsletterTool extends Component {
 			 that.props.fetch('/api/newslettersubscribers').then(function(response) {
 				return response.json()
 			  }).then(function(results) {
-				console.log('sub res')
-				console.log(results)
+				//console.log('sub res')
+				//console.log(results)
 				if (results) {
 					that.setState({totalSubscribers:results.total > 0 ? results.total : 0})
 					that.setState({isTested:true})
-					console.log(['test newsletter sent',json])
+					//console.log(['test newsletter sent',json])
 				}
 			})
 		
@@ -252,7 +252,7 @@ export default class AdminNewsletterTool extends Component {
 				return response.json()
 		}).then(function(json) {
 			that.stopWaiting()
-			console.log(['newsletter sent',json])
+		//	console.log(['newsletter sent',json])
 			if (!isTest && json.ok === true) that.finishNewsletter(json.sentTo)
 		});
 		
@@ -271,7 +271,7 @@ export default class AdminNewsletterTool extends Component {
          }).then(function(response) {
 			return response.json()
 		}).then(function(json) {
-			console.log(['LOADED SUBS',json])
+		//	console.log(['LOADED SUBS',json])
 			if (json && json._id) that.goto('/newslettertool/'+json._id);
 		})
 	}
@@ -286,7 +286,7 @@ export default class AdminNewsletterTool extends Component {
 		that.props.fetch("/api/savenewsletter",{method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify(newsletter)}).then(function(response) {
 			return response.json()
 		}).then(function(json) {
-			console.log(['saved newsletter',json])
+			//console.log(['saved newsletter',json])
 		})
 	}
 	
@@ -312,7 +312,7 @@ export default class AdminNewsletterTool extends Component {
 		that.props.fetch("/api/savenewsletter",{method: 'POST',headers: {'Content-Type': 'application/json'},body: JSON.stringify(Object.assign(newsletter,{deleted:"TRUE"}))}).then(function(response) {
 			return response.json()
 		}).then(function(json) {
-			console.log(['saved newsletter',json])
+			//console.log(['saved newsletter',json])
 			that.loadNewsletters();
 		})
 	}

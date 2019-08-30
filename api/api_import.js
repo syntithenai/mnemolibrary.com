@@ -1,15 +1,157 @@
+// ses sendmail
+const AWS = require('aws-sdk');
+const SES = new AWS.SES({ region: 'us-west-2' });
+// mongo
+const mongoString = process.env.MONGODB ; 
+const mongoose = require('mongoose');
+const Promise = require('bluebird');
+mongoose.Promise = Promise;
+const validator = require('validator');
+// support serverless offline
+for (let model in mongoose.models) delete mongoose.models[model]
+const UserModel = require('./model/User.js');
+//base
+const serverless = require('serverless-http');
+const express = require('express')
+const bodyParser= require('body-parser')
+const app = express()
+
+const jwt = require('jsonwebtoken');
+
+
+
 var utils = require("./utils")
 //var alexaUtils = require("../alexa/alexautils")
 var config = {}
 const Papa = require('papaparse')
+//var ObjectId = require('mongodb').ObjectID;
+//const get = require('simple-get');
+//const mustache = require('mustache');
+
+//var fetch = require('node-fetch');
+
+
+
+const path = require('path')
+const fs = require('fs')
+
+
+var router = express.Router();
+
 var ObjectId = require('mongodb').ObjectID;
 const get = require('simple-get');
 const mustache = require('mustache');
-
 var fetch = require('node-fetch');
 
+const MongoClient = require('mongodb').MongoClient
+var request = require('request')
 
-function initRoutes(router,initdb) {
+
+
+// body parser doesn't seem to work with serverless-http ??
+// this method requires that all POST submissions are application/json encoded
+app.use(function(req,res,next) {
+
+	//console.log('PRE')
+	//console.log(process.env)
+	//console.log(req.headers.authorization);
+	
+	// extract email address from auth header and set req.user.email
+	let token = req.headers.authorization ? req.headers.authorization : ((req.query && req.query.id_token) ? req.query.id_token : null)
+	
+	if (token) { 
+		//console.log('auth')
+		var emailDirect = '';
+		try {
+			const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(token, { complete: true });
+			emailDirect = unverifiedDecodedAuthorizationCodeIdToken && unverifiedDecodedAuthorizationCodeIdToken.payload ? unverifiedDecodedAuthorizationCodeIdToken.payload.email : '';
+			req.user={email:emailDirect}
+			console.log(['set user from token',emailDirect])
+		} catch (e) {
+			console.log(e)
+		}
+	}
+	
+	
+	function isAdmin(email) {
+		if (email === "syntithenai@gmail.com"
+		  || email === "stever@syntithenai.com"
+		  || email === "mnemoslibrary@gmail.com"
+		  || email === "trevorryan123@gmail.com"
+		 ) return true;
+		 else return false;
+		  
+	}
+	
+	//console.log(['user from token',req.user])
+	
+	// convert req.body to JSON
+	if (req.body) {
+		//console.log('PREbody')
+		try {
+			var body = JSON.parse(req.body.toString())
+			//console.log('success parse body')
+			//console.log(body);
+			req.body = body;
+		} catch (e) {
+			req.body = {};
+			//console.log('fail parse body - '+req.body.toString())
+		}
+		if (isAdmin(emailDirect)) next()
+	} else {
+		if (isAdmin(emailDirect)) next()
+	}
+})
+
+//app.use(bodyParser.json({limit: '50mb', extended: true}))
+//app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
+
+//app.use(express.json()) // for parsing application/json
+//app.use(express.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+
+
+
+
+// DATABASE SUPPORT FUNCTIONS
+
+const dbExecute = (db, fn) => db.then(fn).finally(() => mongoose.disconnect())
+
+function dbConnectAndExecute(dbUrl, fn) {
+	//console.log([' CONNEX',dbUrl])
+  return dbExecute(mongoose.connect(dbUrl,{}), fn);
+}
+
+var databaseConnection = null;
+
+function initdb() {
+	return new Promise(function(resolve,reject) {
+		//console.log([databaseConnection])
+		if (databaseConnection !== null && databaseConnection.serverConfig.isConnected()) {
+			//console.log('ALREADY CONNECTED')
+			resolve(databaseConnection)
+		} else {
+			//console.log([' CONNEXM',mongoString])
+			MongoClient.connect(mongoString, (err, client) => {
+			  if (err) {
+				  console.log(err)
+				  return //
+			  }
+			  databaseConnection = client.db() 
+			  resolve(databaseConnection);
+			})
+		}
+	})
+	.finally(function() {
+		//console.log('FINALLY DB DONE')
+		if (databaseConnection) {
+			//console.log('FINALLY DB closed')
+			if (databaseConnection && databaseConnection.close) databaseConnection.close()
+		}
+	});
+}
+
+
+
 
 	function updateTags(tags) {
 		//console.log(['UPDATETAGS']);
@@ -66,363 +208,17 @@ function initRoutes(router,initdb) {
 		return p;
 	}
 
-	//router.get('/dumpalexa',(req,res) => {    
-		//let munge = alexaUtils.munge;    
-		//var fs = require('fs');
-		//ROOT_APP_PATH = fs.realpathSync('.'); 
-		////console.log(ROOT_APP_PATH);
-		//TMP_PATH='/tmp'
-		//initdb().then(function(db) {
 
-			//db.collection('questions').distinct('quiz',{$and:[{ok_for_alexa:{$eq:true}},{discoverable:{$ne:'no'}},{access:{$eq:'public'}}]}).then(function(results) {
-				//// TOPICS
-				//let topics=[];
-				//let topicsO={};
-				//////console.log(results);
-				//results.map(function(val,key) {
-					//let strip=munge(val);
-					//if (val && val.length > 0 && strip.length > 0)  {
-						//topicsO[strip]=true;
-					//}
-				//});
-				//topics = Object.keys(topicsO);
-				//// TAGS
-				////db.collection('words').distinct('text').then(function(results) {
-					//let tags=[];
-					//let tagsO={};
-					//////  //console.log(results);
-					////results.map(function(val,key) { 
-						////let strip=munge(val);
-						////if (val && val.length > 0 && strip.length > 0)  {
-							////tagsO[strip]=true;
-						////}
-					////});
-					////tags = Object.keys(tagsO);
-					//// SHORTANSWERS
-					//db.collection('questions').find({$and:[{ok_for_alexa:{$eq:true}},{discoverable:{$ne:'no'}},{access:{$eq:'public'}}]}).toArray().then(function(results) {
-						//let answers=[];
-						//let answersO={};
-						//let spelledWords=[];
-						//let spelledWordsO={};
-						//results.map(function(val,key) {
-							//if (val && val.hasOwnProperty('answer'))  {
-								//// don't submit answer to model if there is a specific answer or also_accept
-								////if (val && val.hasOwnProperty('specific_answer') && String(val.specific_answer).length > 0)  {
-									////// skip
-								////} else if (val && val.hasOwnProperty('also_accept') && String(val.also_accept).length > 0)  {
-									////// skip
-								////} else {
-									//if (val.answer.split(' ').length < 5) {
-										//let oval = munge(val.answer);
-										//if (oval.length > 0) {
-											//answersO[oval.slice(0,139)]=true;
-										//}
-									//} 
-									////if (val.answer.split(' ').length < 4) {
-										////let oval = munge(val.answer);
-										////////console.log(['OVAL',oval]);
-										////if (oval.length > 0) {
-											////oval = String(oval).split(' ').slice(0,3).join("").split('').join(' ')
-											////spelledWordsO[oval]=true;
-										////}
-									////}
-								////}
-							//}
-							//if (val && val.hasOwnProperty('specific_answer'))  {
-								//let strip=munge(val.specific_answer);
-								//if (strip.length > 0) {
-									//answersO[strip.slice(0,139)]=true;
-									//let spaced=strip.split('').join(' ').slice(0,160);
-								   //// //console.log('specific answer '+strip+spaced);
-									//spelledWordsO[spaced]=true;
-								//}
-							//}
-							//if (val && val.hasOwnProperty('also_accept'))  {
-								//let alsoAcceptParts=val.also_accept.split(",");
-								//alsoAcceptParts.map(function(oval,okey) {
-									//let strip=munge(oval);
-									//if (strip.length > 0) {
-										//let spaced=strip.split('').join(' ').slice(0,160);
-										//////console.log('also accept answer '+strip+spaced);
-										//spelledWordsO[spaced]=true;
-										//answersO[strip]=true;
-									//}
-								//});
-							//}
-							//if (val && val.hasOwnProperty('tags') && val.tags.length > 0) {
-								//////console.log(['process tags',val.tags]);
-								//val.tags.map(function(val,key) {
-									//tagsO[val]=true;
-								//});
-							//}
-						//});
-						//answers = Object.keys(answersO);
-						//spelledWords = Object.keys(spelledWordsO);
-						//tags=Object.keys(tagsO);
-						//// QUESTIONS
-						//db.collection('questions').distinct('question',{$and:[{ok_for_alexa:{$eq:true}},{discoverable:{$ne:'no'}},{access:{$eq:'public'}}]}).then(function(results) {
-							//let questions=[];
-							//let questionsO={};
-							//results.map(function(val,key) {
-								//if (val && val.length > 0)  {
-									//let strip=munge(val);
-									//if (strip.length > 0) {
-										//questionsO[strip.slice(0,139)]=true;
-									//}
-								//}
-							//});
-							//questions = Object.keys(questionsO);
-							//// MNEMONICS
-							//db.collection('questions').distinct('mnemonic',{$and:[{ok_for_alexa:{$eq:true}},{discoverable:{$ne:'no'}},{access:{$eq:'public'}}]}).then(function(results) {
-								//let mnemonics=[];
-								//let mnemonicsO={};
-								//let mnemonicsLastWordsO={};
-								//results.map(function(val,key) {
-									//if (val && val.length > 0)  {
-										//val = alexaUtils.strip(munge(val));
-										//if (val.length > 0) {
-											//mnemonicsO[val.slice(0,139)]=true;  // alexa limit 140 char
-											//let parts = val.split(' ');
-											//let lastWord = parts[parts.length-1];
-											//mnemonicsLastWordsO[lastWord]=true;                                        
-										//}
-									//}
-								//});
-								//mnemonics = Object.keys(mnemonicsO);
-								//let mnemonicLastWords = Object.keys(mnemonicsLastWordsO);
-								//db.collection('questions').distinct('interrogative',{$and:[{ok_for_alexa:{$eq:true}},{discoverable:{$ne:'no'}},{access:{$eq:'public'}}]}).then(function(results) {    
-									//let interrogatives=[];
-									//let interrogativesO={};
-									//results.map(function(val,key) {
-										//if (val && val.length > 0)  {
-											//val = munge(val);
-											//if (val.length > 0) {
-												//interrogativesO[val]=true;
-											//}
-										//}
-									//});
-									//interrogatives = Object.keys(interrogativesO);
-									////,questions:questions,interrogatives:interrogatives
-									////
-									//let allDone = {topics:topics,tags:tags,mnemonics:mnemonics,answers:answers}; //,spelledWords:spelledWords  ,mnemonicLastWords:mnemonicLastWords
-									////let allDone = {};
-									////console.log(JSON.stringify(allDone));
-									//if (!fs.existsSync(TMP_PATH+'/alexa')) {
-										//fs.mkdirSync(TMP_PATH+'/alexa');
-									//}
-									//if (!fs.existsSync(TMP_PATH+'/alexa/models')) {
-										//fs.mkdirSync(TMP_PATH+'/alexa/models');
-									//}
-									//if (!fs.existsSync(TMP_PATH+'/alexa/.ask')) {
-										//fs.mkdirSync(TMP_PATH+'/alexa/.ask');
-									//}
-									//if (config.development) {
-										//fs.copyFileSync(ROOT_APP_PATH+'/alexa/skill.dev.json',TMP_PATH+'/alexa/skill.json');
-									//} else {
-										//fs.copyFileSync(ROOT_APP_PATH+'/alexa/skill.live.json',TMP_PATH+'/alexa/skill.json');
-									//}
-									//if (config.development) {
-										//fs.copyFileSync(ROOT_APP_PATH+'/alexa/.ask/config-dev',TMP_PATH+'/alexa/.ask/config');
-									//} else {
-										//fs.copyFileSync(ROOT_APP_PATH+'/alexa/.ask/config-live',TMP_PATH+'/alexa/.ask/config');
-									//}
-									//fs.writeFile(TMP_PATH+'/alexa/vocabdump.js', 'module.exports = '+JSON.stringify(allDone), function(err,result) {
-										//if(err) {
-											//return //console.log(err);
-										//}
-										////console.log('NOW WRITE ALEXA MODELS');
-										//let alexaapp = require('../alexa/mnemoslibrary')
-										//let schema = alexaapp.schemas.askcli("nemo's library") ;
-										//if (config.development) {
-											//schema = alexaapp.schemas.askcli("nemo's developer") ;
-										//}
-										//let languages=['US','AU','CA','GB'];
-										//let promises=[];
-										//languages.map(function(lang,key) {
-											////console.log('write '+lang);
-											//let p = new Promise(function(resolve,reject) {
-												//fs.writeFile(TMP_PATH+'/alexa/models/en-'+lang+'.json',schema, function(err,result) {
-													//if(err) {
-														//return //console.log(err);
-													//}
-													//resolve();
-												//});                                
-											//});
-											//promises.push(p);
-										//});
-										//Promise.all(promises).then(function() {
-											////console.log('wrote all ');
-											//// copy directory, even if it has subdirectories or files
-											//const fse = require('fs-extra')
-											//fse.copySync(TMP_PATH+'/alexa', ROOT_APP_PATH+'/alexa')
-											////var exec = require('child_process').exec;
-											////exec('ask deploy --no-wait', {
-											  ////cwd: ROOT_APP_PATH+'/alexa'
-											////}, function(error, stdout, stderr) {
-											  ////// work with result
-											  ////console.log(error);
-											  ////console.log(stderr);
-											  ////console.log(stdout);
-											  ////console.log('done');
-											////});
-											//res.send({ok:true});
-										//});
-										
-									//});
-								//});
-							//});
-						//});
-						
-					//});
-				////});
-				
-			//});
-		//})
-	//})
-
-
-
-
-	//// SUPPORT OLD PATH TO UPLOADED FILES FOR NOW
-	//router.use('/s3', require('react-s3-uploader/s3router')({
-		//bucket: "mnemolibrary.com",
-		//region: 'us-west-2', //optional
-		////signatureVersion: 'v4', //optional (use for some amazon regions: frankfurt and others)
-		//headers: {'Access-Control-Allow-Origin': '*'}, // optional
-		//ACL: 'private', // this is default
-		//uniquePrefix: false // (4.0.2 and above) default is true, setting the attribute to false preserves the original filename in S3
-	//}));
-
-
-
-	//router.get('/sitemap', (req, res) => {
-		//res.send('');
-		//return ;
-		//var fs = require('fs');
-		//ROOT_APP_PATH = fs.realpathSync('.'); //console.log(ROOT_APP_PATH);
-		
-		//var questionTemplate =  `
-				//<html>
-					//<head>
-					  //<title>{{header}}? - Mnemo's Library {{header}}</title>
-					  //<meta charset="UTF-8">
-					  //<meta name="description" content="{{mnemonic}}">
-					  //<meta name="keywords" content="{{tags}},mnemonics,trivia,learn,dementia,brain">
-					  //<meta name="author" content="Captain Mnemo">
-					  //<meta name="viewport" content="width=device-width, initial-scale=1.0">
-					//</head>
-					//<body>
-						//<div className="card question container" >
-							//<h1>Mnemo's Library</h1>
-								//<h4 className="card-title">{{header}}?</h4>
-								
-								//<div className="card-block mnemonic">
-									//<div  className='card-text'><b>Mnemonic</b> <span><pre>{{mnemonic}}</pre></span></div>
-								//</div>
-								
-							   //<div className="card-block topic">
-									//<b>Topic&nbsp;&nbsp;&nbsp;</b> <span>{{quiz}}</span><br/>
-								//</div>
-								
-								//<div   className="card-block tags" >
-								  //<b>Tags&nbsp;&nbsp;&nbsp;</b>
-								   //{{tags}}
-								//</div>
-								//<br/>
-								//<br/>
-								//<img src="/arrow-right.png" />
-								//<a style="font-size: 1.3em; color: black; border: 1px solid black; background-color: lightgrey; padding: 1em;" href='https://mnemolibrary.com?question={{id}}'><span >&nbsp;&nbsp;Learn more at Mnemo's Library</span></a>
-								
-						//</div>
-					//</body>
-					//</html>
-					//`;
-
-
-		//let criteria={access:{$eq:'public'}};
-		//db.collection('questions').find(criteria).toArray().then(function(results) {
-			 //////console.log(['no user res',results ? results.length : 0]);  
-			//let siteMap=[]; 
-			////deleteFolderRecursive(ROOT_APP_PATH+"/client/public/cache");
-			//if (!fs.existsSync(ROOT_APP_PATH+"/client/public/cache")) {
-				//fs.mkdirSync(ROOT_APP_PATH+"/client/public/cache");
-			//}
-			
-			//////console.log(['queryids',req.query.ids]);
-			//results.map(function(question,key) {
-				 //siteMap.push(config.protocol+'://mnemolibrary.com/cache/page_'+question._id+'.html');
-				 //let page = mustache.render(questionTemplate,{id:question._id,header:question.interrogative + ' ' + question.question,answer:question.answer,mnemonic:question.mnemonic,attribution:question.attribution,quiz:question.quiz,tags:question.tags});
-				 //if (req.query.ids) {
-					 
-					//let ids = req.query.ids.split(","); 
-					//////console.log(ids);
-					//if (ids.indexOf(String(question._id))!=-1) {
-					   //// //console.log(['queryids match',question._id]);
-						//if (fs.existsSync(ROOT_APP_PATH+"/client/public/cache/page_"+question._id+'.html')) {
-							//fs.unlinkSync(ROOT_APP_PATH+"/client/public/cache/page_"+question._id+'.html');
-						//}
-						//fs.writeFileSync(ROOT_APP_PATH+"/client/public/cache/page_"+question._id+'.html', page, function(err) {
-							//if(err) {
-								//return //console.log(err);
-							//}
-						//});                  
-					//}
-				 //} else {
-					 //if (fs.existsSync(ROOT_APP_PATH+"/client/public/cache/page_"+question._id+'.html')) {
-							//fs.unlinkSync(ROOT_APP_PATH+"/client/public/cache/page_"+question._id+'.html');
-						//}
-					
-					 //fs.writeFile(ROOT_APP_PATH+"/client/public/cache/page_"+question._id+'.html', page, function(err) {
-						//if(err) {
-							//return //console.log(err);
-						//}
-					//});                  
-				 //}
-			//});  
-			//if (fs.existsSync(ROOT_APP_PATH+"/client/public/sitemap.txt")) {
-				//fs.unlinkSync(ROOT_APP_PATH+"/client/public/sitemap.txt");
-			//}
-					   
-			//fs.writeFile(ROOT_APP_PATH+"/client/public/sitemap.txt", siteMap.join("\n"), function(err) {
-				//if(err) {
-					//return //console.log(err);
-				//}
-				////console.log("Wrote sitemap!");
-			//}); 
-
-		//})
-		
-	//});
-
-
-	router.get('/indexes', (req, res) => {
-		initdb().then(function(db) {
-			db.collection('questions').dropIndexes();
-			db.collection('questions').createIndex({
-				question: "text",
-				interrogative: "text",
-				answer:"text",
-				question:"text",
-				mnemonic: "text",
-				//answer: "text"
-			});
-		   
-		   db.collection('words').dropIndexes();
-			db.collection('words').createIndex({
-				text: "text"                    
-			}); 
-		})
-	});
 
 	router.post('/import', (req, res) => {
 	 // console.log(['import']);
-	  //console.log(['imported']);
-	  //console.log(req.body);
-	  //console.log(['import']);
-	  //console.log(req.query);
+	  console.log(['imported']);
+	  console.log(req.body);
+	  console.log(['import']);
+	  console.log(req.query);
 	  console.log(['import']);
 	  var importId = req.body && req.body.importId && req.body.importId > 0 ? parseInt(req.body.importId,10) - 1 : -1;
-	  //console.log(importId)
+	  console.log(importId)
 	  //console.log(process.env)
 		let that = this;
 		let url = ''; //config.masterSpreadsheet;
@@ -439,15 +235,11 @@ function initRoutes(router,initdb) {
 				}
 				console.log(['IMPORT URL',url]);
 				// load mnemonics and collate tags, topics
-				var request = get(url, function(err,response) {
-					if (err) {
-						console.log(['e',err]);
-						return;
-					}
-					// clear and reimport topicCollections
-					
-					//console.log(['response',response]);
-					Papa.parse(response, {
+				fetch(url).then(function(response) {
+					return response.text();
+				}).then(function(text) {
+					//console.log(['response',text]);
+					Papa.parse(text, {
 						'header': true, 
 						'delimiter': ",",	
 						'newline': "",	
@@ -476,36 +268,6 @@ function initRoutes(router,initdb) {
 										record.ok_for_alexa=false
 									}
 									record.importId = importId;
-									//console.log(['import ',record]);
-									
-									////// dont' slam (wiki) answer/image with blank answer/image from import
-									//if (record.answer && record.answer.length > 0) {
-										
-									//} else {
-										//record.answer = null;
-									//}
-									//if (record.image && record.image.length > 0) {
-										
-									//} else {
-										//record.image = null;
-									//}
-									//console.log(['import1 ',record]);
-									
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									//record.answer = record.answer.replace('""','"');
-									
-								   //record.answer = record.answer.replace(/^"(.*)"$/, '$1');
-								   //record.answer = record.answer.replace(/^"(.*)"$/, '$1');
-								   //record.answer = record.answer.replace(/^"(.*)"$/, '$1');
-									// remove and restore id to allow update
 									
 									let thePromise = null;
 									let recordExists = false;
@@ -549,7 +311,7 @@ function initRoutes(router,initdb) {
 												&& (record.multiple_choices && record.multiple_choices.length > 0 || hasGenerator)
 											) {
 												let newQuestion ={topic:record.quiz,question:record.specific_question,answer:record.specific_answer,multiple_choices:record.multiple_choices,feedback:record.feedback,importId:'QQ-'+importId,user:'default',image:record.image,autoshow_image:record.autoshow_image,sort:record.sort,difficulty:record.difficulty,options_generator_collection:record.options_generator_collection,options_generator_filter:record.options_generator_filter,options_generator_field:record.options_generator_field}
-												//console.log('NEWQ',JSON.stringify(newQuestion))
+												console.log('NEWQ',JSON.stringify(newQuestion))
 												
 												try {
 													newQuestion._id=(record.mcQuestionId && record.mcQuestionId.length > 0 ? ObjectId(record.mcQuestionId) : ObjectId())
@@ -567,11 +329,13 @@ function initRoutes(router,initdb) {
 												&& (record.multiple_choices2 && record.multiple_choices2.length > 0 || hasGenerator2)
 											) {
 												let newQuestion ={topic:record.quiz,question:record.specific_question2,answer:record.specific_answer2,multiple_choices:record.multiple_choices2,feedback:record.feedback2,importId:'QQ-'+importId,user:'default',image:record.image,autoshow_image:record.autoshow_image,sort:record.sort,difficulty:record.difficulty,options_generator_collection:record.options_generator_collection2,options_generator_filter:record.options_generator_filter2,options_generator_field:record.options_generator_field2}
-												//console.log('NEWQ',JSON.stringify(newQuestion))
+												console.log('NEWQ',JSON.stringify(newQuestion))
 												
 												try {
 													newQuestion._id=(record.mcQuestionId && record.mcQuestionId.length > 0 ? ObjectId(record.mcQuestionId) : ObjectId())
-												} catch (e) {}
+												} catch (e) {
+													newQuestion._id = ObjectId()
+												}
 												newQuestion.questionId = record._id; //(record._id && record._id.length > 0 ? ObjectId(record._id) : ObjectId())
 												
 												if (record.autoplay_media==="YES" && record.media) newQuestion.media = record.media;
@@ -631,7 +395,7 @@ function initRoutes(router,initdb) {
 											db.collection('multiplechoicequestions').findOne({_id: ObjectId(question._id), importId: 'QQ-'+importId}).then(function(existingQuestion) {
 												// update
 												//console.log(['done find det ins/upd',existingQuestion])
-												if (existingQuestion) {
+												if (existingQuestion && existingQuestion._id && existingQuestion._id.length > 0) {
 													db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {
 														//console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
 														resolve(Object.assign(existingQuestion,question));
@@ -699,7 +463,7 @@ function initRoutes(router,initdb) {
 								
 								
 							
-								//console.log(['IMPORT ALL DONE now MNEMONICS ',ids]); //,mnemonics
+								console.log(['IMPORT ALL DONE now MNEMONICS ',ids]); //,mnemonics
 							   // clear default user mnemonics
 								db.collection('mnemonics').remove({$and:[{user:'default'},{importId:importId}]}).then(function(dresults) {
 							   // bulk save mnemonics 
@@ -761,7 +525,11 @@ function initRoutes(router,initdb) {
 							});
 						}
 					});
+				}).catch(function(e) {
+					console.log(e);
 				})
+				
+			
 			})
 		}
 	});
@@ -776,26 +544,22 @@ function initRoutes(router,initdb) {
 			let checkMnemonics=[];
 			var importId = req.body && req.body.importId && req.body.importId > 0 ? parseInt(req.body.importId,10) - 1 : -1;
 			if (importId >= 0) {
-			//let importId = req.body.importId && req.body.importId > 0 ? parseInt(req.body.importId,10) : 0;
-			let key = 'importMultipleChoice_'+req.body.importId
-			if (process.env[key]) {
-				url = process.env[key];
-			} else {
-				res.send('Invalid import sheet '+importId);
-				return;
-			}
-			
-			//console.log(['IMPORT URL',url]);
-			// load mnemonics and collate tags, topics
-			var request = get(url, function(err,response) {
-				if (err) {
-					console.log(['e',err]);
+				//let importId = req.body.importId && req.body.importId > 0 ? parseInt(req.body.importId,10) : 0;
+				let key = 'importMultipleChoice_'+req.body.importId
+				if (process.env[key]) {
+					url = process.env[key];
+				} else {
+					res.send('Invalid import sheet '+importId);
 					return;
 				}
-				// clear and reimport topicCollections
 				
-				//console.log(['response',response]);
-				Papa.parse(response, {
+				//console.log(['IMPORT URL',url]);
+				// load mnemonics and collate tags, topics
+				
+				fetch(url).then(function(response) {
+					return response.text();
+				}).then(function(text) {
+					Papa.parse(response, {
 					'header': true, 
 					'delimiter': ",",	
 					'newline': "",	
@@ -812,7 +576,7 @@ function initRoutes(router,initdb) {
 						if (data && data.data) {
 							data.data.map(function(mcQuestion) {
 								if (mcQuestion) {
-									//console.log([mcQuestion.specific_question,mcQuestion.specific_answer,mcQuestion.topic,mcQuestion.multiple_choices]);
+									console.log([mcQuestion.specific_question,mcQuestion.specific_answer,mcQuestion.topic,mcQuestion.multiple_choices]);
 									if (mcQuestion.topic && mcQuestion.topic.length > 0
 										&& mcQuestion.specific_question && mcQuestion.specific_question.length > 0
 										&& mcQuestion.specific_answer && mcQuestion.specific_answer.length > 0
@@ -824,13 +588,13 @@ function initRoutes(router,initdb) {
 										} catch (e) {
 											newQ._id = ObjectId()
 										}
-										//console.log(['NEWQ id',mcQuestion.sort,JSON.stringify(mcQuestion)])
+										console.log(['NEWQ id',mcQuestion.sort,JSON.stringify(mcQuestion)])
 										newQ.topic = mcQuestion.topic
 										newQ.question = mcQuestion.specific_question
 										newQ.answer = mcQuestion.specific_answer
 										newQ.multiple_choices = mcQuestion.multiple_choices
 										newQ.questionId = (mcQuestion.questionId && mcQuestion.questionId.length > 0 ? ObjectId(mcQuestion.questionId) : null)
-										//console.log(['NEWQ qid'])
+										console.log(['NEWQ qid'])
 										newQ.feedback=mcQuestion.feedback
 										newQ.importId='MC-'+importId
 										newQ.sort=mcQuestion.sort
@@ -839,12 +603,12 @@ function initRoutes(router,initdb) {
 										newQ.image=mcQuestion.image
 										newQ.autoshow_image=mcQuestion.autoshow_image
 										newQ.media=mcQuestion.media
-										//console.log(['NEWQ',newQ])
+										console.log(['NEWQ',newQ])
 										toSave.push(newQ)
 									}
 								}
 							});
-							//console.log(['TOSAVE',toSave.length])
+							console.log(['TOSAVE',toSave.length])
 							toSave.map(function(question,key) {
 								let p = new Promise(function(resolve,reject) {
 									if (question._id) {
@@ -853,7 +617,7 @@ function initRoutes(router,initdb) {
 											//console.log(['done find det ins/upd',existingQuestion])
 											if (existingQuestion) {
 												db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {
-													//console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
+													console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
 													resolve(Object.assign(existingQuestion,question));
 												});
 												
@@ -861,7 +625,7 @@ function initRoutes(router,initdb) {
 											} else {
 												question.createDate = new Date().getTime();
 												db.collection('multiplechoicequestions').insertOne(question).then(function() {
-														//console.log(['inserted MC',question])
+														console.log(['inserted MC',question])
 														resolve(question);
 													});
 												}
@@ -870,7 +634,7 @@ function initRoutes(router,initdb) {
 											// insert
 											question.createDate = new Date().getTime();
 											db.collection('multiplechoicequestions').insertOne(question).then(function() {
-												//console.log(['inserted MC',question])
+												console.log(['inserted MC',question])
 												resolve(question);
 											});
 										}
@@ -902,7 +666,7 @@ function initRoutes(router,initdb) {
 											createDate:val.createDate
 										});
 									});
-									//console.log(['NOW DELETE',JSON.stringify({$and:[{_id: {$nin:ids}},{user:'default'},{importId:importId}]})])
+									console.log(['NOW DELETE',JSON.stringify({$and:[{_id: {$nin:ids}},{user:'default'},{importId:importId}]})])
 									db.collection('multiplechoicequestions').remove({$and:[{_id: {$nin:ids}},{user:{$eq:'default'}},{importId:{$eq:'MC-'+importId}}]}).then(function(dresults) {
 										console.log(['cleanup done',dresults]); 
 									});
@@ -913,41 +677,34 @@ function initRoutes(router,initdb) {
 							}
 						}
 					});
+				}).catch(function(e) {
+					console.log(e);
 				})
 			}
+			
 		})
 	});
 	
 	
-	
-	router.get('/backup', (req, res) => {
-		//console.log('backup '+config.databaseConnection+'/'+config.database)
-		//var backup = require('mongodb-backup') 
-		 //res.writeHead(200, {
-			//'Content-Type': 'application/x-tar' // force header for tar download
-		  //});
 
-		  //backup({
-			//uri: config.databaseConnection+config.database, // mongodb://<dbuser>:<dbpassword>@<dbdomain>.mongolab.com:<dbport>/<dbdatabase>
-			//collections: [ 'comments' ], // save this collection only
-			//root: '/tmp',
-			//tar: 'mnemolibrary.tar',
-			////stream: res, // send stream into client response
-			//callback: function(err) {
-
-				//if (err) {
-				  //console.error(err);
-				//} else {
-				  //console.log('finish');
-				//}
-			  //},
-			 //// logger:'/tmp/backuplog'
-		  //});
+	router.get('/guid', (req, res) => {
+		console.log(['guid',req.query.guid]);
+				
+		if (req.query.guid && req.query.guid.length > 0) {
+			initdb().then(function(db) {
+				db.collection('questions').findOne({guid:{$eq:req.query.guid}}).then(function(question) {
+					console.log(['guid res',question]);
+					res.send(question && question._id ? question : {});
+				});
+			})
+		} else {
+			res.send({});
+		}
 	})
+	
+	
 
+app.use('/import',router)
 
-};
-
-
-module.exports = initRoutes;
+module.exports.handler = serverless(app);
     

@@ -27,6 +27,7 @@ export default class QuickMemo extends Component {
     saveQuickMemo() {
 		//return 
 		let that = this;
+		this.props.startWaiting();
 		let record = this.state ? this.state.saveForReview : null
 		if (record && this.props.user && this.props.user._id) {
 			let quiz = 'QuickMemo [USER:'+this.props.user._id+']'
@@ -42,6 +43,7 @@ export default class QuickMemo extends Component {
 					  },
 					  body: JSON.stringify({quiz:quiz,user:(that.props.user ? that.props.user._id : null),access:(that.props.user ? that.props.user._id : null),prefix:interrogative,question:record.question,answer:record.answer,mnemonic:record.mnemonic, importtype:'quickmemo',importId:'quickmemo', difficulty:1,link:record.link})
 					}).then(function() {
+						that.props.stopWaiting();
 						that.showMessage('Saved for review',1000,'/sitemap')
 						
 					});

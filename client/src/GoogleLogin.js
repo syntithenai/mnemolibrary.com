@@ -62,7 +62,7 @@ export default class GoogleLogin extends Component {
     }
     
     handleFailure(e) {
-        console.log(['FAIL LOGIN',e]);
+        //console.log(['FAIL LOGIN',e]);
         this.googleSignOut();
     };
     

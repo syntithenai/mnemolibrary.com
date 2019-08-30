@@ -6,7 +6,7 @@ function initRoutes(router,initdb) {
 
 
 	router.post('/missingmnemonics', (req, res) => {
-		console.log(['mmNEM',req.body]);
+		//console.log(['mmNEM',req.body]);
 		let missingQuestionsByTopic={}
 		let missingMnemonicFilter={hasMnemonic:{$ne:true}};
 		
@@ -23,14 +23,14 @@ function initRoutes(router,initdb) {
 		// console.log(['LOADING MISSING MNEM',JSON.stringify(filter)]);
 		initdb().then(function(db) {
 			db.collection('questions').find(filter).toArray().then(function(questions) {
-			    console.log(['LOADING MISSING MNEM, FOUND MNEM FREE QU',questions,JSON.stringify(filter)]);
+			   //// console.log(['LOADING MISSING MNEM, FOUND MNEM FREE QU',questions,JSON.stringify(filter)]);
 				questions.map(function(question,key) {
 					//console.log(['LOADING TOPICS, FOUND Q',question,key]);
 					if (question.quiz && question.quiz.length > 0) {
 						missingQuestionsByTopic[question.quiz] = (parseInt(missingQuestionsByTopic[question.quiz],10) > 0) ? parseInt(missingQuestionsByTopic[question.quiz],10) + 1 : 1;
 					 }
 				});
-				console.log(['MISSING',missingQuestionsByTopic]);
+				//console.log(['MISSING',missingQuestionsByTopic]);
 				res.send(missingQuestionsByTopic);
 			});   
 		}) 

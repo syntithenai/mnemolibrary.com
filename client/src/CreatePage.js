@@ -20,10 +20,10 @@ export default class CreatePage extends Component {
     };
     
 	componentDidUpdate(props) {
-		console.log(['CP UPDATE',props.token,this.props.token])
+		//console.log(['CP UPDATE',props.token,this.props.token])
 		if (props.token !== this.props.token) {
-			console.log('CP UPDATE TOKEN CHANGE')
-			console.log(this.props.user)
+			//console.log('CP UPDATE TOKEN CHANGE')
+			//console.log(this.props.user)
 			if (!this.props.user) {
 				this.props.openLoginWindow('create')
 			}

@@ -516,13 +516,13 @@ export default withRouter( class QuizCarousel extends Component {
 				//console.log(that.props.setMessage)
 				//console.log('Marked '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' successfully reviewed.')
 				that.props.setMessage('Marked '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' successfully reviewed.')
-				//setTimeout(function() {
+				setTimeout(function() {
 					that.props.reviewQuestions();
 					that.setState({'showQuestionListDetails':false});
 					scrollToComponent(that.scrollTo.topOfPage,{align:'top',offset:-130});
 					
 					//that.reviewQuestions(); 
-				//},1500)
+				},2000)
 				//confirmAlert({
 				  //title: 'Questions Added For Review',
 				  //message: 'Added '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' to your review list',
