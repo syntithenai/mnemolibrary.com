@@ -7,7 +7,9 @@ import LeaderBoard from './LeaderBoard'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'     
-
+import MyMultipleChoiceStats from './MyMultipleChoiceStats'
+	
+			
 //var config = require('./config') 
 let style={height:'1.2em'}
 const createIcon = 
@@ -228,8 +230,9 @@ export default class ProfilePage extends Component {
                 return (<div>
 							<div style={{position:'fixed', right:'10px', top:'7em',zIndex:9999999, padding:'0.1em', backgroundColor:'lightgrey' }} ><a  href='#topics' style={buttonStyle} className='btn btn-info' onClick={this.hideTopButtons}>Topics</a>
 							<a  href='#progress'  style={buttonStyle}  className='btn btn-info' onClick={this.hideTopButtons} >Progress</a>
+							<a  href='#quizzes'  style={buttonStyle}  className='btn btn-info' onClick={this.hideTopButtons} >Quizzes</a>
 							<a  href='#activity'  className='btn btn-info' style={buttonStyle}  onClick={this.hideTopButtons} >Activity</a>
-							<Link to='/leaderboard'    className='btn btn-info' style={buttonStyle}  onClick={this.hideTopButtons} >Leaderboard</Link>
+							
 							<Link to='/settings'    className='btn btn-info' style={buttonStyle}  onClick={this.hideTopButtons} >Settings</Link>
 
 						  </div>
@@ -265,13 +268,17 @@ export default class ProfilePage extends Component {
                             <div className="col-12" style={{minHeight: '100px'}}>
                                   <TopicsChart addAward={this.addAward} setCurrentPage={this.props.setCurrentPage} setQuizFromDiscovery={this.props.setQuizFromDiscovery} setReviewFromTopic={this.props.setReviewFromTopic} setQuizFromTopic={this.props.setQuizFromTopic} searchQuizFromTopic={this.props.searchQuizFromTopic}  user={this.props.user} fetch={this.props.fetch} />
                             </div>
+                           
                             <div className="col-12" style={{height: '500px'}} >
                                   <ProgressChart addAward={this.addAward} reviewBySuccessBand={this.props.reviewBySuccessBand} user={this.props.user}  fetch={this.props.fetch} />
                             </div>
                             <div className="col-12" style={{height: '700px'}}>
                                   <ActivityChart  fetch={this.props.fetch} addAward={this.addAward} user={this.props.user}  />
                             </div>
-                            
+                            <div className="col-12" style={{marginBottom:'2em'}} >
+                            	<a name="quizzes" />
+                            	<MyMultipleChoiceStats fetch={this.props.fetch} />
+                            </div> 
                             
                         <br/>
                     </div>

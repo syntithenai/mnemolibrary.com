@@ -25,32 +25,42 @@ export default class QuizList extends Component {
         let that = this;
       
         if (Utils.isObject(this.props.quizzes)) {
-            let quizzes = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
-               // var title = Utils.snakeToCamel(quiz)
-                let url='/api/topicdetails';
-                that.props.fetch(url,{ method: "POST",headers: {
-                    "Content-Type": "application/json"
-                    },
-                    body:JSON.stringify({
-                        topic:quiz
-                    })
-                })
-                .then(function(response) {
-                    return response.json()
-                }).then(function(json) {
-                   // console.log(['LOAD QUIZ DETAILS',json]);
-                  if (json && json.length > 0 && json[0].description && json[0].description.length > 0) {
-                      let descriptionState = that.state.description;
-                      descriptionState[quiz] = json[0].description;
-                      that.setState({description:descriptionState});
-                  } else {
-                      return [];
-                  }
+			let quizzesList = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
+				return quiz.quiz;
+			})
+			console.log('LOAD QUIZ DETAILS')
+			console.log(quizzesList);
+			let url='/api/topicdetails';
+			that.props.fetch(url,{ method: "POST",headers: {
+				"Content-Type": "application/json"
+				},
+				body:JSON.stringify({
+					topic:quizzesList.join(',')
+				})
+			})
+			.then(function(response) {
+				return response.json()
+			}).then(function(json) {
+			    console.log(['LOAD QUIZzes DETAILS',json]);
+				if (json && json.length > 0) {
+				  
+				}
+				   //&& json[0].description && json[0].description.length > 0) {
+				  //let descriptionState = that.state.description;
+				  //descriptionState[quiz] = json[0].description;
+				  //that.setState({description:descriptionState});
+			  //} else {
+				  //return [];
+			  //}
 
-                }).catch(function(ex) {
-                console.log(['parsing failed', ex])
-                })
-            });
+			}).catch(function(ex) {
+				console.log(['load topic details failed', ex])
+			})
+      
+            //let quizzes = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
+               //// var title = Utils.snakeToCamel(quiz)
+                
+            //});
         };
             
         

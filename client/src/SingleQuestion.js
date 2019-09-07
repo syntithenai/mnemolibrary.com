@@ -711,7 +711,8 @@ export default class SingleQuestion extends Component {
             let shareTitle="Mnemo's Library -"+(this.props.question.mnemonic ? this.props.question.mnemonic : '') + " - \n" + question.interrogative+ ' ' +question.question + '?';
 			//let longTitle=(this.props.question.mnemonic ? this.props.question.mnemonic : '') + "  \n" + question.interrogative+ ' ' +question.question + '?' ;
 			//let twitterTitle=(this.props.question.mnemonic ? this.props.question.mnemonic : '') + "  \n" + question.interrogative+ ' ' +question.question  + "?\n" + question.link;
-			let shareLink = window.location.protocol+'//'+window.location.host+"/discover/topic/"+encodeURIComponent(question.quiz)+"/"+question._id;     
+			let host = 'mnemoslibrary.com' //window.location.host
+			let shareLink = window.location.protocol+'//'+host+"/discover/topic/"+encodeURIComponent(question.quiz)+"/"+question._id;     
             
             let iframeLink = "https://www.facebook.com/plugins/like.php?href="+encodeURIComponent(shareLink)+"&width=100&layout=button_count&action=like&size=large&show_faces=false&share=false&height=26&appId=704362873350885"
 
@@ -927,7 +928,7 @@ export default class SingleQuestion extends Component {
 					} 
                 </div>
                 
-				{that.state.showShareDialog && <ShareDialog   analyticsEvent={that.props.analyticsEvent} setShareDialog={that.setShareDialog} shareLink={shareLink} shareText={shareTitle} dialogTitle={'Share Question using'} />}
+				{that.state.showShareDialog && <ShareDialog   analyticsEvent={that.props.analyticsEvent} setShareDialog={that.setShareDialog} shareLink={shareLink} shareText={shareTitle} dialogTitle={'Share Question using'} twitterVia="Mnemoslibrary" />}
 
                  <div ref={(section) => { this.scrollTo.end = section; }} ></div>
                        

@@ -20,6 +20,7 @@ export default class Footer extends Component {
           <a className="nav-link" target='_new' href="https://www.instagram.com/captainmnemo"><Instagram/>&nbsp;Instagram</a>
           <a className="nav-link" target='_new' href="https://github.com/syntithenai/mnemolibrary"><Github/>&nbsp;Github</a>
           <a className="nav-link"  target='_new' href="mailto:mnemoslibrary@gmail.com"><Envelope/>&nbsp;Email</a>
+          <a className="nav-link"  href="https://mnemolibrary.com/help/termsofuse">&nbsp;Privacy Policy</a>
          	 
 			  
         </nav>

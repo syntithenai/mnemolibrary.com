@@ -311,30 +311,12 @@ function initdb() {
 												&& (record.multiple_choices && record.multiple_choices.length > 0 || hasGenerator)
 											) {
 												let newQuestion ={topic:record.quiz,question:record.specific_question,answer:record.specific_answer,multiple_choices:record.multiple_choices,feedback:record.feedback,importId:'QQ-'+importId,user:'default',image:record.image,autoshow_image:record.autoshow_image,sort:record.sort,difficulty:record.difficulty,options_generator_collection:record.options_generator_collection,options_generator_filter:record.options_generator_filter,options_generator_field:record.options_generator_field}
-												console.log('NEWQ',JSON.stringify(newQuestion))
+												//console.log('NEWQ',JSON.stringify(newQuestion))
 												
 												try {
-													newQuestion._id=(record.mcQuestionId && record.mcQuestionId.length > 0 ? ObjectId(record.mcQuestionId) : ObjectId())
-												} catch (e) {}
-												newQuestion.questionId = record._id; //(record._id && record._id.length > 0 ? ObjectId(record._id) : ObjectId())
-												
-												if (record.autoplay_media==="YES" && record.media) newQuestion.media = record.media;
-												
-												mcQuestions.push(newQuestion)
-											}
-											// second MC question
-											if (record.quiz && record.quiz.length > 0
-												&& record.specific_question2 && record.specific_question2.length > 0
-												&& record.specific_answer2 && record.specific_answer2.length > 0
-												&& (record.multiple_choices2 && record.multiple_choices2.length > 0 || hasGenerator2)
-											) {
-												let newQuestion ={topic:record.quiz,question:record.specific_question2,answer:record.specific_answer2,multiple_choices:record.multiple_choices2,feedback:record.feedback2,importId:'QQ-'+importId,user:'default',image:record.image,autoshow_image:record.autoshow_image,sort:record.sort,difficulty:record.difficulty,options_generator_collection:record.options_generator_collection2,options_generator_filter:record.options_generator_filter2,options_generator_field:record.options_generator_field2}
-												console.log('NEWQ',JSON.stringify(newQuestion))
-												
-												try {
-													newQuestion._id=(record.mcQuestionId && record.mcQuestionId.length > 0 ? ObjectId(record.mcQuestionId) : ObjectId())
+													newQuestion._id=(record.mcQuestionId && record.mcQuestionId.length > 0 ? ObjectId(record.mcQuestionId) : null)
 												} catch (e) {
-													newQuestion._id = ObjectId()
+													//newQuestion._id=ObjectId()
 												}
 												newQuestion.questionId = record._id; //(record._id && record._id.length > 0 ? ObjectId(record._id) : ObjectId())
 												
@@ -342,6 +324,26 @@ function initdb() {
 												
 												mcQuestions.push(newQuestion)
 											}
+											// second MC question
+											//if (record.quiz && record.quiz.length > 0
+												//&& record.specific_question2 && record.specific_question2.length > 0
+												//&& record.specific_answer2 && record.specific_answer2.length > 0
+												//&& (record.multiple_choices2 && record.multiple_choices2.length > 0 || hasGenerator2)
+											//) {
+												//let newQuestion ={topic:record.quiz,question:record.specific_question2,answer:record.specific_answer2,multiple_choices:record.multiple_choices2,feedback:record.feedback2,importId:'QQ-'+importId,user:'default',image:record.image,autoshow_image:record.autoshow_image,sort:record.sort,difficulty:record.difficulty,options_generator_collection:record.options_generator_collection2,options_generator_filter:record.options_generator_filter2,options_generator_field:record.options_generator_field2}
+												//console.log('NEWQ',JSON.stringify(newQuestion))
+												
+												//try {
+													//newQuestion._id=(record.mcQuestionId && record.mcQuestionId.length > 0 ? ObjectId(record.mcQuestionId) : ObjectId())
+												//} catch (e) {
+													//newQuestion._id = ObjectId()
+												//}
+												//newQuestion.questionId = record._id; //(record._id && record._id.length > 0 ? ObjectId(record._id) : ObjectId())
+												
+												//if (record.autoplay_media==="YES" && record.media) newQuestion.media = record.media;
+												
+												//mcQuestions.push(newQuestion)
+											//}
 											
 											
 											//console.log(['SAVED QUESTION',record._id,record])
@@ -391,11 +393,13 @@ function initdb() {
 								// update MC questions
 								mcQuestions.map(function(question,key) {
 									let p = new Promise(function(resolve,reject) {
+										//console.log('try save mc q')
+										//console.log(question ? question._id : 'noq')
 										if (question._id) {
-											db.collection('multiplechoicequestions').findOne({_id: ObjectId(question._id), importId: 'QQ-'+importId}).then(function(existingQuestion) {
+											db.collection('multiplechoicequestions').findOne({_id: {$eq:ObjectId(question._id)}}).then(function(existingQuestion) {
 												// update
 												//console.log(['done find det ins/upd',existingQuestion])
-												if (existingQuestion && existingQuestion._id && existingQuestion._id.length > 0) {
+												if (existingQuestion && existingQuestion._id) {
 													db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {
 														//console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
 														resolve(Object.assign(existingQuestion,question));
@@ -403,19 +407,31 @@ function initdb() {
 													
 												// insert
 												} else {
-													question.createDate = new Date().getTime();
-													db.collection('multiplechoicequestions').insertOne(question).then(function() {
-														//console.log(['inserted MC',question])
-														resolve(question);
-													});
+													try {
+													//	console.log('IDINSERT')
+														question.createDate = new Date().getTime();
+														question._id = ObjectId()
+														db.collection('multiplechoicequestions').insertOne(question).then(function() {
+														//	console.log(['inserted MC',question])
+															resolve(question);
+														}).catch(function(e) {
+															console.log(e)
+															resolve()
+														});
+													} catch(e) {
+														console.log(e);
+														resolve()
+													}
 												}
 											});
 										} else {
+											//console.log('NOIDINSERT')
+													
 											// insert
 											question.createDate = new Date().getTime();
 													
 											db.collection('multiplechoicequestions').insertOne(question).then(function() {
-												//console.log(['inserted MC',question])
+												//console.log(['inserted MC noid',question])
 												resolve(question);
 											});
 										}
@@ -451,9 +467,9 @@ function initdb() {
 									let unparsed = Papa.unparse(Object.values(recordIndex),{quotes: true});
 									res.send(unparsed);
 									//. cleanup questions for this importId that didn't just get processed (ie no longer in sheet)
-									//console.log(['NOW DELETE',JSON.stringify({$and:[{$id: {$nin:ids}},{user:'default'},{importId:importId}]})])
-									db.collection('multiplechoicequestions').remove({$and:[{$id: {$nin:ids}},{user:'default'},{importId:'QQ-'+importId}]}).then(function(dresults) {
-										console.log('cleanup mc done'); 
+									console.log(['NOW DELETE',JSON.stringify({$and:[{_id: {$nin:ids}},{user:'default'},{importId:importId}]})])
+									db.collection('multiplechoicequestions').remove({$and:[{_id: {$nin:ids}},{user:'default'},{importId:'QQ-'+importId}]}).then(function(dresults) {
+										console.log(['cleanup mc done',dresults]); 
 										// download with ids to bring back into google sheet
 										//let unparsed = Papa.unparse(final,{quotes: true});
 										//res.send(unparsed);
@@ -463,7 +479,7 @@ function initdb() {
 								
 								
 							
-								console.log(['IMPORT ALL DONE now MNEMONICS ',ids]); //,mnemonics
+								console.log(['IMPORT ALL DONE now MNEMONICS ',ids,mnemonics]); //
 							   // clear default user mnemonics
 								db.collection('mnemonics').remove({$and:[{user:'default'},{importId:importId}]}).then(function(dresults) {
 							   // bulk save mnemonics 
@@ -612,11 +628,11 @@ function initdb() {
 							toSave.map(function(question,key) {
 								let p = new Promise(function(resolve,reject) {
 									if (question._id) {
-										db.collection('multiplechoicequestions').findOne({_id: ObjectId(question._id), importId: 'MC-'+importId}).then(function(existingQuestion) {
+										db.collection('multiplechoicequestions').findOne({_id: ObjectId(question._id)}).then(function(existingQuestion) {
 											// update
 											//console.log(['done find det ins/upd',existingQuestion])
 											if (existingQuestion) {
-												db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {
+												db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {question
 													console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
 													resolve(Object.assign(existingQuestion,question));
 												});
@@ -630,7 +646,7 @@ function initdb() {
 													});
 												}
 											});
-										} else {
+										} else { 
 											// insert
 											question.createDate = new Date().getTime();
 											db.collection('multiplechoicequestions').insertOne(question).then(function() {

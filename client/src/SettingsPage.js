@@ -55,7 +55,7 @@ export default class SettingsPage extends Component {
           if (this.state.user.username)  data.username= this.state.user.username;  
           if (this.state.user.email)  data.username= this.state.user.email;
           if (this.state.user.email)  data.email= this.state.user.email;  
-          
+          else (data.email) = this.state.user.email;
           //if (this.state.user.difficulty) data.difficulty=this.state.user.difficulty
             
           if (this.state.user.password && this.state.user.password.length > 0 && this.state.user.password2 && this.state.user.password2.length > 0) {

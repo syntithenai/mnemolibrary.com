@@ -150,13 +150,13 @@ function initRoutes(router,initdb) {
 	
 	router.post('/saveuser', (req, res) => {
 		initdb().then(function(db) {
-			// //console.log(req.body);
-			if (req.body._id && req.body._id.length > 0 && req.user && req.user.email && req.user.email.length > 0 && req.user.email === req.body.email) {
+			console.log(req.user);
+			if (req.body._id && req.body._id.length > 0 && req.user && req.user.email && req.user.email.length > 0) {
 				if (req.body.password && req.body.password.trim().length > 0 && req.body.password2 != req.body.password)  {
 					res.send({warning_message:'Passwords do not match'});
 				} else {
 					////console.log(['find on saveuser',req.body._id]);
-					db.collection('users').findOne(ObjectId(req.body._id), function(err, item) {
+					db.collection('users').findOne({username: req.user.email}, function(err, item) {
 					 // //console.log([err,item]);
 					  if (err) {
 						  //console.log(err);
@@ -170,6 +170,7 @@ function initRoutes(router,initdb) {
 						  if (req.body.questions) item.questions=req.body.questions;
 						  if (req.body.recall) item.recall=req.body.recall;
 						  if (req.body.email_me) item.email_me=req.body.email_me;
+						
 						//  console.log(['TPPW',req.body.topicPasswords])
 						  if (req.body.topicPasswords) item.topicPasswords=req.body.topicPasswords;
 						  // update avatar only when changed

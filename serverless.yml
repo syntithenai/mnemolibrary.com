@@ -77,6 +77,12 @@ provider:
     importSheets_1: ${self:custom.secrets.importSheets.1}
     importSheets_2: ${self:custom.secrets.importSheets.2}
     importSheets_3: ${self:custom.secrets.importSheets.3}
+    importSheets_4: ${self:custom.secrets.importSheets.4}
+    importSheets_5: ${self:custom.secrets.importSheets.5}
+    importSheets_6: ${self:custom.secrets.importSheets.6}
+    importSheets_7: ${self:custom.secrets.importSheets.7}
+    importSheets_8: ${self:custom.secrets.importSheets.8}
+    importSheets_9: ${self:custom.secrets.importSheets.9}
     importMultipleChoice_0: ${self:custom.secrets.importMultipleChoice.0} 
     importMultipleChoice_1: ${self:custom.secrets.importMultipleChoice.1} 
     REACT_APP_USER_POOL_ARN: ${self:custom.cognitoUserPoolArn}

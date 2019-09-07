@@ -39,6 +39,10 @@ export default class TermsOfUse extends Component {
 <ol>
 <li><span style={{fontWeight: "400"}}>This site imports content from third parties. This is not an endorsement of this material and we have no responsibility for any loss caused by reliance or access to third-party sites.</span></li>
 </ol>
+<li><span style={{fontWeight: "400"}}> <strong>Third-party login</strong></span>
+<ol>
+<li><span style={{fontWeight: "400"}}>This site allows users to login using their social accounts with Google, Amazon, Twitter. This site collects and stores your name and email address from your social provider to allow our website to identify and login repeat users and  to send newsletters regarding website updates. We do not share this information with anyone unless required by law.</span></li>
+</ol>
 </li>
 <li><span style={{fontWeight: "400"}}> <strong>User conduct</strong></span>
 <ol>

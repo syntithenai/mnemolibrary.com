@@ -61,7 +61,7 @@ export default class RecentSingleComment extends Component {
 			let renderedComments = comments.map(function(comment) {
 				let current_datetime = new Date(comment.createDate)
 				let formatted_date = current_datetime.getDate() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getFullYear()
-				let shortComment = comment.comment.split(' ').slice(0,10).join(' ').slice(0,30)+'...'
+				let shortComment = comment.comment.split(' ').slice(0,10).join(' ').slice(0,50)+'...'
 				let replyLink  = '/recentcomments/'+comment.question;
 				let joinWord = comment.type==="question" ? 'asks' : 'says'
 				return  <span key={comment._id}>{comment.userAvatar} {joinWord} <i>"{shortComment}"</i>&nbsp;&nbsp;&nbsp;{that.props.user && <div onClick={(e) => that.props.newCommentReply(comment)} className='btn btn-success'>{replyIcon}</div>}&nbsp;<Link to={'/recentcomments/'+comment._id} className='btn btn-info'>...</Link></span>

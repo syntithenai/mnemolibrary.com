@@ -616,6 +616,73 @@ function initRoutes(router,initdb) {
 		})
 	});
 	
+	
+	router.get('/mymcstats', (req, res) => {
+		//console.log(['FIND mc topics',req.query])
+		////console.log(['topics',req.body]);
+		if (req.user && req.user.email && req.user.email.length > 0) {
+			initdb().then(function(db) {
+				db.collection('users').findOne({username:req.user.email}).then(function(user) {
+					if (user && user._id) {
+						let userMatch='seenBy.'+user._id
+						console.log(userMatch)
+						let userFilter={}
+						userFilter[userMatch] = {$exists:true}
+				
+						db.collection('multiplechoicequestions').aggregate(
+							{$match:userFilter},
+							{$group:{_id:"$topic",count:{$sum:1}}},
+							{$project:{_id:1,topic:1}}
+						).toArray(function(err,allResults) {
+							let collation={}
+							if (allResults) {
+								allResults.map(function(mc) {
+									collation[mc._id]={attempts:mc.count};
+								})
+							}
+							//console.log(allResults)
+							db.collection('multiplechoicequestions').aggregate(
+								{$match:{$and:[userFilter,{$expr: {$eq: ['$seenBy.'+user._id,'$answer']}}   ]}},
+								{$group:{_id:"$topic",count:{$sum:1}}},
+								{$project:{_id:1,topic:1}}
+							).toArray(function(err,correctResults) {
+								if (correctResults) {
+									correctResults.map(function(mc) {
+										if (!collation.hasOwnProperty(mc._id)) collation[mc._id]={}
+										collation[mc._id].correct=mc.count;
+									})
+								}
+								db.collection('multiplechoicequestions').aggregate(
+									{$match:{topic:{$in:Object.keys(collation)}}},
+									{$group:{_id:"$topic",count:{$sum:1}}},
+									{$project:{_id:1,topic:1}}
+								).toArray(function(err,totalResults) {
+									if (totalResults) {
+										totalResults.map(function(mc) {
+											if (!collation.hasOwnProperty(mc._id)) collation[mc._id]={}
+											collation[mc._id].total=mc.count;
+										})
+									}
+									console.log('collation')
+								console.log(collation)
+									//console.log('total')
+								//console.log(totalResults)
+								res.send(collation)
+								})
+
+								
+							})
+						});
+					}
+				})
+			})	
+		} else {
+			res.send({error:'not logged in'})
+		}
+			
+	});
+	
+	
 
 };
 

@@ -30,13 +30,13 @@ app.use(function(req,res,next) {
 	let token = req.headers.authorization ? req.headers.authorization : ((req.query && req.query.id_token) ? req.query.id_token : null)
 	
 	if (token) { 
-		//console.log('auth')
+		console.log('auth')
 		var emailDirect = '';
 		try {
 			const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(token, { complete: true });
 			emailDirect = unverifiedDecodedAuthorizationCodeIdToken && unverifiedDecodedAuthorizationCodeIdToken.payload ? unverifiedDecodedAuthorizationCodeIdToken.payload.email : '';
 			req.user={email:emailDirect}
-		//	console.log(['set user from token',emailDirect])
+			console.log(['set user from token',emailDirect])
 		} catch (e) {
 			console.log(e)
 		}
@@ -1818,15 +1818,30 @@ var initAuthRoutes = require('./api_auth')
 		if (req.body.topic && req.body.topic.length > 0) {
 			let promises=[];
 			initdb().then(function(db) {
-				db.collection('topics').find({topic:req.body.topic}).toArray(function(err, result) {
-					//result.map(function(key,mnemonic));
-		//            //console.log(['mnemonics found',result]);
-					if (result) {
-						res.send(result);
-					} else {
-						res.send({});
-					}
-				});
+				if (req.body.topic) {
+					db.collection('topics').find({topic:req.body.topic}).toArray(function(err, result) {
+						//result.map(function(key,mnemonic));
+			//            //console.log(['mnemonics found',result]);
+						if (result) {
+							res.send(result);
+						} else {
+							res.send({});
+						}
+					});
+				} else if (req.body.topics) {
+					db.collection('topics').find({topic:{$in:req.body.topics.split(",")}}).toArray(function(err, result) {
+						//result.map(function(key,mnemonic));
+			//  //console.log(['mnemonics found',result]);
+						if (result) {
+							res.send(result);
+						} else {
+							res.send({});
+						}
+					});
+
+				} else {
+					res.send({});
+				}
 			})
 		} else {
 			res.send({message:'Invalid request'});

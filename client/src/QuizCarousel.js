@@ -11,7 +11,8 @@ import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
 import { withRouter } from "react-router-dom";
 import scrollToComponent from 'react-scroll-to-component'
-
+import MyMultipleChoiceStats from './MyMultipleChoiceStats'
+	    	             
     
 export default withRouter( class QuizCarousel extends Component {
     constructor(props) {
@@ -367,6 +368,9 @@ export default withRouter( class QuizCarousel extends Component {
     
        // FINISH QUIZ CAROUSEL
    finishQuiz(success,questions) {
+      
+      //<MyMultipleChoiceStats fetch={this.props.fetch} />
+           
       // //console.log(['finish quiz',this.props.finishQuiz]);
         // inject override
        // alert('finsih');
@@ -493,6 +497,7 @@ export default withRouter( class QuizCarousel extends Component {
 	
 	markAllQuestionsReviewed(questions) {
 		let that = this;
+		this.props.startWaiting()
 		if (questions && questions.length > 0) {
 			let ids=[];
 			questions.map(function(question) {
@@ -515,6 +520,7 @@ export default withRouter( class QuizCarousel extends Component {
 				//console.log('done add all to review')
 				//console.log(that.props.setMessage)
 				//console.log('Marked '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' successfully reviewed.')
+				that.props.stopWaiting()
 				that.props.setMessage('Marked '+ids.length+' question'+(ids.length > 1 ? 's' : '') +' successfully reviewed.')
 				setTimeout(function() {
 					that.props.reviewQuestions();

@@ -44,7 +44,8 @@ export default class CommentList extends Component {
 		if (comment) {
 			//let shareLink = window.location.protocol+'//'+window.location.host+"/recentcomments/"+comment._id;  
 			//let shareLink =  window.location.protocol+'//'+window.location.host+'/discover/topic/'+comment.questionTopic+"/"+comment.question;
-			let shareLink =  window.location.protocol+'//'+window.location.host+'/discover/topic/'+comment.questionTopic+"/"+comment.question;
+			let host = 'mnemoslibrary.com' //window.location.host
+			let shareLink =  window.location.protocol+'//'+host+'/discover/topic/'+encodeURIComponent(comment.questionTopic)+"/"+comment.question;
 			this.setState({shareLink:shareLink,shareText:comment.comment});
 		}
 		this.setState({showShareDialog:val});

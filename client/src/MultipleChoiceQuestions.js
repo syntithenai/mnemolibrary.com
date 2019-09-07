@@ -15,7 +15,8 @@ import ShareDialog from './ShareDialog';
 import MnemonicsList from './MnemonicsList';
 import "video-react/dist/video-react.css"; // import css
 import { Player } from 'video-react';
-
+import MyMultipleChoiceStats from './MyMultipleChoiceStats'
+import Utils from './Utils'        
 
 //import Swipe from 'react-swipe-component';
 import Swipeable from 'react-swipeable'
@@ -62,6 +63,7 @@ export default class MultipleChoiceQuestions extends Component {
 			shareLink:'',
 			shareText:'',		
 			showQuizOptionsDialog: false,
+			quizIsComplete: false
 		}
 		this.questionsIndex = {};
 		this.scrollTo={};
@@ -202,9 +204,10 @@ export default class MultipleChoiceQuestions extends Component {
      setShareDialog(val,topic) {
 		 console.log(['SETSHAREDIALOG',val,topic])
 		if (topic) {
-			let shareLink =  window.location.protocol+'//'+window.location.host+'/multiplechoicequestions/'+topic;
+			let host = 'mnemoslibrary.com' //window.location.host
+			let shareLink =  window.location.protocol+'//'+host+'/multiplechoicequestions/'+encodeURIComponent(topic);
 			let shareText = topic + " Quiz "
-			this.setState({shareLink:shareLink,shareText:shareText});
+			this.setState({shareLink:shareLink,shareText:shareText,quizIsComplete:false});
 		}
 		this.setState({showShareDialog:val});
 	}
@@ -310,6 +313,7 @@ export default class MultipleChoiceQuestions extends Component {
     loadQuestions() {
 		let that = this;
 		console.log(['LOAD Q',this.props.mode])
+		this.setState({quizIsComplete:false})
 		this.stopAllPlayers();
 		if (this.props.mode && this.props.mode === "myquestions") {
 			return this.loadMyQuestions();
@@ -419,7 +423,7 @@ export default class MultipleChoiceQuestions extends Component {
 	}
 	
 	goto(page) {
-      this.setState({goto:page});
+      this.setState({quizIsComplete: false, goto:page});
 	};
  
     
@@ -427,39 +431,15 @@ export default class MultipleChoiceQuestions extends Component {
 		let that = this
 		this.stopAllPlayers();
 		let buttons=[];
-		buttons.push({
-			  label: 'Try a different quiz',
-			  onClick: () => this.goto('/multiplechoicetopics')
+		this.props.fetch('/api/mymcstats').then(function(response) {
+			return response.json();
+		}).then(function(stats) {
+			console.log(['stats',stats])
+			that.setState({stats:stats,quizIsComplete:true})
+			scrollToComponent(that.scrollTo['top'],{align:'top',offset:-100});
 		})
-		if (this.props.user && this.props.user._id) {
-			buttons.push({
-			  label: 'Load more questions',
-			  onClick: () => this.loadQuestions().then(function() {
-					that.nextQuestion()
-				})
-			})
-		} else {
-			buttons.push({
-			  label: 'Login to see more questions',
-			  onClick: () => this.goto('/login')
-			})
-		}
-		if (that.props.match && that.props.match.params && that.props.match.params.topic) { 
-			buttons.push({
-				  label: 'Share Quiz',
-				  onClick: () => that.setShareDialog(!that.state.showShareDialog,that.props.match.params.topic)
-				})
-		}
-		
-		buttons.push({
-			  label: 'Cancel',
-			  onClick: () => {}
-			})
-		confirmAlert({
-		  title: 'Quiz Complete',
-		  message: 'What next ?',
-		  buttons: buttons
-		})
+		return false;
+
 
 	}
     
@@ -801,6 +781,139 @@ export default class MultipleChoiceQuestions extends Component {
 		//if (topic && topic.length > 0) {
 		console.log(['RENDER MQ QQQQ',this.state.questions])
 		
+		if (this.state.quizIsComplete) {
+			
+			let buttons = []
+			
+			buttons.push(<button key='tryother' className='btn btn-info' onClick={() => this.goto('/multiplechoicetopics')} >Try a different Quiz</button>) 
+			if (this.props.user && this.props.user._id) {
+				console.log([that.state.stats,that.props.match.params])
+				console.log(that.state.stats[that.props.match.params.topic])
+				if (that.props.match && that.props.match.params && that.props.match.params.topic) {
+					if (that.state.stats && that.state.stats.hasOwnProperty(that.props.match.params.topic)) {
+						let details = that.state.stats[that.props.match.params.topic];
+						console.log(['HAVE TOPIC DETAILS',details])
+						let attempts = parseInt(details.attempts,10) !== NaN ? parseInt(details.attempts,10) : 0;
+						let total = parseInt(details.total,10) !== NaN ? parseInt(details.total,10) : 0;
+						let remaining = total - attempts;
+						if (remaining > 0) {
+							buttons.push(<button key='loadmore' className='btn btn-info' onClick={() => {console.log('loadmore'); that.setState({quizComplete:false})
+									; that.loadQuestions().then(function() {
+									that.nextQuestion()
+								})}}  >Load More Questions</button>) 
+						} else {
+						//	buttons.push(<button key='completetopic' className='btn btn-success' >Quiz Topic Complete</button>)
+						}
+					} else {
+						buttons.push(<button key='loadmore' className='btn btn-info' onClick={() => {console.log('loadmore'); that.setState({quizComplete:false})
+							; that.loadQuestions().then(function() {
+							that.nextQuestion()
+						})}}  >Load More Questions</button>) 
+					}
+				} else {
+					buttons.push(<button key='loadmore' className='btn btn-info' onClick={() => {console.log('loadmore'); that.setState({quizComplete:false})
+						; that.loadQuestions().then(function() {
+						that.nextQuestion()
+					})}}  >Load More Questions</button>) 
+				}  
+			
+			} else {
+				buttons.push(<Link  key='login' to="/login" ><button className='btn btn-info'>Login to see more questions</button></Link>) 
+			}
+			if (that.props.match && that.props.match.params && that.props.match.params.topic) { 
+				buttons.push(<button  key='share' style={{float:'right'}} className='btn btn-info'  onClick={() => that.setShareDialog(!that.state.showShareDialog,that.props.match.params.topic)}  ><ShareIcon /> Share Quiz</button>) 
+			}
+			console.log(['questions?',this.state.questions])
+			let userAnsweredTally = 0
+			let userCorrectTally = 0
+			let wrongQuestions = []
+			if (this.state.questions && this.state.questions.length > 0) { 
+				questions = this.state.questions.map(function(question,questionKey) {
+					if (question && question.question && question.question.length > 0 && question.answer && question.answer.length > 0 && ((question.multiple_choices && question.multiple_choices.length > 0) || (question.options_generator_collection && question.options_generator_collection.length > 0))) { 
+						let answered = (question.seenBy && question.seenBy[userId] && question.seenBy[userId].length > 0) ? true : false;
+						let userAnswer = question.seenBy ? question.seenBy[userId] : null;
+						let userAnswerCorrect = question.answer === userAnswer ? true : false;
+						if (answered) {
+							userAnsweredTally++;
+							if (userAnswerCorrect) {
+								userCorrectTally++;
+							} else {
+								wrongQuestions.push(question)
+							}
+						}
+					}
+				})
+			}
+			console.log(['questionsddd?',userAnsweredTally,userCorrectTally])
+			let quizLength = this.state.questions ? this.state.questions.length : 0;
+			let successRate = (userCorrectTally > 0 && userAnsweredTally > 0) ? parseInt(userCorrectTally/userAnsweredTally*100,10) : 0;
+			let successMessage = '';
+			console.log(['SR',successRate])
+			if (successRate === 0) {
+				successMessage = 'You fail'
+			} else if (successRate < 10) {
+				successMessage = 'I guess you could have done worse'
+			} else if (successRate < 20) {
+				successMessage = 'A few points on the board'
+			} else if (successRate < 30) {
+				successMessage = 'You got a few right'
+			} else if (successRate < 40) {
+				successMessage = 'Doing OK'
+			} else if (successRate < 50) {
+				successMessage = 'You nearly got half right'
+			} else if (successRate < 60) {
+				successMessage = 'Decent effort'
+			} else if (successRate < 70) {
+				successMessage = 'Good one'
+			} else if (successRate < 80) {
+				successMessage = 'You did well'
+			} else if (successRate < 90) {
+				successMessage = 'Brilliant'
+			} else if (successRate < 100) {
+				successMessage = 'Almost perfect'
+			} else if (successRate < 110) {
+				successMessage = 'Perfect'
+			}
+			//let totalMessage=<span style={{float:'left'}}><div><b>Answered</b> {userAnsweredTally}/{this.state.questions ? this.state.questions.length : 0}  <b>Success</b> {successRate}%</div></span>
+			
+		
+			let stats = this.state.stats ? Object.keys(this.state.stats) : [];
+			stats.sort(function(a,b) {
+				if (a < b) {
+					return -1 
+				} else {
+					return 1
+				}
+			})
+			let previousQuizzes =   (
+			<div className='mymcstats' >
+			<h4>Quiz Progress</h4>
+				{stats.map(function(topic) {
+					let details = that.state.stats[topic] 
+					let correct = parseInt(details.correct,10) !== NaN ? parseInt(details.correct,10) : 0;
+					let attempts = parseInt(details.attempts,10) !== NaN ? parseInt(details.attempts,10) : 0;
+					let total = parseInt(details.total,10) !== NaN ? parseInt(details.total,10) : 0;
+					let percentCorrect = attempts > 0 && correct > 0 ? parseInt(correct/attempts*100,10) : 0;
+					return <div key={topic} ><div style={{marginTop:'0.6em'}}><a href={'/multiplechoicequestions/'+encodeURI(topic)} onClick={() => that.setState({quizIsComplete: false})} ><b>{topic}</b></a></div> <div><i>{percentCorrect}% correct of {attempts} answers.</i> {total - attempts} questions remaining in this topic.</div></div>
+				 })}
+			</div>)
+			
+			// read more
+			//http://localhost:3000/discover/topic/World%20History/5be3806df8ab4600852a5c80
+			let wrongRendered = wrongQuestions.map(function(wq) {
+				return <li key={wq._id}><a target="_blank" href={'/discover/searchtopic/'+wq.topic+'/'+wq.questionId} >{Utils.getQuestionTitle(wq)}</a></li>
+			});
+			
+			return <div  ref={(section) => { that.scrollTo.top = section; }}  style={{marginLeft:'0.3em'}} >
+			<br/><div><h4>Quiz Set Complete</h4><b>{successMessage}</b>. You answered {successRate}% of {userAnsweredTally} questions correctly.</div>
+			<br/><br/>
+			{wrongQuestions.length > 0 && <div><h4>Read more about the questions you got wrong</h4><ul>{wrongRendered}</ul></div>}
+			<br/><br/>
+			{buttons}<br/><br/>{previousQuizzes}</div>
+			
+		} else {
+		
+		
 			if (this.state.questions && this.state.questions.length > 0) { 
 				questions = this.state.questions.map(function(question,questionKey) {
 					if (question && question.question && question.question.length > 0 && question.answer && question.answer.length > 0 && ((question.multiple_choices && question.multiple_choices.length > 0) || (question.options_generator_collection && question.options_generator_collection.length > 0))) { 
@@ -1002,11 +1115,12 @@ export default class MultipleChoiceQuestions extends Component {
 			
 			<div style={{border: '1px solid black',width:'100%',marginTop:'1.4em'}}>
 			
-			{this.state.showShareDialog && <ShareDialog analyticsEvent={this.props.analyticsEvent} shareLink={that.state.shareLink} shareText={that.state.shareText}  setShareDialog={this.setShareDialog} dialogTitle={'Share Quiz using'} />}
+			{this.state.showShareDialog && <ShareDialog analyticsEvent={this.props.analyticsEvent} shareLink={that.state.shareLink} shareText={that.state.shareText}  setShareDialog={this.setShareDialog} dialogTitle={'Share Quiz using'} twitterVia="MnemosLibrary" />}
 			{questions}
 			</div>
 		</div>
 		)
+		}
     }
 
 

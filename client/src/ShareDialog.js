@@ -33,16 +33,18 @@ export default class ShareDialog extends Component {
 		  return t;
 		}(document, "script", "twitter-wjs"));
 	}
-    
-    render() {
+    //<div id="fb-root"></div>
+				
+    render() { 
+		let that = this;
 		if (this.props.analyticsEvent) this.props.analyticsEvent('share');
 		let encodedShareLink = encodeURIComponent(this.props.shareLink)   //.replace(/ /g,'_')
 		let mailToLink = "mailto:?subject="+encodeURIComponent(this.props.shareText)+"&body="+encodedShareLink;
 	    return  (
             <div id="sharedialog" onClick={() => this.props.setShareDialog(false)} className="modaldialog" tabIndex="-1" role="dialog">
 				<div id="fb-root"></div>
-				<script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.3&appId=704362873350885&autoLogAppEvents=1"></script>
-				
+				<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v4.0&appId=704362873350885&autoLogAppEvents=1"></script>
+
 				<div className="modaldialog-dialog" role="document">
 					<div className="modaldialog-content">
 					  <div className="modaldialog-header">
@@ -52,23 +54,22 @@ export default class ShareDialog extends Component {
 						<h5 className="modaldialog-title">{this.props.dialogTitle ? this.props.dialogTitle : 'Share using'}</h5>
 						
 					  </div>
-				     <div className="modaldialog-body">
+				      <div className="modaldialog-body">
 						<div>{this.props.shareText}</div>
 						<div style={{marginBottom: '2em'}}>{this.props.shareLink}</div>
 						
-					<FacebookShareButton url={this.props.shareLink} quote={this.props.shareText} hashtag={'MnemosLibrary'} >Share</FacebookShareButton>
-
+				
 						<div className='btn btn-info' ><a className="twitter-share-button"
 						  target="_blank" 
-						  href={"https://twitter.com/intent/tweet?text="+this.props.shareText+"%20"+encodedShareLink}
-						  data-size="large">
+						  data-size="large"
+						  data-text={this.props.shareText}
+						  data-url={this.props.shareLink}
+						  href="https://twitter.com/intent/tweet"
+						  data-via={this.props.twitterVia ? this.props.twitterVia : ''}
+						  >
 						Tweet</a></div>
-						
-						<div className='btn btn-info' >
-							<iframe src={"https://www.facebook.com/plugins/share_button.php?href=" + encodedShareLink + "&layout=button&size=large&appId=704362873350885&width=73&height=28"} width="73" height="28" style={{border:'none',overflow:'hidden'}} scrolling="no" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-						</div>
-						
-						
+				
+
 
 						<a style={{marginLeft:'1em'}} className="btn btn-info"
 						  target="_blank" 
@@ -85,8 +86,33 @@ export default class ShareDialog extends Component {
     };
     
 }
+
+
+
+						//<button className='btn btn-info' onClick={() => {
+							//FB.ui({
+							  //method: 'share',
+							  //href: that.props.shareLink,
+							  //quote: that.props.shareText,
+							  //hashtag: 'MnemosLibrary'
+							//}, function(response){});
+						//}} >Facebook</button>
+
+						//<div class="fb-share-button" data-hashtag="MnemosLibrary" data-quote={this.props.shareText} data-href={this.props.shareLink} data-layout="button" data-size="large"><a target="_blank" href={'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(this.props.shareLink)+'&amp;src=sdkpreparse'} class="fb-xfbml-parse-ignore">Share</a></div>
+
+
+	//href={"https://twitddter.com/intent/tweet?text="+encodeURIComponent(this.props.shareText)+"%20"+encodedShareLink}
+						  
+						  
+		//<script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.3&appId=704362873350885&autoLogAppEvents=1"></script>
+								
+		//<FacebookShareButton url={this.props.shareLink} quote={this.props.shareText} hashtag={'MnemosLibrary'} >Share</FacebookShareButton>
+		
+						//<div className='btn btn-info' >
+							//<iframe src={"https://www.facebook.com/plugins/share_button.php?href=" + encodedShareLink + "&layout=button&size=large&appId=704362873350885&width=73&height=28"} width="73" height="28" style={{border:'none',overflow:'hidden'}} scrolling="no" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+						//</div>
 						
-						
+											
 	//<InlineShareButtons config={{
 							//alignment: 'center',  // alignment of buttons (left, center, right)
 							//color: 'social',      // set the color of buttons (social, white)

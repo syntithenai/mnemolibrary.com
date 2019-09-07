@@ -21,7 +21,7 @@ export default class QuestionList extends Component {
 	}
 	componentDidUpdate(props) {
 		// load mnemonics
-		if (this.props.question != props.question) this.loadMnemonics()
+		if (this.props.questions != props.questions) this.loadMnemonics()
 	}	
 	
 	
@@ -76,6 +76,7 @@ export default class QuestionList extends Component {
 	}
 	
     render() {
+		let that = this;
        // //console.log(['QL',this.props.questions]);
         if (Array.isArray(this.props.questions)) {
             let questions = this.props.questions.map((question, key) => {
@@ -83,25 +84,25 @@ export default class QuestionList extends Component {
                     let title=Utils.getQuestionTitle(question);
                     let excerpt='';
                     //console.log(this.props);
-                    if (this.props.isReview===false) {
+                    if (that.props.isReview===false) {
                         excerpt='-->' + question.answer.split(' ').slice(0,3).join(' ')+'...';
                     } 
                     let details=null;
-                    if (this.props.showQuestionListDetails) {
+                    if (that.props.showQuestionListDetails) {
 						title = <b>{title}</b>
 						details=<div>
-							{this.state.mnemonics.hasOwnProperty(question._id) && <div style={{marginTop:'0.2em'}}>
+							{that.state.mnemonics.hasOwnProperty(question._id) && <div style={{marginTop:'0.2em'}}>
 								<b>Memory Aid: </b><i><pre>{this.state.mnemonics[question._id]}</pre></i>
 							</div>}
 							<div style={{marginTop:'0.2em'}}>
 								<b>Answer: </b><pre>{question.answer}</pre>
 							</div>
-							{this.props.user && <NotesList user={this.props.user._id} question={question._id} fetch={this.props.fetch} />}
+							{that.props.user && <NotesList user={that.props.user._id} question={question._id} fetch={that.props.fetch} />}
 						</div>
 					}
                     
                     if (this.props.onClick) {
-                       return <div className='list-group-item' key={question._id} onClick={(e) => this.props.onClick(question)}  >
+                       return <div className='list-group-item' key={question._id} onClick={(e) => that.props.onClick(question)}  >
                         <span  >{title} ? {excerpt}</span>
                         {details}
                         </div>
