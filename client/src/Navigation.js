@@ -122,12 +122,9 @@ export default class Navigation extends Component {
        
        <div className='page-title' style={{textTransform:'capitalize',color:'yellow',fontSize:'0.9em',  zIndex:99, marginTop: '0.1em'}} >&nbsp;&nbsp;{pageTitle}&nbsp;&nbsp;&nbsp;</div>
           
-              <span style={{marginLeft:'1em'}} className="dcol-4">
-                <Link className="btn btn-secondary" to="/multiplechoicetopics"  >{quizIcon} <span  className="d-none d-sm-inline">Quizzes</span></Link>
-              </span>
-              
-              <span  className="dcol-4">
-                <Link className="btn btn-secondary" to="/review"  >{reviewIcon} <span  className="d-none d-sm-inline">Review</span></Link>
+               <span className="dcol-4">
+                <Link className="btn btn-secondary" to="/sitemap" >...</Link>
+                
               </span>
               
               <span className="dcol-4">
@@ -140,10 +137,17 @@ export default class Navigation extends Component {
                   </Link>}
               </span>
            
-              <span className="dcol-4">
-                <Link className="btn btn-secondary" to="/sitemap" >...</Link>
-                
+              
+              
+              <span style={{marginLeft:'1em'}} className="dcol-4">
+                <Link className="btn btn-secondary" to="/multiplechoicetopics"  >{quizIcon} <span  className="d-none d-sm-inline">Quizzes</span></Link>
               </span>
+              
+              <span  className="dcol-4">
+                <Link className="btn btn-secondary" to="/review"  >{reviewIcon} <span  className="d-none d-sm-inline">Review</span></Link>
+              </span>
+              
+             
           </div>
             
         </nav>

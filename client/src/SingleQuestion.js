@@ -127,21 +127,22 @@ export default class SingleQuestion extends Component {
           let newId = this.props.question ? this.props.question._id : null;
           let oldId = props.question ? props.question._id : null;
           if (oldId !== newId) {
-			 that.setState({answer:''});
+			scrollToComponent(this.scrollTo['media'],{align:'top',offset:-230});
+			that.setState({answer:''});
 			that.setState({image:''});
 			if (that.props.question && that.props.question._id) that.props.analyticsEvent('view question '+that.props.question._id);
 			//console.log(['SQ UPDATE change question',oldId,newId]);
              this.fromWikipedia();
              this.createMedia();
              if (that.props.question) that.props.loadComments(that.props.question._id,that.props.user ? that.props.user._id : null);
-          }
+          } 
       };
     
      componentWillReceiveProps(props) {
          let that=this;
-        // console.log(['rcv props',props]);
+         console.log(['rcv props',props]);
        // if (this.refs.player) this.refs.player.subscribeToStateChange(this.handleStateChange.bind(this));
-        scrollToComponent(this.scrollTo['media'],{align:'top',offset:-230});
+        //scrollToComponent(this.scrollTo['media'],{align:'top',offset:-230});
         //if (props.question) {
             ////that.fromWikipedia();
           ////  that.createMedia();

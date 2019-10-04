@@ -23,7 +23,8 @@ export default class QuizList extends Component {
     
     loadQuizDetails() {
         let that = this;
-      
+		// disable in favor of single query to /topics
+		return;
         if (Utils.isObject(this.props.quizzes)) {
 			let quizzesList = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
 				return quiz.quiz;
@@ -120,7 +121,7 @@ export default class QuizList extends Component {
 				  </Link>
 				  {missingCount > 0 && this.props.isLoggedIn && this.props.isLoggedIn() && <Link to={"/missing/"+quiz} className='btn btn-success' style={{float:'right'}}  ><FaChild size="22" /> {missingCount}</Link>}
               
-				  <div>{this.state.description[quiz]}</div>
+				  <div>{this.props.quizzes[quiz].description}</div>
               </span>);
               
             })

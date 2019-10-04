@@ -860,7 +860,7 @@ var initAuthRoutes = require('./api_auth')
 				}
 				
 				
-			   // console.log(['disco criteria',JSON.stringify(criteria)]);
+			    console.log(['disco criteria',JSON.stringify(criteria)]);
 				db.collection('questions').find({$and:criteria})
 				//db.collection('questions').aggregate({$match:{$nin:notThese}})
 				.sort(sortFilter).limit(limit).toArray().then(function( questions) {
@@ -871,9 +871,9 @@ var initAuthRoutes = require('./api_auth')
 					if (req.body.selectedQuestion && req.body.selectedQuestion.length > 0) {
 					 //   console.log(['disco selqiest',req.body.selectedQuestion]);
 						db.collection('questions').findOne({_id:ObjectId(req.body.selectedQuestion)}).then(function(question) {
-					   //     console.log(['disco selqiest found',question]);
+						// console.log(['disco selqiest found',question]);
 							questions.unshift(question);
-						 //   console.log(['disco send found',questions]);
+						 // console.log(['disco send found',questions]);
 							res.send({questions:questions.slice(0,10)});
 						});
 					} else {
@@ -1615,9 +1615,6 @@ var initAuthRoutes = require('./api_auth')
 		})
 	}
 
-
-
-
 	
 	router.post('/sendallquestionsforreview', (req, res) => {
 		if (req.body.user && req.body.user.length > 0 && req.body.questions && req.body.questions.length > 0 ) {
@@ -1854,19 +1851,35 @@ var initAuthRoutes = require('./api_auth')
 		//db.collection('questions').find({$where: "this.mnemonic.length == 0"}).toArray().then(function(questions) {
 			//console.log(['LOADING TOPICS, FOUND MNEM FREE QU',questions]);
 			initdb().then(function(db) {
-				db.collection('questions').distinct('quiz').then(function(results) {
-					let final={};
-					results.map(function(key,val) {
-			  //          //console.log([search,key,val]);
-						if (search && search.length > 0 && key.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
-							final[key]=results.length;
-						} 
+				var criteria = {}
+				if (search) criteria = {$text: {$search: search.trim()}};
+				// load topics into index by topic
+				let topicIndex = {}
+				db.collection('topics').find({}).toArray(function(err, topics) {
+					topics.map(function(topic) {
+						topicIndex[topic.topic] = topic.description;
 					});
-					//console.log(['GET TOPICS FINALLY',final]);
-					res.send(final);
-				}).catch(function(e) {
-					res.send({'err':e.message});
+					//console.log('topic index')
+					//console.log(topicIndex);
+					// now query questions
+					db.collection('questions').distinct('quiz',criteria).then(function(results) {
+						let final={};
+						results.map(function(key,val) {
+							if (search && search.length > 0 && key.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
+								final[key]={length: results.length};
+								if (topicIndex.hasOwnProperty(key)) final[key].description = topicIndex[key]
+							} 
+						});
+						
+						
+						//console.log(['GET TOPICS FINALLY',final]);
+						res.send(final);
+					}).catch(function(e) {
+						res.send({'err':e.message});
+					});
+
 				});
+					
 			});
 	})
 

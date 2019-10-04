@@ -3,7 +3,7 @@
 /* global Paho */
 /* global document */
 import {CognitoAuth} from 'amazon-cognito-auth-js';
-	
+import MnemoMicrophone from './MnemoMicrophone'
 import AWS from 'aws-sdk'
 import React, { Component } from 'react';
 //import AdSense from 'react-adsense';
@@ -170,7 +170,7 @@ export default class AppLayout extends Component {
 		this.reallyDeleteComment = this.reallyDeleteComment.bind(this);
 		this.stopWaiting = this.stopWaiting.bind(this);
 		this.startWaiting = this.startWaiting.bind(this);
-		
+		this.setExitRedirect = this.setExitRedirect.bind(this)
 		   
 		this.editCommentReply = this.editCommentReply.bind(this);
 		this.newCommentReply = this.newCommentReply.bind(this);
@@ -420,7 +420,7 @@ export default class AppLayout extends Component {
 					};
 
 					// tslint:disable-next-line:no-any
-					cognitoidentity.getId(params, function(err: any, data: any) {
+					cognitoidentity.getId(params, function(err, data) {
 						if (err) {
 							console.log(err, err.stack); // an error occurred
 						} else {
@@ -742,33 +742,33 @@ export default class AppLayout extends Component {
 
   shout(action,params) {
       //console.log('shout');
-    try {
-       let messageO={'from':this.mqttClientId,action:action,params:params};         
-       let message = new Paho.MQTT.Message(JSON.stringify(messageO));
-        message.destinationName = "presence";
-       this.mqttClient.send(message) 
-    } catch (e) {
-        //console.log(e);
-    }
+    //try {
+       //let messageO={'from':this.mqttClientId,action:action,params:params};         
+       //let message = new Paho.MQTT.Message(JSON.stringify(messageO));
+        //message.destinationName = "presence";
+       //this.mqttClient.send(message) 
+    //} catch (e) {
+        ////console.log(e);
+    //}
   };
 
 
     startMqtt(user) {
         let that = this;
-        if (user && String(user._id).length > 0) {
-            // MQTT
-            this.mqttClientId=  'nemo_'+user._id; //Math.random().toString(16).substr(2, 8);
-            // Create a client instance
-            let client =  new Paho.MQTT.Client(config.externalMqtt, Number(9001), this.mqttClientId);
-            this.mqttClient=client;
-            // set callback handlers
-            this.mqttClient.onConnectionLost = onConnectionLost;
-            this.mqttClient.onMessageArrived = onMessageArrived;
+        //if (user && String(user._id).length > 0) {
+            //// MQTT
+            //this.mqttClientId=  'nemo_'+user._id; //Math.random().toString(16).substr(2, 8);
+            //// Create a client instance
+            //let client =  new Paho.MQTT.Client(config.externalMqtt, Number(9001), this.mqttClientId);
+            //this.mqttClient=client;
+            //// set callback handlers
+            //this.mqttClient.onConnectionLost = onConnectionLost;
+            //this.mqttClient.onMessageArrived = onMessageArrived;
              
-            // connect the client
-            this.mqttClient.connect({onSuccess:onConnect,useSSL:true,keepAliveInterval:60,timeout:3000});  //
+            //// connect the client
+            //this.mqttClient.connect({onSuccess:onConnect,useSSL:true,keepAliveInterval:60,timeout:3000});  //
             
-        }
+        //}
          
         // called when the client connects
         function onConnect() {
@@ -1449,6 +1449,10 @@ export default class AppLayout extends Component {
             //});
         //}
   //}
+  
+  setExitRedirect(redirect) {
+	  this.setState({exitRedirect:redirect})
+  }
     
     
   render() {
@@ -1510,9 +1514,9 @@ export default class AppLayout extends Component {
         let auth =JSON.parse(authRequest);
         if (!auth) auth={};
     
-        let searchPage = <div><TopicsPage topicCollections={this.state.topicCollections} topics={topics}  topicTags={this.state.topicTags} tagFilter={this.state.tagFilter}  clearTagFilter={this.clearTagFilter} setQuizFromTopic={this.setQuizFromTopic} setQuiz={this.setQuizFromTopic} questionsMissingMnemonics={this.state.questionsMissingMnemonics} setQuizFromMissingMnemonic={this.setQuizFromMissingMnemonic} setCurrentPage={this.setCurrentPage} isLoggedIn={this.isLoggedIn} setQuizFromDiscovery={this.setQuizFromDiscovery} setQuizFromDifficulty={this.setQuizFromDifficulty} setQuizFromTopics={this.setQuizFromTopics}  setQuizFromQuestionId={this.setQuizFromQuestionId} title={title} user={this.state.user} showCollection={this.showCollection} hideCollection={this.hideCollection} collectionVisible={this.collectionVisible} collection={this.state.collection} analyticsEvent={this.analyticsEvent} fetch={this.fetch} token={this.state.token} /></div>
+        let searchPage = <div><TopicsPage topicCollections={this.state.topicCollections} topics={topics}  topicTags={this.state.topicTags} tagFilter={this.state.tagFilter}  clearTagFilter={this.clearTagFilter} setQuizFromTopic={this.setQuizFromTopic} setQuiz={this.setQuizFromTopic} questionsMissingMnemonics={this.state.questionsMissingMnemonics} setQuizFromMissingMnemonic={this.setQuizFromMissingMnemonic} setCurrentPage={this.setCurrentPage} isLoggedIn={this.isLoggedIn} setQuizFromDiscovery={this.setQuizFromDiscovery} setQuizFromDifficulty={this.setQuizFromDifficulty} setQuizFromTopics={this.setQuizFromTopics}  setQuizFromQuestionId={this.setQuizFromQuestionId} title={title} user={this.state.user} showCollection={this.showCollection} hideCollection={this.hideCollection} collectionVisible={this.collectionVisible} collection={this.state.collection} analyticsEvent={this.analyticsEvent} fetch={this.fetch} token={this.state.token}  startWaiting={this.startWaiting} stopWaiting={this.stopWaiting} /></div>
         
-        let topicsPageOptions={ analyticsEvent:this.analyticsEvent, titleFilter:this.state.titleFilter,setTitleFilter:this.setTitleFilter,topicCollections:this.state.topicCollections,topics:topics,topicTags:this.state.topicTags,tagFilter:this.state.tagFilter,clearTagFilter:this.clearTagFilter,setQuizFromTopic:this.setQuizFromTopic,setQuiz:this.setQuizFromTopic,questionsMissingMnemonics:this.state.questionsMissingMnemonics,setQuizFromMissingMnemonic:this.setQuizFromMissingMnemonic,setCurrentPage:this.setCurrentPage,isLoggedIn:this.isLoggedIn,setQuizFromDiscovery:this.setQuizFromDiscovery,setQuizFromDifficulty:this.setQuizFromDifficulty,setQuizFromTopics:this.setQuizFromTopics,setQuizFromQuestionId:this.setQuizFromQuestionId,title:title,user:this.state.user,showCollection:this.showCollection,hideCollection:this.hideCollection,collectionVisible:this.collectionVisible,collection:this.state.collection,setQuizFromQuestionId:this.setQuizFromQuestionId ,newCommentReply:this.newCommentReply, fetch:this.fetch, token:this.state.token ,openLoginWindow: this.openLoginWindow}
+        let topicsPageOptions={ analyticsEvent:this.analyticsEvent, titleFilter:this.state.titleFilter,setTitleFilter:this.setTitleFilter,topicCollections:this.state.topicCollections,topics:topics,topicTags:this.state.topicTags,tagFilter:this.state.tagFilter,clearTagFilter:this.clearTagFilter,setQuizFromTopic:this.setQuizFromTopic,setQuiz:this.setQuizFromTopic,questionsMissingMnemonics:this.state.questionsMissingMnemonics,setQuizFromMissingMnemonic:this.setQuizFromMissingMnemonic,setCurrentPage:this.setCurrentPage,isLoggedIn:this.isLoggedIn,setQuizFromDiscovery:this.setQuizFromDiscovery,setQuizFromDifficulty:this.setQuizFromDifficulty,setQuizFromTopics:this.setQuizFromTopics,setQuizFromQuestionId:this.setQuizFromQuestionId,title:title,user:this.state.user,showCollection:this.showCollection,hideCollection:this.hideCollection,collectionVisible:this.collectionVisible,collection:this.state.collection,setQuizFromQuestionId:this.setQuizFromQuestionId ,newCommentReply:this.newCommentReply, fetch:this.fetch, token:this.state.token ,openLoginWindow: this.openLoginWindow, startWaiting: this.startWaiting, stopWaiting: this.stopWaiting}
         
         let profilePageOptions = {analyticsEvent:this.analyticsEvent,  token:this.state.token,setCurrentPage:this.setCurrentPage,setQuizFromDiscovery:this.setQuizFromDiscovery,reviewBySuccessBand:this.reviewBySuccessBand,setReviewFromTopic:this.setReviewFromTopic,setQuizFromTopic:this.discoverQuizFromTopic,searchQuizFromTopic:this.setQuizFromTopic, isAdmin:this.isAdmin,saveUser:this.saveUser,user:this.state.user,token:this.state.token,logout:this.logout,import:this.import,importMultipleChoice:this.importMultipleChoice,isLoggedIn:this.isLoggedIn, fetch:this.fetch, token:this.state.token,openLoginWindow: this.openLoginWindow}
         
@@ -1532,7 +1536,10 @@ export default class AppLayout extends Component {
         
         
 			<div style={{width:'100%'}} className="mnemo">
+				<MnemoMicrophone navigateTo={this.setExitRedirect}/>
+				
 				{(this.state.waiting) && <div onClick={this.stopWaiting} style ={{position: 'fixed', top: 0, left: 0, width:'100%',height:'100%',backgroundColor:'grey',zIndex:9999999,opacity:0.3}}  ><img style={{height:'7em' }} src='/loading.gif' /></div>}
+				
 				
 				{this.state.message && <b style={{zIndex:99999999,position:'fixed',top:'7em',left:'50%',backgroundColor:'pink',border:'1px solid black',color:'black',padding:'0.8em'}}>{this.state.message}</b>}
 				

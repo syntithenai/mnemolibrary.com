@@ -439,8 +439,6 @@ export default class MultipleChoiceQuestions extends Component {
 			scrollToComponent(that.scrollTo['top'],{align:'top',offset:-100});
 		})
 		return false;
-
-
 	}
     
     // scroll to next unanswered question

@@ -8,3 +8,4 @@ secrets.prod.yml
 node_modules
 .serverless
 .env
+hermod
