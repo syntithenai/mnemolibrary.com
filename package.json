@@ -18,7 +18,7 @@
     "jwk-to-pem": "^2.0.1",
     "jwks-rsa": "^1.6.0",
     "mongo-express": "^0.53.0",
-    "mongoose": "^5.6.9",
+    "mongoose": "^5.7.5",
     "mqtt": "^3.0.0",
     "ms": "^2.1.2",
     "mustache": "^3.0.1",
