@@ -899,7 +899,7 @@ export default class MultipleChoiceQuestions extends Component {
 			// read more
 			//http://localhost:3000/discover/topic/World%20History/5be3806df8ab4600852a5c80
 			let wrongRendered = wrongQuestions.map(function(wq) {
-				return <li key={wq._id}><a target="_blank" href={'/discover/searchtopic/'+wq.topic+'/'+wq.questionId} >{Utils.getQuestionTitle(wq)}</a></li>
+				return <li key={wq._id}><a target="_blank" href={'/discover/searchtopic/'+wq.topic+'/'+wq.questionId} >{Utils.getQuestionTitle(wq.relatedQuestion ? wq.relatedQuestion : wq)}</a></li>
 			});
 			
 			return <div  ref={(section) => { that.scrollTo.top = section; }}  style={{marginLeft:'0.3em'}} >
