@@ -1029,7 +1029,7 @@ var initAuthRoutes = require('./api_auth')
 				 //// no time filter for search based
 			 //} else {
 				function getTsXHoursBack(x) {
-					return parseInt(new Date().getTime()/1000 - (3600 * x),10)
+					return parseInt((new Date().getTime() - (3600000 * x))/1000,10) // return seconds as per userquestionprogress.seen
 				}
 				//let oneHourBack = new Date().getTime() - 3600000;
 				//let oneDayBack = new Date().getTime() - 86400000;
