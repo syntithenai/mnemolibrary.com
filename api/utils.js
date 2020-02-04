@@ -6,15 +6,30 @@ const SES = new AWS.SES({ region: 'us-west-2' });
 
 
 //const config=require('./config');
+// OLD GMAIL 
+//var config={
+    //transport :{
+      //service: 'gmail',
+      //auth: {
+        //user: process.env.emailUsername,
+        //pass: process.env.emailPassword
+      //}
+    //}
+//}
+// NEW SMTP SENDGRID
 var config={
     transport :{
-      service: 'gmail',
-      auth: {
-        user: process.env.emailUsername,
-        pass: process.env.emailPassword
-      }
-    }
+	  host: process.env.emailSmtpServer,
+	  port: process.env.emailSmtpPort,
+	  secure: false, // upgrade later with STARTTLS
+	  auth: {
+		user: process.env.emailUsername,
+		pass: process.env.emailPassword
+	  }
+	}
 }
+
+
 var ObjectId = require('mongodb').ObjectID;
 //var removeDiacritics=require('./diacritics');
     
@@ -102,28 +117,28 @@ let utilFunctions =  {
        // console.log(['out START SEND',config.transport,from,to,subject,html])
 			
         return new Promise(function(resolve,reject) {
-		//	console.log(['START SEND',config.transport])
-			//console.log(config.transport)
+			console.log(['START SEND',config.transport])
+			console.log(JSON.stringify(config.transport))
 			try {
 				var transporter = nodemailer.createTransport(config.transport);
 			} catch (e) {
 				console.log(e);
 			}
-			//console.log(['created transport'])
+			console.log(['created transport'])
 			var mailOptions = {
 			  from: from,
 			  to: to,
 			  subject: subject,
 			  html: html
 			};
-			//console.log(['SEND MAIL ',JSON.stringify(mailOptions)])
+			console.log(['SEND MAIL ',JSON.stringify(mailOptions)])
 			transporter.sendMail(mailOptions, function(error, info){
 			  if (error) {
 				console.log(error);
 				reject(error)
-				res.send('FAIL');
+				//res.send('FAIL');
 			  } else {
-				//console.log('Email sent: ' + info.response);
+				console.log('Email sent: ' + info.response);
 				resolve(info);
 				//res.send('OK');
 			  }

@@ -553,6 +553,7 @@ function initdb() {
 
 	router.post('/importmultiplechoicequestions', (req, res) => {
 	  console.log(['import MC']);
+	  console.log(JSON.stringify(process.env))
 	  let that = this;
 		let url = ''; //config.masterSpreadsheet;
 		initdb().then(function(db) {
@@ -561,138 +562,145 @@ function initdb() {
 			var importId = req.body && req.body.importId && req.body.importId > 0 ? parseInt(req.body.importId,10) - 1 : -1;
 			if (importId >= 0) {
 				//let importId = req.body.importId && req.body.importId > 0 ? parseInt(req.body.importId,10) : 0;
-				let key = 'importMultipleChoice_'+req.body.importId
+				let key = 'importMultipleChoice_'+importId
 				if (process.env[key]) {
 					url = process.env[key];
+					console.log(['Valid import sheet '+importId, url]);
 				} else {
+					console.log('Invalid import sheet '+importId);
+					
 					res.send('Invalid import sheet '+importId);
 					return;
 				}
 				
-				//console.log(['IMPORT URL',url]);
+				console.log(['IMPORT URL',url]);
 				// load mnemonics and collate tags, topics
 				
 				fetch(url).then(function(response) {
-					return response.text();
+					console.log(['response',response])
+					if (response) return response.text();
 				}).then(function(text) {
-					Papa.parse(response, {
-					'header': true, 
-					'delimiter': ",",	
-					'newline': "",	
-					'quoteChar': '"',
-					//'escapeChar': "\\",
-					
-					'complete': function(data) {
-					//	const toImport = {'questions':data.data};
-						console.log(['IMPORTED',data.data]);
-						console.log(['IMPORTED','Errors ->',data.errors]);
-						let toSave=[];
-						let toDump=[];
-						let promises=[];
-						if (data && data.data) {
-							data.data.map(function(mcQuestion) {
-								if (mcQuestion) {
-									console.log([mcQuestion.specific_question,mcQuestion.specific_answer,mcQuestion.topic,mcQuestion.multiple_choices]);
-									if (mcQuestion.topic && mcQuestion.topic.length > 0
-										&& mcQuestion.specific_question && mcQuestion.specific_question.length > 0
-										&& mcQuestion.specific_answer && mcQuestion.specific_answer.length > 0
-										&& mcQuestion.multiple_choices && mcQuestion.multiple_choices.length > 0
-									) {
-										let newQ = {}
-										try {
-											newQ._id = mcQuestion._id && mcQuestion._id.length > 0 ? ObjectId(mcQuestion._id): ObjectId()
-										} catch (e) {
-											newQ._id = ObjectId()
+					console.log(['text',text])
+					if (text && text.length > 0) {
+						Papa.parse(text, {
+						'header': true, 
+						'delimiter': ",",	
+						'newline': "",	
+						'quoteChar': '"',
+						//'escapeChar': "\\",
+						
+						'complete': function(data) {
+						//	const toImport = {'questions':data.data};
+							console.log(['IMPORTED',data.data]);
+							console.log(['IMPORTED','Errors ->',data.errors]);
+							let toSave=[];
+							let toDump=[];
+							let promises=[];
+							if (data && data.data) {
+								data.data.map(function(mcQuestion) {
+									if (mcQuestion) {
+										console.log([mcQuestion.specific_question,mcQuestion.specific_answer,mcQuestion.topic,mcQuestion.multiple_choices]);
+										if (mcQuestion.topic && mcQuestion.topic.length > 0
+											&& mcQuestion.specific_question && mcQuestion.specific_question.length > 0
+											&& mcQuestion.specific_answer && mcQuestion.specific_answer.length > 0
+											&& mcQuestion.multiple_choices && mcQuestion.multiple_choices.length > 0
+										) {
+											let newQ = {}
+											try {
+												newQ._id = mcQuestion._id && mcQuestion._id.length > 0 ? ObjectId(mcQuestion._id): ObjectId()
+											} catch (e) {
+												newQ._id = ObjectId()
+											}
+											console.log(['NEWQ id',mcQuestion.sort,JSON.stringify(mcQuestion)])
+											newQ.topic = mcQuestion.topic
+											newQ.question = mcQuestion.specific_question
+											newQ.answer = mcQuestion.specific_answer
+											newQ.multiple_choices = mcQuestion.multiple_choices
+											newQ.questionId = (mcQuestion.questionId && mcQuestion.questionId.length > 0 ? ObjectId(mcQuestion.questionId) : null)
+											console.log(['NEWQ qid'])
+											newQ.feedback=mcQuestion.feedback
+											newQ.importId='MC-'+importId
+											newQ.sort=mcQuestion.sort
+											newQ.difficulty = mcQuestion.difficulty
+											newQ.user='default'
+											newQ.image=mcQuestion.image
+											newQ.autoshow_image=mcQuestion.autoshow_image
+											newQ.media=mcQuestion.media
+											console.log(['NEWQ',newQ])
+											toSave.push(newQ)
 										}
-										console.log(['NEWQ id',mcQuestion.sort,JSON.stringify(mcQuestion)])
-										newQ.topic = mcQuestion.topic
-										newQ.question = mcQuestion.specific_question
-										newQ.answer = mcQuestion.specific_answer
-										newQ.multiple_choices = mcQuestion.multiple_choices
-										newQ.questionId = (mcQuestion.questionId && mcQuestion.questionId.length > 0 ? ObjectId(mcQuestion.questionId) : null)
-										console.log(['NEWQ qid'])
-										newQ.feedback=mcQuestion.feedback
-										newQ.importId='MC-'+importId
-										newQ.sort=mcQuestion.sort
-										newQ.difficulty = mcQuestion.difficulty
-										newQ.user='default'
-										newQ.image=mcQuestion.image
-										newQ.autoshow_image=mcQuestion.autoshow_image
-										newQ.media=mcQuestion.media
-										console.log(['NEWQ',newQ])
-										toSave.push(newQ)
 									}
-								}
-							});
-							console.log(['TOSAVE',toSave.length])
-							toSave.map(function(question,key) {
-								let p = new Promise(function(resolve,reject) {
-									if (question._id) {
-										db.collection('multiplechoicequestions').findOne({_id: ObjectId(question._id)}).then(function(existingQuestion) {
-											// update
-											//console.log(['done find det ins/upd',existingQuestion])
-											if (existingQuestion) {
-												db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {question
-													console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
-													resolve(Object.assign(existingQuestion,question));
+								});
+								console.log(['TOSAVE',toSave.length])
+								toSave.map(function(question,key) {
+									let p = new Promise(function(resolve,reject) {
+										if (question._id) {
+											db.collection('multiplechoicequestions').findOne({_id: ObjectId(question._id)}).then(function(existingQuestion) {
+												// update
+												//console.log(['done find det ins/upd',existingQuestion])
+												if (existingQuestion) {
+													db.collection('multiplechoicequestions').updateOne({_id:existingQuestion._id},{$set:question}).then(function() {question
+														console.log(['UPDATED MC',Object.assign(existingQuestion,question)])
+														resolve(Object.assign(existingQuestion,question));
+													});
+													
+												// insert
+												} else {
+													question.createDate = new Date().getTime();
+													db.collection('multiplechoicequestions').insertOne(question).then(function() {
+															console.log(['inserted MC',question])
+															resolve(question);
+														});
+													}
 												});
-												
-											// insert
-											} else {
+											} else { 
+												// insert
 												question.createDate = new Date().getTime();
 												db.collection('multiplechoicequestions').insertOne(question).then(function() {
-														console.log(['inserted MC',question])
-														resolve(question);
-													});
-												}
-											});
-										} else { 
-											// insert
-											question.createDate = new Date().getTime();
-											db.collection('multiplechoicequestions').insertOne(question).then(function() {
-												console.log(['inserted MC',question])
-												resolve(question);
-											});
-										}
-										
-									});
-									promises.push(p);
-								})
-								
-								Promise.all(promises).then(function(toDump) {
-									//cleanup
-									//console.log(['TODUMPE',toDump])
-										
-									let ids=[];
-									let final=[];
-									toDump.map(function(val) {
-										//console.log(['TODUMPE v',val])
-										ids.push(ObjectId(val._id));
-										final.push({
-											_id:ObjectId(val._id),
-											topic:val.topic,
-											questionId:ObjectId(val.questionId),
-											specific_question:val.question,
-											specific_answer:val.answer,
-											multiple_choices:val.multiple_choices,
-											feedback:val.feedback,
-											sort:val.sort,
-											image:val.image,
-											importId: val.importId,
-											createDate:val.createDate
+													console.log(['inserted MC',question])
+													resolve(question);
+												});
+											}
+											
 										});
-									});
-									console.log(['NOW DELETE',JSON.stringify({$and:[{_id: {$nin:ids}},{user:'default'},{importId:importId}]})])
-									db.collection('multiplechoicequestions').remove({$and:[{_id: {$nin:ids}},{user:{$eq:'default'}},{importId:{$eq:'MC-'+importId}}]}).then(function(dresults) {
-										console.log(['cleanup done',dresults]); 
-									});
-									// download with ids to bring back into google sheet
-									let unparsed = Papa.unparse(final,{quotes: true});
-									res.send(unparsed);
-								})
+										promises.push(p);
+									})
+									
+									Promise.all(promises).then(function(toDump) {
+										//cleanup
+										//console.log(['TODUMPE',toDump])
+											
+										let ids=[];
+										let final=[];
+										toDump.map(function(val) {
+											//console.log(['TODUMPE v',val])
+											ids.push(ObjectId(val._id));
+											final.push({
+												_id:ObjectId(val._id),
+												topic:val.topic,
+												questionId:ObjectId(val.questionId),
+												specific_question:val.question,
+												specific_answer:val.answer,
+												multiple_choices:val.multiple_choices,
+												feedback:val.feedback,
+												sort:val.sort,
+												image:val.image,
+												importId: val.importId,
+												createDate:val.createDate
+											});
+										});
+										console.log(['NOW DELETE',JSON.stringify({$and:[{_id: {$nin:ids}},{user:'default'},{importId:importId}]})])
+										db.collection('multiplechoicequestions').remove({$and:[{_id: {$nin:ids}},{user:{$eq:'default'}},{importId:{$eq:'MC-'+importId}}]}).then(function(dresults) {
+											console.log(['cleanup done',dresults]); 
+										});
+										// download with ids to bring back into google sheet
+										let unparsed = Papa.unparse(final,{quotes: true});
+										res.send(unparsed);
+									})
+								}
 							}
-						}
-					});
+						});
+					}
 				}).catch(function(e) {
 					console.log(e);
 				})

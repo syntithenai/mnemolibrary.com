@@ -71,6 +71,8 @@ provider:
     authUrl: ${self:custom.authUrl}
     authClientId: ${self:custom.secrets.clientId}
     authClientSecret: ${self:custom.secrets.clientSecret}
+    emailSmtpServer: ${self:custom.secrets.emailSmtpServer}
+    emailSmtpPort: ${self:custom.secrets.emailSmtpPort}
     emailUsername: ${self:custom.secrets.emailUsername}
     emailPassword: ${self:custom.secrets.emailPassword}
     importSheets_0: ${self:custom.secrets.importSheets.0}
