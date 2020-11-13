@@ -18,7 +18,7 @@ custom:
   # CUSTOMISE ME 
   servicename: mnemolibrary
   region: us-west-2
-  stage: prod
+  stage: prod2
   fromEmail: syntithenai@gmail.com
   websiteDomain: mnemolibrary.com
   redirectUrl_live: https://${self:custom.websiteDomain}/
@@ -58,6 +58,7 @@ package:
   exclude:
     - client/**
     - old/**
+    - rasa/**
     
 provider:
   name: aws
@@ -336,7 +337,7 @@ resources:
     S3WebsiteUploads:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: ${self:custom.websiteDomain}-${self:custom.stage}-files 
+        BucketName: ${self:custom.websiteDomain}-${self:custom.stage}-files
         # Set the CORS policy
         CorsConfiguration:
           CorsRules:

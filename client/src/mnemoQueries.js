@@ -39,7 +39,8 @@ let mnemoQueries = {
       let that = this;
       if (this.state.user) {
 		that.setState({'waiting':true});
-        that.fetch('/api/review?user='+this.state.user._id).then(function(response) {
+        var cacheBuster="&t="+parseInt(Math.random()*1000000000)
+        that.fetch('/api/review?user='+this.state.user._id+cacheBuster).then(function(response) {
             return response.json()
           }).then(function(json) {
               let result = createIdIndex(json['questions']);
@@ -54,7 +55,8 @@ let mnemoQueries = {
    reviewBySuccessBand : function(band) {
       //console.log(['set review from band',band]);
       let that = this;
-      let url='/api/review?band='+band ;
+      var cacheBuster="&t="+parseInt(Math.random()*1000000000)
+      let url='/api/review?band='+band + cacheBuster;
       if (this.state.user) {
           url=url+'&user='+this.state.user._id;
       }
@@ -74,7 +76,8 @@ let mnemoQueries = {
   setReviewFromTopic : function(topic,selectedQuestion) {
      // console.log(['REVIEW PAGE applayout',topic,selectedQuestion]); 
       let that = this;
-      let url='/api/review?topic='+topic ;
+      var cacheBuster="&t="+parseInt(Math.random()*1000000000)
+      let url='/api/review?topic=' + topic + cacheBuster ;
       if (this.state.user) {
           url=url+'&user='+this.state.user._id;
       }
