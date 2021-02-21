@@ -1017,7 +1017,7 @@ export default class MultipleChoiceQuestions extends Component {
  
 						{answered && !that.props.carousel && question.attribution && <div>Attribution: {question.attribution}</div>}	
 						
-						{answered && !that.props.carousel && question.feedback && <div style={{paddingTop: '2em',}}>
+						{answered  && question.feedback && <div style={{paddingTop: '2em',}}>
 						{question.feedback}</div>} 
 
 						{!that.props.viewOnly && !isQuestionPage && question.relatedQuestion && question.relatedQuestion.question && answered && <div>

@@ -5,7 +5,10 @@ uploaderendpoints.js
 liveconfig.js
 secrets.dev.yml
 secrets.prod.yml
+secrets.prod2.yml
 node_modules
 .serverless
 .env
 hermod
+
+rasa/models/
