@@ -5,7 +5,7 @@
   "dependencies": {
     "amazon-cognito-auth-js": "^1.3.2",
     "aws-sdk": "^2.610.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bluebird": "^3.7.2",
     "crunker": "^0.2.0",
     "crypto": "^1.0.1",
