@@ -22,7 +22,7 @@
     "nodemailer": "^4.6.3",
     "npm": "^6.13.7",
     "popper.js": "^1.16.1",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "react": "^16.12.0",
     "react-adsense": "0.0.5",
     "react-app-polyfill": "^1.0.6",
