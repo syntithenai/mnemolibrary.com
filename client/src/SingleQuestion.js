@@ -120,7 +120,7 @@ export default class SingleQuestion extends Component {
 			if (e.code === "ArrowRight") {
 				this.handleQuestionResponse(this.props.question,'next')
 			} else if (e.code === "ArrowLeft") {
-				this.handleQuestionResponse(this.props.question,'previous')
+				this.handleQuestionResponse(this.props.question,'block')
 			}
 		}
 	}
