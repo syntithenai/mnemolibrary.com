@@ -6,7 +6,7 @@
     "@nivo/bar": "^0.59.0",
     "@nivo/pie": "^0.59.0",
     "@nivo/tooltip": "^0.59.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "bootstrap-toggle": "^2.2.2",
     "compromise": "^11.14.3",
