@@ -7,12 +7,13 @@ import 'whatwg-fetch'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
+import ModalDialog from './ModalDialog'
 
 export default class ReviewPage extends Component {
 
     constructor(props) {
         super(props);
-        this.state={};
+        this.state={modalDialog:  null};
         //this.state = {
             //questions : this.props.questions,
             //indexedQuestions : this.props.indexedQuestions,
@@ -22,6 +23,7 @@ export default class ReviewPage extends Component {
         this.getQuestionsForReview = this.getQuestionsForReview.bind(this);
         this.reviewQuestions = this.reviewQuestions.bind(this);
         this.discoverQuestions = this.discoverQuestions.bind(this);
+		this.handleKeyDown = this.handleKeyDown.bind(this)
     };
 
     componentDidMount() {
@@ -41,12 +43,15 @@ export default class ReviewPage extends Component {
 	}
         
     goto(page) {
+		this.setState({modalDialog: null})
        this.setState({exitRedirect:page});
+       window.removeEventListener('keydown',this.handleKeyDown)
 	};
       
       
     // return seen questionIds sorted by 'review status'
     getQuestionsForReview() {
+		this.setState({modalDialog: null})
       //console.log('getQuestionsForReview');
       //let topic = this.props.getCurrentTopic();
       this.props.getQuestionsForReview();
@@ -54,6 +59,8 @@ export default class ReviewPage extends Component {
     
     
     discoverQuestions() {
+		this.setState({modalDialog: null})
+		window.removeEventListener('keydown',this.handleKeyDown)
 		  let that = this;
 			 if (this.props.match && this.props.match.params.topic && this.props.match.params.topic.length > 0) {
                // setTimeout(function() {
@@ -75,6 +82,8 @@ export default class ReviewPage extends Component {
     
     
     reviewQuestions() {
+		this.setState({modalDialog: null})
+		window.removeEventListener('keydown',this.handleKeyDown)
 		let that = this;
 		 if (this.props.match && this.props.match.params.topic && this.props.match.params.topic.length > 0) {
                 setTimeout(function() {
@@ -103,19 +112,35 @@ export default class ReviewPage extends Component {
         //this.props.setCurrentPage('review')
     };
     
+    handleKeyDown(e) {
+		let that = this
+		console.log(['review key',e])
+		if (e.code === "ArrowRight") {
+			that.reviewQuestions()
+			this.setState({modalDialog: null})
+			window.removeEventListener('keydown',this.handleKeyDown)
+		}
+	}
+		
+    
     finishReview(questions,success) {
+		let that = this
       // //console.log('finish review');
       this.props.analyticsEvent('finish review');
        //this.setCurrentPage('review');
        //let topic = this.props.getCurrentTopic();
        //console.log(['finish review',topic]);
-        confirmAlert({
+        
+       
+        window.addEventListener('keydown',this.handleKeyDown)
+        this.setState({modalDialog: {
           title: 'Review set complete',
           message: 'You recalled '+success.length+' out of '+questions.length+' questions.',
           buttons: [
             {
               label: 'Continue Review',
-              onClick: () => this.reviewQuestions()
+              onClick: () => this.reviewQuestions(),
+              variant: 'success'
             },
             {
               label: 'Discover',
@@ -130,7 +155,11 @@ export default class ReviewPage extends Component {
               onClick: () => this.goto('/profile')
             }
           ]
-        })
+        }})
+        //,
+          //willUnmount: function() {
+			   //window.removeEventListener('keydown',handleKeyDown)
+		  //}
       // this.props.setMessage('Review complete. You recalled '+success.length+' out of '+questions.length+' questions.'); 
        
     };
@@ -138,6 +167,8 @@ export default class ReviewPage extends Component {
     render() {
          if (this.state.exitRedirect && this.state.exitRedirect.length > 0) {
             return <Redirect to={this.state.exitRedirect} />
+        } else if (this.state.modalDialog) {
+            return <ModalDialog {...this.state.modalDialog} />
         } else {
 			////console.log(['REVIEW',this.props.user]);
 		   if (this.props.isLoggedIn()) {

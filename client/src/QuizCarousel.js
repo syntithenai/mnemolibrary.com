@@ -1,3 +1,4 @@
+/* global window */
 /* eslint-disable */ 
 import React, { Component } from 'react';
 import Utils from './Utils';
@@ -12,7 +13,9 @@ import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-d
 import { withRouter } from "react-router-dom";
 import scrollToComponent from 'react-scroll-to-component'
 import MyMultipleChoiceStats from './MyMultipleChoiceStats'
-	    	             
+import ModalDialog from './ModalDialog'
+   
+   
     
 export default withRouter( class QuizCarousel extends Component {
     constructor(props) {
@@ -28,7 +31,8 @@ export default withRouter( class QuizCarousel extends Component {
             'success' : [],
             'logged':{seen:{},success:{}},
             showQuestionListDetails: false,
-            exitRedirect:null
+            exitRedirect:null,
+            modalDialog: null
         };
         this.scrollTo = {}
 		this.handleQuestionResponse = this.handleQuestionResponse.bind(this);
@@ -49,17 +53,30 @@ export default withRouter( class QuizCarousel extends Component {
 		this.showQuestionList = this.showQuestionList.bind(this);
 		this.hideQuestionList = this.hideQuestionList.bind(this);
 		this.markAllQuestionsReviewed= this.markAllQuestionsReviewed.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this)
+		this.handleStartKeyPress = this.handleStartKeyPress.bind(this)
       //
       //  //console.log(['QUIZ carousel constr']);
     };
     
+    //logit(e) {
+		//console.log('login carousel')
+	//}
+
     componentDidMount() {
         if (this.props.isReview !== true) {
            this.initialiseFromParams();     
         
         }
-    };
+        //console.log('KEYBIND')
+        //window.addEventListener('onkeydown',this.logit)
+        //window.addEventListener('keydown',this.logit)
+    }
     
+    //componentWillUnmount() {
+		//window.removeEventListener('keydown',this.logit)
+	//}       
+
     
     componentDidUpdate(props) {
 		console.log(['QUIZ CAR DID UPDATE',props.match,this.props.match]);
@@ -95,6 +112,9 @@ export default withRouter( class QuizCarousel extends Component {
   
      
     initialiseFromParams() {
+		window.removeEventListener('keydown',this.handleKeyPress)
+		window.removeEventListener('keydown',this.handleStartKeyPress)
+		this.setState({modalDialog: null})
 		let that = this;
 			console.log(['QUIZ CAR DID MOUNT',this.props,this.props.isReview,this.props.match]); //this.state.currentQuiz,this.props.questions
             if (this.props.match && this.props.match.params && this.props.match.params.searchtopic && this.props.match.params.searchtopic.length > 0) {
@@ -200,7 +220,9 @@ export default withRouter( class QuizCarousel extends Component {
   };
   
   goto(page) {
-      this.setState({exitRedirect:page});
+      window.removeEventListener('keydown',this.handleKeyPress)
+      window.removeEventListener('keydown',this.handleStartKeyPress)
+      this.setState({modalDialog: null, exitRedirect:page});
   };
       
   logStatus(status,question,preview,topic) {
@@ -240,7 +262,8 @@ export default withRouter( class QuizCarousel extends Component {
   };    
 
   banQuestion(questions,id,time,topic) {
-      
+      window.removeEventListener('keydown',this.handleKeyPress)
+      window.removeEventListener('keydown',this.handleStartKeyPress)
       //console.log(['BAN QUESTION',this.props.currentQuiz.length,this.isQuizFinished(),questions,id,time,topic]);
       questions.block[id] = time;
        this.logStatus('block',id,false,topic);
@@ -263,6 +286,8 @@ export default withRouter( class QuizCarousel extends Component {
   };
   
 	gotoQuestion(questionKey) {
+		window.removeEventListener('keydown',this.handleKeyPress)
+		window.removeEventListener('keydown',this.handleStartKeyPress)
 		console.log(['GOTO QUESTION',questionKey])
 		let question = parseInt(questionKey,10) != NaN && this.props.questions && this.props.questions[parseInt(questionKey,10)] ? this.props.questions[parseInt(questionKey,10)] : null;
 		if (question) {
@@ -274,6 +299,8 @@ export default withRouter( class QuizCarousel extends Component {
   // handle user click on Remember, Forgot, Skip, Ban
   // update user questions history and remove question from current Quiz
   handleQuestionResponse(question,response) {
+	  window.removeEventListener('keydown',this.handleStartKeyPress)
+	  window.removeEventListener('keydown',this.handleKeyPress)
       this.props.setMessage('');
       const id = question._id;
       console.log(['handle response',response,id,question]);
@@ -366,9 +393,30 @@ export default withRouter( class QuizCarousel extends Component {
         return question;
     };
     
+    handleStartKeyPress(e) {
+		let that = this
+			console.log(['carousel key',e])
+			if (e.code === "ArrowRight") {
+				this.setState({'showList':false});
+				window.removeEventListener('keydown',this.handleStartKeyPress)
+			}
+		}
+    
+    handleKeyPress(e) {
+		let that = this
+			console.log(['carousel key',e])
+			if (e.code === "ArrowRight") {
+				that.initialiseFromParams()
+				this.setState({'showList':false});
+				window.removeEventListener('keydown',this.handleKeyPress)
+			}
+		}
+    
        // FINISH QUIZ CAROUSEL
    finishQuiz(success,questions) {
-      
+      window.removeEventListener('keydown',this.handleStartKeyPress)
+      window.removeEventListener('keydown',this.handleKeyPress)
+      let that = this
       //<MyMultipleChoiceStats fetch={this.props.fetch} />
            
       // //console.log(['finish quiz',this.props.finishQuiz]);
@@ -387,7 +435,8 @@ export default withRouter( class QuizCarousel extends Component {
                 },
                 {
                   label: 'Continue',
-                  onClick: () => this.initialiseFromParams()
+                  onClick: () => this.initialiseFromParams(),
+                  variant: 'success'
                 },
                 {
                   label: 'Search',
@@ -397,15 +446,26 @@ export default withRouter( class QuizCarousel extends Component {
             if (this.props.user && String(this.props.user._id).length > 0) {
                 buttons.push({
                   label: 'Profile',
-                  onClick: () => this.goto('/profile')
+                  onClick: () => this.goto('/profile') 
                 })
             }
             
-            confirmAlert({
+ 
+            
+            window.addEventListener('keydown',this.handleKeyPress)
+            //confirmAlert({
+              //title: 'Question set complete',
+              //message: 'Time for review?',
+              //buttons: buttons,
+              //willUnmount: function() {
+				   //window.removeEventListener('keydown',handleKeyPress)
+			  //}
+            //})
+            this.setState({modalDialog: {
               title: 'Question set complete',
               message: 'Time for review?',
-              buttons: buttons
-            })
+              buttons: buttons,
+            }})
         }    
         this.setState({'success' : []});
         
@@ -416,6 +476,8 @@ export default withRouter( class QuizCarousel extends Component {
    }; 
    
     discoverQuestions() {
+        window.removeEventListener('keydown',this.handleStartKeyPress)
+        window.removeEventListener('keydown',this.handleKeyPress)
         //let that = this;
         ////this.props.setQuizFromDiscovery();
         ////let topic = this.props.getCurrentTopic();
@@ -434,7 +496,9 @@ export default withRouter( class QuizCarousel extends Component {
     
     
     reviewQuestions() {
-       
+       window.removeEventListener('keydown',this.handleStartKeyPress)
+       window.removeEventListener('keydown',this.handleKeyPress)
+       this.setState({modalDialog: null})
        let that = this;
 			 if (this.props.match && this.props.match.params.topic && this.props.match.params.topic.length > 0) {
                // setTimeout(function() {
@@ -472,6 +536,8 @@ export default withRouter( class QuizCarousel extends Component {
     
     setQuizQuestion(question) {
     //    //console.log(['set quiz ques',question,this.props.currentQuiz]);
+        window.removeEventListener('keydown',this.handleStartKeyPress)
+        window.removeEventListener('keydown',this.handleKeyPress)
         if (Utils.isObject(question) && question._id && question._id.length > 0) {
             ////console.log(['setQuizQuestion',question]);
             let index = this.props.currentQuiz.indexOf(question._id);
@@ -482,20 +548,28 @@ export default withRouter( class QuizCarousel extends Component {
     };
     
     onClickListQuestion(question) {
+		window.removeEventListener('keydown',this.handleStartKeyPress)
+		window.removeEventListener('keydown',this.handleKeyPress)
 		this.hideQuestionListDetails();
         this.setQuizQuestion(question)
     };
     
     showQuestionListDetails() {
+		window.removeEventListener('keydown',this.handleStartKeyPress)
+		window.removeEventListener('keydown',this.handleKeyPress)
 		this.setState({showQuestionListDetails:true})
 	}
 	
 	hideQuestionListDetails() {
+		window.removeEventListener('keydown',this.handleStartKeyPress)
+		window.removeEventListener('keydown',this.handleKeyPress)
 		this.setState({showQuestionListDetails:false})
 	}
 	
 	
 	markAllQuestionsReviewed(questions) {
+		window.removeEventListener('keydown',this.handleStartKeyPress)
+		window.removeEventListener('keydown',this.handleKeyPress)
 		let that = this;
 		this.props.startWaiting()
 		if (questions && questions.length > 0) {
@@ -549,6 +623,8 @@ export default withRouter( class QuizCarousel extends Component {
     render() {
         if (this.state.exitRedirect && this.state.exitRedirect.length > 0) {
             return <Redirect to={this.state.exitRedirect} />
+        } else if (this.state.modalDialog) {
+            return <ModalDialog {...this.state.modalDialog} />
         } else {
             let questions = this.props.currentQuiz;
             ////console.log(['RENDER CAROUS',questions]);
@@ -572,12 +648,15 @@ export default withRouter( class QuizCarousel extends Component {
           //  //console.log(['RENDER CAROUS2',question,questions]);
           //  if (Array.isArray(questions) && questions.length > 0 && Utils.isObject(question)) {
                 if (this.state.showList) {
+					window.addEventListener('keydown',this.handleStartKeyPress)
+            
                     let listQuestions = this.getQuestions(this.props.currentQuiz);
                     let label='Start' ;
                     if (parseInt(this.props.currentQuestion,10) > 0) {
                         label='Continue' ;
                     }
                     content = (<div>
+                            
 					<div  ref={(section) => { this.scrollTo.topOfPage = section; }} ></div>
 
                     <button className='btn btn-success' onClick={() => this.setQuizQuestion(this.currentQuestion())}   >
@@ -613,9 +692,10 @@ export default withRouter( class QuizCarousel extends Component {
                 //// no matching questions
                 //content = (<div><FindQuestions discoverQuestions={this.props.discoverQuestions} setCurrentPage={this.props.setCurrentPage} /></div>)
             //}
-                    
+                 
             return (
-                <div className='quiz-carousel'>
+                <div className='quiz-carousel' >
+               
                    { this.state.exitRedirect && this.state.exitRedirect.length > 0 &&  <Redirect to={this.state.exitRedirect} />}
             
 					{content}

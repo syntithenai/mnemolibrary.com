@@ -90,7 +90,7 @@ export default class SingleQuestion extends Component {
         this.setShareDialog = this.setShareDialog.bind(this);
         this.imageLoaded = this.imageLoaded.bind(this);
         this.imageLoadError = this.imageLoadError.bind(this);
-        
+        this.handleKeyDown = this.handleKeyDown.bind(this)
         
         this.scrollTo={};
         this.questionmessage='';
@@ -100,6 +100,31 @@ export default class SingleQuestion extends Component {
     };
   
   
+    handleKeyDown(e) {
+		console.log(['logit sinlge',e])
+		// review
+		if (this.props.successButton) {
+			if (e.code === "ArrowRight") {
+				if (this.isVisible('answer') ) {
+					this.handleQuestionResponse(this.props.question,'success')
+				} else {
+					this.setVisible('all')
+				} 
+			} else if (e.code === "ArrowLeft") {
+				if (this.isVisible('answer')) {
+					this.handleQuestionResponse(this.props.question,'next')
+				}
+			}
+		// discover
+		} else {
+			if (e.code === "ArrowRight") {
+				this.handleQuestionResponse(this.props.question,'next')
+			} else if (e.code === "ArrowLeft") {
+				this.handleQuestionResponse(this.props.question,'previous')
+			}
+		}
+	}
+
     
       componentDidMount() {
           let that = this;
@@ -119,7 +144,15 @@ export default class SingleQuestion extends Component {
 				that.props.loadComments(that.props.question._id,that.props.user ? that.props.user._id : null);
 			}
 		//},1000);
-      } 
+		//console.log(window)
+		//window.onkeydown={function(e) {console.log(['KEYY',e])}}
+		window.addEventListener('keydown',this.handleKeyDown)
+        } 
+      
+     
+		componentWillUnmount() {
+			window.removeEventListener('keydown',this.handleKeyDown)
+		} 
       
       componentDidUpdate(props) {
           let that = this;
@@ -732,7 +765,7 @@ export default class SingleQuestion extends Component {
 			}) : null;
 
            return (
-            <div className="questionwrap"  >
+            <div className="questionwrap"    >
                <div  ref={(section) => { this.scrollTo.topofpage = section; }} ></div>
                 <div className="row buttons justify-content-between" >
                   

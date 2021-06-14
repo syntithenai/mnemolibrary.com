@@ -17,6 +17,7 @@ export default class ActivityChart extends React.Component {
                 ]
         } 
     }
+    
     componentDidMount() {
            let that = this;
         //usersuccessprogress

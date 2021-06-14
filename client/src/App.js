@@ -13,6 +13,7 @@ import 'whatwg-fetch'
 
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 // icons
 import Search from 'react-icons/lib/fa/search';
 
