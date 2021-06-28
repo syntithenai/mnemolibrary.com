@@ -17,7 +17,7 @@
     "jssoup": "0.0.10",
     "jwk-to-pem": "^2.0.3",
     "jwks-rsa": "^1.6.2",
-    "mongo-express": "^0.53.0",
+    "mongo-express": "^0.54.0",
     "mongoose": "^5.8.11",
     "mqtt": "^3.0.0",
     "ms": "^2.1.2",
