@@ -81,7 +81,6 @@ export default class TagsPage extends Component {
     };
     
     render() {
-		this.props.analyticsEvent('tags page');
 
         const fontSizeMapper = word => 2* Math.log2(word.value+10) * 2;
         const rotate = word => 0; //word.value % 360;

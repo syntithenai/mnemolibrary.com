@@ -1,4 +1,6 @@
 import Utils from './Utils';
+//Utils.devUriPrefix() + 
+
 
 /**
  * Mnemo Queries
@@ -7,6 +9,7 @@ import Utils from './Utils';
  */
 
 function createIdIndex(questions,findQuestion) {
+    console.log('creidixST')
     let indexedQuestions= {};
     let foundIndex=-1;
     let currentQuiz = [];
@@ -24,6 +27,7 @@ function createIdIndex(questions,findQuestion) {
         }
     }
     foundIndex = foundIndex >=0 ? foundIndex : 0;
+    console.log('creidix',{currentQuestion:foundIndex,indexedQuestions:indexedQuestions,currentQuiz:currentQuiz})
     return {currentQuestion:foundIndex,indexedQuestions:indexedQuestions,currentQuiz:currentQuiz};
 }
 
@@ -148,12 +152,13 @@ let mnemoQueries = {
 				})
 			  .then(function(response) {
 				return response.json()
-			  }).then(function(json) {
+			  }).then(function(json) { 
 			    console.log(['set state',json]);
 			    if (json) { 
 					let result = createIdIndex(json['questions'],selectedQuestion);
-					console.log(['set state', json,topic,result,json.questions])
+					console.log(['set state',result, topic, json])
 					if (result && topic && result.currentQuiz  && json && json.questions && result.indexedQuestions) {
+                        console.log(['set state doit', result, topic, json]);
 						that.setState({currentQuiz:result.currentQuiz,'currentQuestion':result.currentQuestion,'questions':json.questions,'indexedQuestions':result.indexedQuestions,title: 'Discover Topic '+  decodeURI(Utils.snakeToCamel(topic)),waiting:false});
 						console.log(['set state done', that.state])
 					} 

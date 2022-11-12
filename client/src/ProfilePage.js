@@ -1,14 +1,13 @@
 /* eslint-disable */ 
 import React, { Component } from 'react';
-import ActivityChart from './ActivityChart'
+import ActivityChart from './ActivityChart' 
 import TopicsChart from './TopicsChart'
 import ProgressChart from './ProgressChart'
-import LeaderBoard from './LeaderBoard'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'     
 import MyMultipleChoiceStats from './MyMultipleChoiceStats'
-	
+
 			
 //var config = require('./config') 
 let style={height:'1.2em'}
@@ -47,7 +46,6 @@ export default class ProfilePage extends Component {
     componentDidMount() {
 		// load recent user into state
 		let that = this;
-		this.props.analyticsEvent('profile page');
 		if (this.props.token) {
 			that.props.fetch('/api/me?id_token='+(this.props.token && this.props.token.id_token ? this.props.token.id_token : ''), {
 			  method: 'GET',

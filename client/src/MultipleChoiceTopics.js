@@ -1,9 +1,11 @@
 /* eslint-disable */ 
 import React, { Component } from 'react';
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
-import RecentSingleComment from './RecentSingleComment'
-import 'whatwg-fetch'
+//import RecentSingleComment from './RecentSingleComment'
+//import 'whatwg-fetch'
 import getIcon from './collectionIcons';
+import Utils from './Utils'
+//Utils.devUriPrefix() + 
 
 export default class MultipleChoiceTopics extends Component {
     
@@ -151,7 +153,7 @@ export default class MultipleChoiceTopics extends Component {
 			</form>
 			</div>
 			<div className='col-1' ></div>
-			<div className='col-12 col-sm-8' ><RecentSingleComment  newCommentReply={this.props.newCommentReply}  user={that.props.user} fetch={this.props.fetch} /></div>
+			
             <div style={{clear:'both',width:'100%'}}></div>
 			</div>
 		if ((this.state.filter && this.state.filter.length > 0) || selectedCollection !== null) {

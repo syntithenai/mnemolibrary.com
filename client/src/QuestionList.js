@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import Utils from './Utils';
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
-import NotesList from './NotesList'
 
 export default class QuestionList extends Component {
 	
@@ -97,7 +96,7 @@ export default class QuestionList extends Component {
 							<div style={{marginTop:'0.2em'}}>
 								<b>Answer: </b><pre>{question.answer}</pre>
 							</div>
-							{that.props.user && <NotesList user={that.props.user._id} question={question._id} fetch={that.props.fetch} />}
+							
 						</div>
 					}
                     

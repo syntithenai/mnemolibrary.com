@@ -1,6 +1,5 @@
 /* eslint-disable */ 
 import React, { Component } from 'react';
-import 'whatwg-fetch'
 import SearchQuestionList from './SearchQuestionList';
 //import {debounce} from 'throttle-debounce';
 import DebounceInput from 'react-debounce-input';

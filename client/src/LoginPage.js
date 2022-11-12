@@ -10,6 +10,8 @@ const config={} // require('./config');
 //const utils=require('../../auth_utils');
 var faker = require('faker');
             
+import Utils from './Utils'
+//Utils.devUriPrefix() + 
 
 export default class LoginPage extends Component {
     
@@ -40,7 +42,6 @@ export default class LoginPage extends Component {
         this.forgotPassword = this.forgotPassword.bind(this);
         this.unforgotPassword = this.unforgotPassword.bind(this);
         this.recoverPassword = this.recoverPassword.bind(this);
-        this.props.analyticsEvent('login page');
     };
     
     componentDidMount() {
@@ -297,8 +298,8 @@ export default class LoginPage extends Component {
                                 <form method="POST" onSubmit={this.submitSignIn} className="form-group">
                                     <div className='warning-message'>{this.state.signin_warning_message}</div>
                             
-                                    <label htmlFor="email_login" className="row">Email </label><input  autoComplete='falselogin' id="email_login" type='email' name='email_login'   onChange={this.change} value={this.state.email_login}  autoComplete="false"  />
-                                    <label htmlFor="password_login" className="row">Password </label><input  autoComplete='falsepass' id="password_login" type='password' name='password_login'  onChange={this.change} value={this.state.password_login}  autoComplete="false"  />
+                                    <label htmlFor="email_login" className="row">Email </label><input  id="email_login" type='email' name='email_login'   onChange={this.change} value={this.state.email_login}  autoComplete="false"  />
+                                    <label htmlFor="password_login" className="row">Password </label><input   id="password_login" type='password' name='password_login'  onChange={this.change} value={this.state.password_login}  autoComplete="false"  />
                                     <br/><br/>
                                     <button  className='btn btn-info'>Login</button>
                                     <button onClick={this.forgotPassword} className='btn btn-info'>Forgot Password</button>
@@ -323,7 +324,7 @@ export default class LoginPage extends Component {
                                         <label htmlFor="password" className='row'>Password</label> <input  autoComplete="falsepassword"  className='form-control'   id="password" type='password' name='password' onChange={this.change} />
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="password2" className='row'>Repeat Password</label><input autoComplete="falsepassword2"   className='form-control'  autoComplete="false"  id="password2" type='password' name='password2' onChange={this.change} />
+                                        <label htmlFor="password2" className='row'>Repeat Password</label><input    className='form-control'  autoComplete="false"  id="password2" type='password' name='password2' onChange={this.change} />
                                         
                                     </div>
                                     <br/>

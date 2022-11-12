@@ -25,7 +25,7 @@ export default class RecentSingleComment extends Component {
     };
     
     componentDidMount() {
-        this.loadComments()
+        //this.loadComments()
     }
     
     shouldComponentUpdate(newProps,newState) {
@@ -37,16 +37,16 @@ export default class RecentSingleComment extends Component {
 	}
     
     loadComments() {
-		let that=this;
-		  that.props.fetch('/api/comments?limit=10')
-		  .then(function(response) {
-			return response.json()
-		  }).then(function(json) {
-			console.log(['loaded comments', json])
-			that.setState({comments:json});
-		  }).catch(function(ex) {
-			console.log(['error loading comments', ex])
-		  })
+		//let that=this;
+		  //that.props.fetch('/api/comments?limit=10')
+		  //.then(function(response) {
+			//return response.json()
+		  //}).then(function(json) {
+			//console.log(['loaded comments', json])
+			//that.setState({comments:json});
+		  //}).catch(function(ex) {
+			//console.log(['error loading comments', ex])
+		  //})
 	}
 
     

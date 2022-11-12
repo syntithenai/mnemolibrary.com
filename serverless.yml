@@ -62,7 +62,7 @@ package:
     
 provider:
   name: aws
-  runtime: nodejs10.x
+  runtime: nodejs12.x
   region: ${self:custom.region}  
   stage: ${self:custom.stage}
   environment:
@@ -85,7 +85,6 @@ provider:
     importSheets_6: ${self:custom.secrets.importSheets.6}
     importSheets_7: ${self:custom.secrets.importSheets.7}
     importSheets_8: ${self:custom.secrets.importSheets.8}
-    importSheets_9: ${self:custom.secrets.importSheets.9}
     importMultipleChoice_0: ${self:custom.secrets.importMultipleChoice.0} 
     importMultipleChoice_1: ${self:custom.secrets.importMultipleChoice.1} 
     REACT_APP_USER_POOL_ARN: ${self:custom.cognitoUserPoolArn}
@@ -116,28 +115,30 @@ functions:
   message:
     handler: api/api.handler
     timeout: 30
-    authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: 
-              Ref: ApiGatewayAuthorizer
+    
     events:
       - http:
           path: ${self:custom.fullstack.apiPath}/{proxy+}
           method: ANY
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
   importmessage:
     handler: api/api_import.handler
     timeout: 300
     memorySize: 2048
    # reservedConcurrency: 1
-    authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: 
-              Ref: ApiGatewayAuthorizer
+    
     events:
       - http:
           path: import/{proxy+}
           method: POST
+          authorizer:
+            type: COGNITO_USER_POOLS
+            authorizerId: 
+              Ref: ApiGatewayAuthorizer
 
 
 resources:  
@@ -401,7 +402,7 @@ resources:
 
 
 
-Outputs:
+outputs:
   UserPoolId:
     Value: !Ref UserPool
     Export:

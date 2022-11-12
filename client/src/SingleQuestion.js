@@ -22,7 +22,6 @@ import ConnectDevelop from 'react-icons/lib/fa/connectdevelop';
 import Close from 'react-icons/lib/fa/close';
 //import Book from 'react-icons/lib/fa/book';
 import ShareAlt from 'react-icons/lib/fa/share-alt';
-import CommentIcon from 'react-icons/lib/fa/comment';
 
 import ShareDialog from './ShareDialog';
 
@@ -32,9 +31,6 @@ import ShareDialog from './ShareDialog';
 import scrollToComponent from 'react-scroll-to-component';
 import MnemonicsList from './MnemonicsList';
 import Utils from './Utils';
-//import ProblemReport from './ProblemReport';
-import CommentEditor from './CommentEditor';
-import CommentList from './CommentList';
 
 //import Swipe from 'react-swipe-component';
 import Swipeable from 'react-swipeable'
@@ -137,11 +133,11 @@ export default class SingleQuestion extends Component {
        // setTimeout(function() {
 		//console.log('timeout on sing leod now wiki')
 			if (that.props.question) {
-				if (that.props.question && that.props.question._id)  that.props.analyticsEvent('view question '+that.props.question._id);
+				
 				//console.log('timeout on sing leod now wiki RELLY')
 				that.fromWikipedia();
 				that.createMedia();
-				that.props.loadComments(that.props.question._id,that.props.user ? that.props.user._id : null);
+				//that.props.loadComments(that.props.question._id,that.props.user ? that.props.user._id : null);
 			}
 		//},1000);
 		//console.log(window)
@@ -163,7 +159,7 @@ export default class SingleQuestion extends Component {
 			scrollToComponent(this.scrollTo['media'],{align:'top',offset:-230});
 			that.setState({answer:''});
 			that.setState({image:''});
-			if (that.props.question && that.props.question._id) that.props.analyticsEvent('view question '+that.props.question._id);
+			
 			//console.log(['SQ UPDATE change question',oldId,newId]);
              this.fromWikipedia();
              this.createMedia();
@@ -794,11 +790,7 @@ export default class SingleQuestion extends Component {
 						{this.state.mcQuestionsLoaded > 0 && <button style={{float:'right'}} className='btn btn-primary' onClick={() => this.setVisible('questions')}> <span className="badge badge-light">{this.state.mcQuestionsLoaded}</span>&nbsp;<span className="d-none d-md-inline-block"> Quiz</span></button>} 
                          
                         
-                             {question.access === "public" && this.props.user && this.props.comments && this.props.comments.length > 0 && <button style={{float:'right'}}   onClick={this.scrollToComments}  className='btn btn-primary'><CommentIcon size={26} /><span className="d-none d-md-inline-block">&nbsp;{this.props.comments.length}&nbsp;Comments&nbsp;</span></button>}
-                             
-                             {question.access === "public" && this.props.user && (!this.props.comments || this.props.comments.length === 0) && <button style={{float:'right'}} onClick={this.props.newComment} className='btn btn-primary'><CommentIcon size={26} /><span className="d-none d-md-inline-block">&nbsp;Comment&nbsp;</span></button>}
-								
-							&nbsp;
+                         
                                          
                             {<button className='btn btn-primary' onClick={() => this.setVisible('mnemonic')} ><ConnectDevelop size={26}  />&nbsp;<span className="d-none d-md-inline-block">Memory Aid</span></button>
                             }&nbsp;
@@ -952,10 +944,7 @@ export default class SingleQuestion extends Component {
                         </div><div   style={{fontSize:'0.85em'}}><b>Image Attribution/Source</b> <span>{imageAttribution}</span></div></div>}
                     </div>
                     
-                    {(!showRecallButton || this.isVisible('comments')) && <div ref={(section) => { this.scrollTo.comments = section; }}  className="card-block" id="comments">
-						<CommentList  analyticsEvent={this.props.analyticsEvent}  isAdmin={this.props.isAdmin} user={this.props.user} question={this.props.question} comments={this.props.comments}   editComment={this.props.editComment}  deleteComment={this.props.deleteComment} toggleCommentDialog={this.props.toggleCommentDialog} newComment={this.props.newComment} saveComment={this.props.saveComment} setComment={this.props.setComment} newCommentReply={this.props.newCommentReply} isSingleView={true}/>
-					</div>}
-						
+                  
 					{<div style={((!showRecallButton || this.isVisible('questions'))  ? {display:'block'} : {display:'none'})} ref={(section) => { this.scrollTo.questions = section; }}  className="card-block">
 						<MultipleChoiceQuestions  isAdmin={this.props.isAdmin}  viewOnly={true} notifyQuestionsLoaded={this.notifyQuestionsLoaded}  question={this.props.question ? this.props.question._id : null} topic={this.props.question ? this.props.question.quiz : null} carousel={true}  analyticsEvent={this.props.analyticsEvent} fetch={this.props.fetch} />
 					</div>

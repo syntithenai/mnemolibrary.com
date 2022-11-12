@@ -5,32 +5,36 @@ const get = require('simple-get');
 function initRoutes(router,initdb) {
 
 
-	router.post('/missingmnemonics', (req, res) => {
-		//console.log(['mmNEM',req.body]);
+	router.use('/missingmnemonics', (req, res) => {
+		console.log(['mmNEM',req.body]);
+		res.send({})
+		return
+		
 		let missingQuestionsByTopic={}
 		let missingMnemonicFilter={hasMnemonic:{$ne:true}};
-		
+		let rData = req.body ? req.body : req.query
 		let filter=missingMnemonicFilter
-		if (req.body.topic) {
-			filter={$and:[missingMnemonicFilter,{quiz:req.body.topic}]}
-		} else if (req.body.topics) {
+		if (rData.topic) {
+			filter={$and:[missingMnemonicFilter,{quiz:rData.topic}]}
+		} else if (rData.topics) {
 			
-			let topicFilter = req.body.topics.split(",").map(function(topic) {
+			let topicFilter = rData.topics.split(",").map(function(topic) {
 				return {quiz:topic}
 			}) ;
 			filter={$and:[missingMnemonicFilter,{$or:topicFilter}]}
 		}
-		// console.log(['LOADING MISSING MNEM',JSON.stringify(filter)]);
+		 console.log(['LOADING MISSING MNEM',JSON.stringify(filter)]);
 		initdb().then(function(db) {
+			console.log(['LOADING MISSING MNEM db initied']);
 			db.collection('questions').find(filter).toArray().then(function(questions) {
-			   //// console.log(['LOADING MISSING MNEM, FOUND MNEM FREE QU',questions,JSON.stringify(filter)]);
+			    console.log(['LOADING MISSING MNEM, FOUND MNEM FREE QU',questions,JSON.stringify(filter)]);
 				questions.map(function(question,key) {
-					//console.log(['LOADING TOPICS, FOUND Q',question,key]);
+					console.log(['LOADING TOPICS, FOUND Q',question,key]);
 					if (question.quiz && question.quiz.length > 0) {
 						missingQuestionsByTopic[question.quiz] = (parseInt(missingQuestionsByTopic[question.quiz],10) > 0) ? parseInt(missingQuestionsByTopic[question.quiz],10) + 1 : 1;
 					 }
 				});
-				//console.log(['MISSING',missingQuestionsByTopic]);
+				console.log(['MISSING',missingQuestionsByTopic]);
 				res.send(missingQuestionsByTopic);
 			});   
 		}) 

@@ -27,24 +27,24 @@ export default class RecentComments extends Component {
     };
     
     componentDidMount() {
-        this.loadComments(null,null,50,null,1)
+        //this.loadComments(null,null,50,null,1)
         //if (this.props.match && this.props.match.param && this.props.match.param.comment) this.scrollToComment(this.props.match.param.comment)
     }
     
     componentDidUpdate(props,state) {
 		if (this.state.filter != state.filter) {
-			this.loadComments(null,null,50,this.state.filter,500)
+			//this.loadComments(null,null,50,this.state.filter,500)
         }
         //if (this.props.match && this.props.match.param && this.props.match.param.comment) this.scrollToComment(this.props.match.param.comment)
     }
     
     loadComments(a,b,c,d,timeout) {
-		let that = this;
-		clearTimeout(this.debounce);
-		setTimeout(function() {
-			that.props.loadComments(a,b,c,d)
-		},timeout)
-		//debounce(5000,this.props.loadComments(a,b,c,d));
+		//let that = this;
+		//clearTimeout(this.debounce);
+		//setTimeout(function() {
+			//that.props.loadComments(a,b,c,d)
+		//},timeout)
+		////debounce(5000,this.props.loadComments(a,b,c,d));
 	}
 
     //scrollToComment(id) {
@@ -62,7 +62,6 @@ export default class RecentComments extends Component {
 
 
     render() {
-		this.props.analyticsEvent('recent comments');
 
 		return <div id='recentcomments'>
 		 <input className="form-control" type="text" value={this.state.filter} onChange={this.setFilter}  placeholder="Search" aria-label="Search" />

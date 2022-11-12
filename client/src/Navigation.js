@@ -2,6 +2,9 @@
 import React, { Component } from 'react';
 import 'whatwg-fetch'
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
+import Utils from './Utils'
+//Utils.devUriPrefix() + 
+
 //import Speechify from './Speechify'
 let style={height:'1.2em'}
 const userIcon = 

@@ -10,7 +10,8 @@ import Edit from 'react-icons/lib/fa/edit';
 import Trash from 'react-icons/lib/fa/trash';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
-
+import Utils from './Utils'
+//Utils.devUriPrefix() + 
 export default class MnemonicsList extends Component {
 
     constructor(props) {

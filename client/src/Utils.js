@@ -6,6 +6,10 @@ export default class Utils {
     
 }
 
+Utils.devUriPrefix = function() {
+    return (process.env.NODE_ENV !== 'production') ? "http://localhost:4000" : ''
+}
+
 Utils.snakeToCamel = function(s){
     if (s) {
      var c = s.replace(/(_\w)/g, function(m){return ' ' + m[1].toUpperCase() ;});

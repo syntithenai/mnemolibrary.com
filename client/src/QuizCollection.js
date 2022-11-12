@@ -40,6 +40,7 @@ export default class QuizCollection extends Component {
     
     
     discoverOneByDifficulty(difficulty) {
+        return(Promise.resolve("{}"))
       let that = this;
       let url='/api/discover';
       let rand=Math.random()
@@ -73,6 +74,7 @@ export default class QuizCollection extends Component {
     
     
     discoverOneByTopics(topics) {
+        return(Promise.resolve("{}"))
         let that = this;
       let url='/api/discover';
       let rand=Math.random()
@@ -106,6 +108,7 @@ export default class QuizCollection extends Component {
     
     
     discoverOne() {
+        return(Promise.resolve("{}"))
         let that = this;
       let url='/api/discover';
       let rand=Math.random()
@@ -137,6 +140,7 @@ export default class QuizCollection extends Component {
     
     
     discoverOneByCommunity() {
+        return(Promise.resolve("{}"))
         let that = this;
       let url='/api/discover';
       let rand=Math.random()

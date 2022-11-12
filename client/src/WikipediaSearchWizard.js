@@ -6,6 +6,8 @@ import 'whatwg-fetch'
 //import $ from ‘jquery’;
 import Plus from 'react-icons/lib/fa/plus';
 import Minus from 'react-icons/lib/fa/minus';
+import Utils from './Utils'
+//Utils.devUriPrefix() + 
 
 export default  class WikipediaSearchWizard extends React.Component {
 	constructor(props) {

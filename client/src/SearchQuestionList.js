@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import Utils from './Utils';
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
-import NotesList from './NotesList'
 
 export default class SearchQuestionList extends Component {
     render() {

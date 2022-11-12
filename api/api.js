@@ -100,7 +100,7 @@ var databaseConnection = null;
 
 function initdb() {
 	return new Promise(function(resolve,reject) {
-		//console.log([databaseConnection])
+		console.log([databaseConnection])
 		if (databaseConnection !== null && databaseConnection.serverConfig.isConnected()) {
 			//console.log('ALREADY CONNECTED')
 			resolve(databaseConnection)
@@ -112,6 +112,7 @@ function initdb() {
 				  return //
 			  }
 			  databaseConnection = client.db() 
+			  //console.log([' connected',mongoString])
 			  resolve(databaseConnection);
 			})
 		}
@@ -800,7 +801,12 @@ var initAuthRoutes = require('./api_auth')
 	//})
 
 	// if topic exists in user topics and has a topicpassword, check if user has topic and password
-	router.post('/checktopic', (req, res) => {
+	router.use('/checktopic', (req, res) => {
+		
+		res.send({ok:true})
+		return
+		
+		
 		initdb().then(function(db) {
 
 			if (req.body.topic && req.body.topic.length > 0) {
@@ -820,7 +826,7 @@ var initAuthRoutes = require('./api_auth')
 						}
 					} else {
 						// no matching user topic and no password 
-						res.send({ok:true})
+									
 					}
 					//db.collection('progress').findOne({user:req.body.user}).then(function(progress) {
 						//res.send(progress);
@@ -838,11 +844,13 @@ var initAuthRoutes = require('./api_auth')
 		})
 	})
 	
-	router.post('/discover', (req, res) => {
+	router.use('/discover', (req, res) => {
+		res.send({})
+		return
 	 //  console.log(['discover',req.body]);
-		let orderBy = req.body.orderBy ? req.body.orderBy : 'successRate';
+		let orderBy = req.body && req.body.orderBy ? req.body.orderBy : 'successRate';
 		let sortFilter={};
-		let limit = req.body.limit ? req.body.limit : 5;
+		let limit = req.body && req.body.limit ? req.body.limit : 5;
 		let criteria = [];
 		initdb().then(function(db) {
 

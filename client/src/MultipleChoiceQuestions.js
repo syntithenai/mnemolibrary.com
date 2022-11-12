@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 	import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
 
-import 'whatwg-fetch'
+//import 'whatwg-fetch'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import scrollToComponent from 'react-scroll-to-component';
@@ -213,7 +213,6 @@ export default class MultipleChoiceQuestions extends Component {
 	}
 	
 	loadMyTopics() {
-		this.props.analyticsEvent('multiple choice - my topics');
 			
 		let that = this;
 		console.log(['load my topics',this.props])
@@ -260,7 +259,6 @@ export default class MultipleChoiceQuestions extends Component {
     }
     
     loadMyQuestions() {
-		this.props.analyticsEvent('multiple choice - my questions');
 		let that = this;
 		this.stopAllPlayers();
 		return new Promise(function(resolve,reject) {
@@ -323,7 +321,6 @@ export default class MultipleChoiceQuestions extends Component {
 			return new Promise(function(resolve,reject) {
 				let topic = that.props.match && that.props.match.params && that.props.match.params.topic && that.props.match.params.topic.length > 0 ? that.props.match.params.topic : that.props.topic;
 				if (topic && topic.length > 0 ) {
-					that.props.analyticsEvent('multiple choice - topic -'+topic);
 					let questionQuery='';
 					if (that.props.question) {
 						questionQuery='&questionId='+that.props.question;
@@ -378,7 +375,6 @@ export default class MultipleChoiceQuestions extends Component {
 		console.log('reset  ')
 		let topic = this.props.match && this.props.match.params && this.props.match.params.topic && this.props.match.params.topic.length > 0 ? this.props.match.params.topic : this.props.topic;
 		if (topic && topic.length > 0 ) {
-		that.props.analyticsEvent('reset multiple choice answers - '+topic);
 			console.log('really reset  ')
 			var params={
 				'user':this.props.user ? this.props.user._id : null,
@@ -941,22 +937,22 @@ export default class MultipleChoiceQuestions extends Component {
 							let answerLetter=String.fromCharCode(key+65);
 							if (false && that.props.viewOnly) {
 								if (sampleAnswer === question.answer) {
-									return <div style={{fontWeight:'bold',border:'2px solid black'}} key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'green',d:'#007bff', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', fontWeight:'bold', fontSize:'1.4em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
+									return <div key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'green', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', fontWeight:'bold', fontSize:'1.4em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
 								} else {
-									return <div style={{fontWeight:'bold',border:'2px solid black'}} key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'red',d:'#007bff', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
+									return <div  key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'red',d:'#007bff', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
 								}
 							} else {
 								if (answered) {
 									// is this answer the user answer
 									if (sampleAnswer === userAnswer) {
 										if (userAnswerCorrect)  {
-											return <div style={{fontWeight:'bold',border:'2px solid black'}} key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'green',d:'#007bff', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', fontWeight:'bold', fontSize:'1.4em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
+											return <div  key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'green',d:'#007bff', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', fontWeight:'bold', fontSize:'1.4em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
 										} else {
 											return <div key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'red',d:'#dc3545', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', textDecoration: 'line-through'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
 										}
 									// is this button the correct answer
 									} else if (sampleAnswer === question.answer) {
-										return <div style={{fontWeight:'bold',border:'2px solid black'}} key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'green', d:'#28a745', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', fontWeight:'bold', fontSize:'1.4em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
+										return <div  key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'green', d:'#28a745', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em', fontWeight:'bold', fontSize:'1.4em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
 									} else {
 											return <div key={key} onClick={() => that.clickAnswer(question._id,sampleAnswer)} style={{color: 'white', backgroundColor:'blue', d:'#007bff', border: '1px solid black', borderRadius:'10px', padding: '0.3em', paddingLeft: '1em', paddingRight: '1em', marginBottom:'0.3em'}} ><span className='answerletter' >{answerLetter}</span>{sampleAnswer}{adminDeleteButton}</div>
 									}

@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import 'whatwg-fetch'
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
@@ -81,7 +80,6 @@ export default class SettingsPage extends Component {
   
   
 	render() {
-		this.props.analyticsEvent('user settings');
 		if (this.state.user && this.state.user._id && this.state.user._id.length > 0) {
 			return (
 				<div className="col-12">

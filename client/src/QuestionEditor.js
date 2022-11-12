@@ -25,8 +25,6 @@ import ShareAlt from 'react-icons/lib/fa/share-alt';
 import Toggle from 'react-bootstrap-toggle';
 import ShareDialog from './ShareDialog';
 
-        
-   
 
 export default class QuestionEditor extends Component {
     constructor(props) {

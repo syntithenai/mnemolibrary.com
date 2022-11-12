@@ -5,7 +5,6 @@ import HelpNavigation from './HelpNavigation';
 export default class HelpVideos extends Component {
     
     render() {
-		this.props.analyticsEvent('help - videos');
         return  (
         <div className='videotutorials' >
         <HelpNavigation setCurrentPage={this.props.setCurrentPage}/>

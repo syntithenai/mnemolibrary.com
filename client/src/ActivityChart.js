@@ -3,7 +3,7 @@ import React from 'react';
 //import { PropTypes } , { Component } from 'react';
 //import { render } from 'react-dom'
 import { ResponsiveBar } from '@nivo/bar'
-
+import Utils from './Utils'
  
 export default class ActivityChart extends React.Component {
   
@@ -23,7 +23,7 @@ export default class ActivityChart extends React.Component {
         //usersuccessprogress
         //useractivity
         let user = this.props.user;
-        that.props.fetch('/api/useractivity?user='+this.props.user._id)
+        that.props.fetch(Utils.devUriPrefix() + '/api/useractivity?user='+this.props.user._id)
         .then(function(response) {
             return response.json()
         }).then(function(json) {

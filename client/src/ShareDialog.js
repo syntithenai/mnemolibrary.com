@@ -37,7 +37,6 @@ export default class ShareDialog extends Component {
 				
     render() { 
 		let that = this;
-		if (this.props.analyticsEvent) this.props.analyticsEvent('share');
 		let encodedShareLink = encodeURIComponent(this.props.shareLink)   //.replace(/ /g,'_')
 		let mailToLink = "mailto:?subject="+encodeURIComponent(this.props.shareText)+"&body="+encodedShareLink;
 	    return  (

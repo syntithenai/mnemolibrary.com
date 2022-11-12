@@ -665,6 +665,7 @@ export default withRouter( class QuizCarousel extends Component {
                     {this.props.match.params.topic && <Link style={{float:'right'}} className='btn btn-info' to={'/discover/searchtopic/'+this.props.match.params.topic} >
                     <ShowAll size={25} /> Load Complete Topic
                     </Link>}
+                        
                     {!this.state.showQuestionListDetails && <button style={{float:'right'}} className='btn btn-info' onClick={this.showQuestionListDetails}  >Show Details</button>}
                     
                     {!this.props.isReview && this.state.showQuestionListDetails && <button style={{float:'right'}} className='btn btn-success' onClick={(e) => this.props.sendAllQuestionsForReview(listQuestions)} >Send All To My Review List</button>}
@@ -683,7 +684,7 @@ export default withRouter( class QuizCarousel extends Component {
                 
                 } else {
                     // single question
-                    content = (<SingleQuestion analyticsEvent={this.props.analyticsEvent}  match={this.props.match} percentageFinished={this.percentageFinished} isAdmin={this.props.isAdmin} saveSuggestion={this.props.saveSuggestion} mnemonic_techniques={this.props.mnemonic_techniques} setQuizFromTechnique={this.props.setQuizFromTechnique} setQuizFromTopic={this.props.setQuizFromTopic}   setQuizFromTag={this.props.setQuizFromTag} question={question} user={this.props.user} successButton={this.props.successButton} handleQuestionResponse={this.handleQuestionResponse}  like={this.props.like} isLoggedIn={this.props.isLoggedIn} isReview={this.props.isReview} loadComments={this.props.loadComments} editComment={this.props.editComment} deleteComment={this.props.deleteComment} newComment={this.props.newComment} comments={this.props.comments} saveComment={this.props.saveComment} setComment={this.props.setComment} loadComments={this.props.loadComments} newCommentReply={this.props.newCommentReply} comment={this.props.comment} analyticsEvent={this.props.analyticsEvent}  fetch={this.props.fetch}  /> )
+                    content = (<SingleQuestion   match={this.props.match} percentageFinished={this.percentageFinished} isAdmin={this.props.isAdmin} saveSuggestion={this.props.saveSuggestion} mnemonic_techniques={this.props.mnemonic_techniques} setQuizFromTechnique={this.props.setQuizFromTechnique} setQuizFromTopic={this.props.setQuizFromTopic}   setQuizFromTag={this.props.setQuizFromTag} question={question} user={this.props.user} successButton={this.props.successButton} handleQuestionResponse={this.handleQuestionResponse}  like={this.props.like} isLoggedIn={this.props.isLoggedIn} isReview={this.props.isReview}  analyticsEvent={this.props.analyticsEvent}  fetch={this.props.fetch}  /> )
                 }
             
             //} else {

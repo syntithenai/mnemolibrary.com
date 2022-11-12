@@ -31,7 +31,7 @@ export default class TopicsList extends Component {
         fetch("/api/myusertopics", {
          method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json' 
           },
           body: JSON.stringify({user:this.props.user})
         }).then(function(response) {
@@ -44,7 +44,7 @@ export default class TopicsList extends Component {
         .catch(function(err) {
             //console.log(['ERR',err]);
         });
-    }; 
+    };  
     
     updateFilter(e) {
         this.setState({filter:String(e.target.value).toLowerCase()});
