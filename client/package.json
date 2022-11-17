@@ -33,7 +33,7 @@
     "react-scroll-to-component": "^1.0.2",
     "react-swipeable": "^4.2.1",
     "react-tag-autocomplete": "^5.12.1",
-    "sanitize-html": "^1.21.1",
+    "sanitize-html": "^2.3.2",
     "sharethis-reactjs": "^1.5.0",
     "throttle-debounce": "^2.1.0",
     "underscore": "^1.9.2",
