@@ -36,15 +36,7 @@ export default class MultipleChoiceTopics extends Component {
     componentDidMount() {
       let that=this;
         console.log(['MCT dmount',this.props.match.params.topicCollection])
-        let userParam = [];
-        if (this.props.user) {
-			userParam.push('user='+this.props.user._id);
-		}
-		//if (this.state.filter && this.state.filter.length > 0) {
-			 //userParam.push('filter='+this.state.filter)
-		 //}
-		 let paramString=userParam.length > 0 ? '?'+userParam.join('&') : '';
-		 this.loadTopics(paramString)
+        this.loadTopics(this.props.user)
 	};
     
     componentWillUpdate(props) {
@@ -53,28 +45,24 @@ export default class MultipleChoiceTopics extends Component {
         let currentId = this.props.user ? this.props.user._id : null;
         if (props.user && currentId != props.user._id) {
 		 
-		 let userParam = [];
-		 if (props.user) {
-			userParam.push('user='+props.user._id);
-		 }
-		 //if (this.state.filter && this.state.filter.length > 0) {
-			 //userParam.push('filter='+this.state.filter)
-		 //}
-		 let paramString=userParam.length > 0 ? '?'+userParam.join('&') : '';
-		 this.loadTopics(paramString)
+		 this.loadTopics(props.user)
 		}
 		return true;
 	}
 	
-	loadTopics(queryParams) {
+	loadTopics(user) {
 		let that = this;
 		let collated = {}
-		that.props.fetch('/api/mctopics'+queryParams)
+		var queryParams = {}
+		if (user) {
+			queryParams['user'] = user._id
+		}
+		that.props.fetch('/api/mctopics',{},queryParams)
 		  .then(function(response) {
-			console.log(['got response'])
+			//console.log(['got response'])
 			return response.json()
 		  }).then(function(json) {
-			console.log(['got json',json])
+			//console.log(['got json',json])
 			let collated = {}
 			if (json) {
 				json.map(function(mcTopic) {
@@ -82,7 +70,7 @@ export default class MultipleChoiceTopics extends Component {
 						that.props.topicCollections.map(function(topicCollection) {
 							if (topicCollection && topicCollection.topics) {
 								if (topicCollection.topics.indexOf(mcTopic.topic) !== -1 ) { //&& topicCollection.topics.hideInMultipleChoiceTopics !== true
-									console.log(topicCollection)
+									//console.log(topicCollection)
 									collated[topicCollection._id]=topicCollection;
 								}
 							}

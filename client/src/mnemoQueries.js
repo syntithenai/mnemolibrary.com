@@ -9,7 +9,7 @@ import Utils from './Utils';
  */
 
 function createIdIndex(questions,findQuestion) {
-    console.log('creidixST')
+    //console.log('creidixST')
     let indexedQuestions= {};
     let foundIndex=-1;
     let currentQuiz = [];
@@ -27,7 +27,7 @@ function createIdIndex(questions,findQuestion) {
         }
     }
     foundIndex = foundIndex >=0 ? foundIndex : 0;
-    console.log('creidix',{currentQuestion:foundIndex,indexedQuestions:indexedQuestions,currentQuiz:currentQuiz})
+    //console.log('creidix',{currentQuestion:foundIndex,indexedQuestions:indexedQuestions,currentQuiz:currentQuiz})
     return {currentQuestion:foundIndex,indexedQuestions:indexedQuestions,currentQuiz:currentQuiz};
 }
 
@@ -38,13 +38,13 @@ let mnemoQueries = {
 /**
  * REVIEW
  */
-    getQuestionsForReview : function() {
-    //console.log('getQuestionsForReview');
+    getQuestionsForReview : function(user) {
+    //console.log('getQuestionsForReview',user);
       let that = this;
-      if (this.state.user) {
+      if (user) {
 		that.setState({'waiting':true});
-        var cacheBuster="&t="+parseInt(Math.random()*1000000000)
-        that.fetch('/api/review?user='+this.state.user._id+cacheBuster).then(function(response) {
+        //var cacheBuster="&t="+parseInt(Math.random()*1000000000)
+        that.fetch('/api/review', {},{user: user ? user._id : ''}).then(function(response) {
             return response.json()
           }).then(function(json) {
               let result = createIdIndex(json['questions']);
@@ -56,17 +56,17 @@ let mnemoQueries = {
       }
     },
   
-   reviewBySuccessBand : function(band) {
+   reviewBySuccessBand : function(band, user = null) {
       //console.log(['set review from band',band]);
       let that = this;
-      var cacheBuster="&t="+parseInt(Math.random()*1000000000)
-      let url='/api/review?band='+band + cacheBuster;
-      if (this.state.user) {
-          url=url+'&user='+this.state.user._id;
+      var postData = {band:band}
+      let url='/api/review' //?band='+band + cacheBuster;
+      if (user) {
+          postData['user'] = user._id;
       }
-      url=url+'&rand'+Math.random();
+      
       that.setState({'waiting':true});
-      that.fetch(url).then(function(response) {
+      that.fetch('/api/review',{},postData).then(function(response) {
         return response.json()
       }).then(function(json) {
         let result = createIdIndex(json['questions']);
@@ -77,17 +77,16 @@ let mnemoQueries = {
       })
   },
   
-  setReviewFromTopic : function(topic,selectedQuestion) {
+  setReviewFromTopic : function(topic,selectedQuestion, user = null) {
      // console.log(['REVIEW PAGE applayout',topic,selectedQuestion]); 
       let that = this;
-      var cacheBuster="&t="+parseInt(Math.random()*1000000000)
-      let url='/api/review?topic=' + topic + cacheBuster ;
-      if (this.state.user) {
-          url=url+'&user='+this.state.user._id;
+      let url='/api/review'
+      let postData = {topic: topic}
+      if (user) {
+          postData['user'] = user._id;
       }
-      url=url+'&rand='+Math.random();
       that.setState({'waiting':true});
-      that.fetch(url).then(function(response) {
+      that.fetch(url, {},postData).then(function(response) {
         return response.json()
       }).then(function(json) {
         let result = createIdIndex(json['questions']);
@@ -102,13 +101,13 @@ let mnemoQueries = {
 /**
  * DISCOVER
  */
-   discoverQuestions : function(topic='') {
+   discoverQuestions : function(topic='', user) {
       // //console.log(['discover da questions']);
       let that = this;
       let rand=Math.random()
       that.setState({'waiting':true});
       that.fetch('/api/discover',{ method: "POST",headers: {
-    "Content-Type": "application/json"},body:JSON.stringify({user:(this.state.user ? this.state.user._id : ''),rand:rand,topic:topic})})
+    "Content-Type": "application/json"},body:JSON.stringify({user:(user ? user._id : ''),rand:rand,topic:topic})})
       .then(function(response) {
         return response.json()
       }).then(function(json) {
@@ -120,8 +119,8 @@ let mnemoQueries = {
       })
   }, 
     
-  discoverQuizFromTopic : function(topic,selectedQuestion) {
-      console.log(['dissc quiz from topic',topic,selectedQuestion,this.state.user]);
+  discoverQuizFromTopic : function(topic,selectedQuestion, user) {
+      //console.log(['dissc quiz from topic',topic,selectedQuestion,this.state.user]);
       let that = this;
       let url='/api/discover';
       
@@ -145,7 +144,7 @@ let mnemoQueries = {
 					},
 					body:JSON.stringify({
 						topic:topic,
-						user:(that.state.user ? that.state.user._id : ''),
+						user:(user ? user._id : ''),
 						rand:rand,
 						selectedQuestion:selectedQuestion
 					})
@@ -153,14 +152,14 @@ let mnemoQueries = {
 			  .then(function(response) {
 				return response.json()
 			  }).then(function(json) { 
-			    console.log(['set state',json]);
+			    //console.log(['set state',json]);
 			    if (json) { 
 					let result = createIdIndex(json['questions'],selectedQuestion);
-					console.log(['set state',result, topic, json])
+					//console.log(['set state',result, topic, json])
 					if (result && topic && result.currentQuiz  && json && json.questions && result.indexedQuestions) {
-                        console.log(['set state doit', result, topic, json]);
+                        //console.log(['set state doit', result, topic, json]);
 						that.setState({currentQuiz:result.currentQuiz,'currentQuestion':result.currentQuestion,'questions':json.questions,'indexedQuestions':result.indexedQuestions,title: 'Discover Topic '+  decodeURI(Utils.snakeToCamel(topic)),waiting:false});
-						console.log(['set state done', that.state])
+						//console.log(['set state done', that.state])
 					} 
 				}
 			    that.setState({'waiting':false});
@@ -187,7 +186,7 @@ let mnemoQueries = {
             },
             body:JSON.stringify({
                 difficulty:difficulty,
-                user:(this.state.user ? this.state.user._id : ''),
+                //user:(this.props.user ? this.props.user._id : ''),
                 rand:rand
             })
         })
@@ -213,7 +212,7 @@ let mnemoQueries = {
             },
             body:JSON.stringify({
                 topics:topics.join(","),
-                user:(this.state.user ? this.state.user._id : ''),
+                //user:(this.props.user ? this.props.user._id : ''),
                 rand:rand
             })
         })
@@ -373,15 +372,16 @@ let mnemoQueries = {
   
    setQuizFromTopic : function(topic,selectedQuestion) {  //
       let that = this;
-      let url='/api/questions?topic='+topic ;
-      if (this.state.user) {
-          url=url+'&user='+this.state.user._id;
-      }
+      let url='/api/questions'
+      let postData = {topic: topic}
+      //if (this.props.user) {
+          //postData['user'] = this.props.user._id;
+      //}
       if (selectedQuestion && selectedQuestion.length > 0) {
-          url=url+'&selectedQuestion='+selectedQuestion;
+          postData['selectedQuestion'] = selectedQuestion
       }
       that.setState({'waiting':true});
-      that.fetch(url).then(function(response) {
+      that.fetch(url,{}, postData).then(function(response) {
         return response.json()
       }).then(function(json) {
         let result = createIdIndex(json['questions'],selectedQuestion);
@@ -395,17 +395,16 @@ let mnemoQueries = {
   
   setQuizFromMissingMnemonic : function(topic) {
       let that = this;
-      let url='/api/questions?limit=100&missingMnemonicsOnly=1'
-      
-      //if (this.state.user) {
-          //url=url+'&user='+this.state.user._id;
+      let url='/api/questions' //?limit=100&missingMnemonicsOnly=1'
+      let postData = {limit:100, missingMnemonicsOnly:1}
+      //if (this.props.user) {
+          //postData['user'] = this.props.user._id;
       //}
       if (topic && topic.length > 0) {
-          url = url + '&topic='+topic ;
+          postData['topic'] = topic
       }
-      url=url + '&rand='+Math.random()
       that.setState({'waiting':true});
-      that.fetch(url).then(function(response) {
+      that.fetch(url, {}, postData).then(function(response) {
         return response.json()
       }).then(function(json) {
         let result = createIdIndex(json['questions']);

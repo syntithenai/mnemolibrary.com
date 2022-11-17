@@ -80,7 +80,7 @@ export default class SingleQuestion extends Component {
         //this.loadComments = this.loadComments.bind(this);
         //this.editComment = this.editComment.bind(this);
         //this.deleteComment = this.deleteComment.bind(this);
-        this.scrollToComments = this.scrollToComments.bind(this);
+        //this.scrollToComments = this.scrollToComments.bind(this);
         //this.newComment = this.newComment.bind(this);
 		this.notifyQuestionsLoaded = this.notifyQuestionsLoaded.bind(this);
         this.setShareDialog = this.setShareDialog.bind(this);
@@ -97,7 +97,7 @@ export default class SingleQuestion extends Component {
   
   
     handleKeyDown(e) {
-		console.log(['logit sinlge',e])
+		//console.log(['logit sinlge',e])
 		// review
 		if (this.props.successButton) {
 			if (e.code === "ArrowRight") {
@@ -163,13 +163,13 @@ export default class SingleQuestion extends Component {
 			//console.log(['SQ UPDATE change question',oldId,newId]);
              this.fromWikipedia();
              this.createMedia();
-             if (that.props.question) that.props.loadComments(that.props.question._id,that.props.user ? that.props.user._id : null);
+             //if (that.props.question) that.props.loadComments(that.props.question._id,that.props.user ? that.props.user._id : null);
           } 
       };
     
      componentWillReceiveProps(props) {
          let that=this;
-         console.log(['rcv props',props]);
+         //console.log(['rcv props',props]);
        // if (this.refs.player) this.refs.player.subscribeToStateChange(this.handleStateChange.bind(this));
         //scrollToComponent(this.scrollTo['media'],{align:'top',offset:-230});
         //if (props.question) {
@@ -260,7 +260,7 @@ export default class SingleQuestion extends Component {
     };
     
     isWikiApi(link) {
-		console.log(['ISWIKIAPI',link]);
+		//console.log(['ISWIKIAPI',link]);
 		if (link && link.length > 0 ) {
 			let found = false;
 			for (var i in this.wikiSites) {
@@ -285,23 +285,23 @@ export default class SingleQuestion extends Component {
     
     fromWikipedia() {
         let that = this;
-       console.log(['FROM WIKIPEDIA']);
+       //console.log(['FROM WIKIPEDIA']);
         that.setState({answer:''});
         that.setState({image:''});
         if (this.props.question) {
 			let questionId = this.props.question._id;
 			if (this.props.question.answer && this.props.question.answer.length > 0) {
-				console.log(['FROM WIKIPEDIA HAVE ANSWER']);
+				//console.log(['FROM WIKIPEDIA HAVE ANSWER']);
 				this.setState({answer:this.props.question.answer});
 			} else {
-				console.log(['FROM WIKIPEDIA LOOKUP ANSWER']);
+				//console.log(['FROM WIKIPEDIA LOOKUP ANSWER']);
 				if (this.isWikiApi(this.props.question.link)) {
-					console.log(['FROM WIKIPEDIA LOOKUP ANSWER LINK GOOD']);
+					//console.log(['FROM WIKIPEDIA LOOKUP ANSWER LINK GOOD']);
 					let linkParts = this.props.question.link.split("/");
 					let wikiPageParts = linkParts[linkParts.length - 1].split("#");
 					let wikiPage = wikiPageParts[0];
 					// wikilookup
-					console.log(['FROM WIKIPEDIA LOOKUP ANSWER LINK GOOD',wikiPage,wikiPageParts]);
+					//console.log(['FROM WIKIPEDIA LOOKUP ANSWER LINK GOOD',wikiPage,wikiPageParts]);
 					Utils.loadWikipediaIntro(wikiPage,this.wikiBaseUrl(this.props.question.link)).then(function(answer) {
 						console.log(['FROM WIKIPEDIA got',answer]);
 						if (answer && answer.length > 0) {
@@ -315,7 +315,7 @@ export default class SingleQuestion extends Component {
 							}).then(function(response) {
 								return response.json();
 							}).then(function(token) {
-								console.log('updated wiki data');
+								//console.log('updated wiki data');
 							})
 							.catch(function(err) {
 								console.log(['ERR updating wiki data',err]);
@@ -329,22 +329,22 @@ export default class SingleQuestion extends Component {
 				}
 			}
 			if (this.props.question.image && this.props.question.image.length > 0) {
-				console.log(['FROM WIKIPEDIA have image']);
+				//console.log(['FROM WIKIPEDIA have image']);
 				this.setState({image:this.props.question.image});
 			} else if (this.props.question.image_png && this.props.question.image_png.length > 0) {
-				console.log(['FROM WIKIPEDIA have png image']);
+				//console.log(['FROM WIKIPEDIA have png image']);
 				this.setState({image:this.props.question.image_png});
 			} else {
-				console.log(['FROM WIKIPEDIA try LOOKUP image']);
+				//console.log(['FROM WIKIPEDIA try LOOKUP image']);
 				
 				if (this.isWikiApi(this.props.question.link)) {
-					console.log(['FROM WIKIPEDIA is wiki  api']);
+					//console.log(['FROM WIKIPEDIA is wiki  api']);
 				
 					let linkParts = this.props.question.link.split("/");
 					let wikiPageParts = linkParts[linkParts.length - 1].split("#");
 					let wikiPage = wikiPageParts[0];
 					// wikilookup
-					console.log(['FROM WIKIPEDIA LOOKUP IMAGE']);
+					//console.log(['FROM WIKIPEDIA LOOKUP IMAGE']);
 				
 					Utils.loadWikipediaImage(wikiPage,this.wikiBaseUrl(this.props.question.link)).then(function(answer) {
 						//console.log(['FROM WIKIPEDIA got image',answer]);
@@ -380,15 +380,15 @@ export default class SingleQuestion extends Component {
         let sources=[]
         let question=this.props.question
         if (question) {
-			if (question.media && question.media.length > 0) sources.push(<source src={question.media} />)
-			if (question.media_ogg && question.media_ogg.length > 0) sources.push(<source src={question.media_ogg} />)
-			if (question.media_webm && question.media_webm.length > 0) sources.push(<source src={question.media_webm} />)
-			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source src={question.media_mp4} />)
+			if (question.media && question.media.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media} />)
+			if (question.media_ogg && question.media_ogg.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_ogg} />)
+			if (question.media_webm && question.media_webm.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_webm} />)
+			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_mp4} />)
 				
-			if (question.media_mp3 && question.media_mp3.length > 0) sources.push(<source src={question.media_mp3} />)
-			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source src={question.media_mp4} />)
-			if (question.media_webmvideo && question.media_webmvideo.length > 0) sources.push(<source src={question.media_webmvideo} />)
-			if (question.media_webmaudio && question.media_webmaudio.length > 0) sources.push(<source src={question.media_webmaudio} />)
+			if (question.media_mp3 && question.media_mp3.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_mp3} />)
+			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_mp4} />)
+			if (question.media_webmvideo && question.media_webmvideo.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_webmvideo} />)
+			if (question.media_webmaudio && question.media_webmaudio.length > 0) sources.push(<source src={Utils.devUriPrefix() + question.media_webmaudio} />)
 				
 			//console.log(['SINGLE VIEW CREATE MEDIA from q',this.props.question]);
 			let that = this;
@@ -414,7 +414,7 @@ export default class SingleQuestion extends Component {
     };
       
       hasMedia(question) {
-         // console.log(['HASMEDIA',question]);
+         console.log(['HASMEDIA',question]);
           if (question.media ||
             question.media_ogg ||
             question.media_webm ||
@@ -491,7 +491,7 @@ export default class SingleQuestion extends Component {
     // which question parts are visible - mnemonic, answer, moreinfo
     setVisible(toShow) {
 		let that = this;
-		console.log(['setvisible',toShow]);
+		//console.log(['setvisible',toShow]);
         let visible = this.state.visible;
         let show = toShow;
         if (toShow=="all") {
@@ -501,7 +501,7 @@ export default class SingleQuestion extends Component {
 			visible.push(toShow);
 		}
 		this.setState({'visible':visible});
-		console.log(['didsetvis',visible]);
+		//console.log(['didsetvis',visible]);
         //console.log(['scroll to ',toShow,this.scrollTo[toShow],this.scrollTo]);
        // if (toShow==='image') {
 			setTimeout(function() {
@@ -511,11 +511,11 @@ export default class SingleQuestion extends Component {
 		//}
     };
     
-    scrollToComments() {
-		let that = this;
-		this.setVisible('comments')
-		scrollToComponent(that.scrollTo['comments'],{align:'top',offset:-230});
-	}
+    //scrollToComments() {
+		//let that = this;
+		//this.setVisible('comments')
+		//scrollToComponent(that.scrollTo['comments'],{align:'top',offset:-230});
+	//}
 
      setShareDialog(val,question) {
 		if (question) {
@@ -783,7 +783,7 @@ export default class SingleQuestion extends Component {
                    
                     {showRecallButton && <div className="scrollbuttons col-sm-12" >
                           
-                         {question.access === "public" && <button style={{float:'right'}}  onClick={(e) => this.setShareDialog(true,question)} className='btn btn-primary'  ><ShareAlt size={26}  />&nbsp;<span className="d-none d-md-inline-block">Share</span></button>}
+                        
                             &nbsp;
                            
                                       
@@ -832,18 +832,14 @@ export default class SingleQuestion extends Component {
  &nbsp;
                            
 	                   {!showRecallButton && <span> 
-						   
-                            {question.access === "public" && <button style={{marginTop:'1em',float:'right'}} onClick={(e) => this.setShareDialog(true,question)} className='btn btn-primary'  ><ShareAlt size={26}  />&nbsp;<span className="d-none d-md-inline-block">Share</span></button>}
+
                        
                         &nbsp;
 						  {this.state.mcQuestionsLoaded > 0 && <button style={{marginTop:'1em',float:'right'}} className='btn btn-primary' onClick={() => this.setVisible('questions')}> <span className="badge badge-light">{this.state.mcQuestionsLoaded}</span>&nbsp;<span className="d-none d-md-inline-block"> Quiz</span></button>} 
 						  
 						
                          &nbsp;   
-                              {question.access === "public" && this.props.user && this.props.comments && this.props.comments.length > 0 && <button style={{marginTop:'1em',float:'right'}} onClick={this.scrollToComments}  className='btn btn-primary'><CommentIcon size={26} /><span className="d-none d-md-inline-block">&nbsp;{this.props.comments.length}&nbsp;Comments&nbsp;</span></button>}
                              
-                             {question.access === "public" && this.props.user && (!this.props.comments || this.props.comments.length === 0) && <button style={{marginTop:'1em',float:'right'}} onClick={this.props.newComment} className='btn btn-primary'><CommentIcon size={26} /><span className="d-none d-md-inline-block">&nbsp;Comment&nbsp;</span></button>}
-                             &nbsp;  
 						    {(!target) && <button style={{float:'right' ,marginTop:'1em'}}  className='btn btn-primary' onClick={() => this.setVisible('moreinfo')}><ExternalLink size={26}  />&nbsp;<span className="d-none d-md-inline-block">More Info</span></button>
                          }
                         {(target) && <a style={{float:'right',marginTop:'1em'}}  className='btn btn-primary' target={target} href={link}><ExternalLink size={26}  />&nbsp;<span className="d-none d-md-inline-block">More Info</span></a>
@@ -871,7 +867,7 @@ export default class SingleQuestion extends Component {
                         {((this.isVisible('image') || question.autoshow_image==="YES" || !showRecallButton) && imageLink  ) && 
                             <span><img  onError={(e) => this.imageLoadError(question._id)} onLoad={(e) => this.imageLoaded(question._id)} alt={question.question} onClick={() => this.setVisible('image')} style={{ float:'left', maxHeight:imageHeight, maxWidth:'150px',border: "0px",clear:'both', paddingRight: '1em'}} src={imageLink} />
                             
-                            { !this.state.imagesLoaded.hasOwnProperty(question._id) && <img style={{height:'2em'}} src='/loading.gif' />}
+                            { !this.state.imagesLoaded.hasOwnProperty(question._id) && <img style={{height:'2em'}} src='loading.gif' />}
                             </span>}
                         
                         {(this.isVisible('answer') || !showRecallButton)  && shortanswer.length > 0  && 
@@ -951,7 +947,7 @@ export default class SingleQuestion extends Component {
 					} 
                 </div>
                 
-				{that.state.showShareDialog && <ShareDialog   analyticsEvent={that.props.analyticsEvent} setShareDialog={that.setShareDialog} shareLink={shareLink} shareText={shareTitle} dialogTitle={'Share Question using'} twitterVia="Mnemoslibrary" />}
+				
 
                  <div ref={(section) => { this.scrollTo.end = section; }} ></div>
                        
@@ -977,3 +973,8 @@ export default class SingleQuestion extends Component {
         
     };
 }
+
+ //{question.access === "public" && this.props.user && this.props.comments && this.props.comments.length > 0 && <button style={{marginTop:'1em',float:'right'}} onClick={this.scrollToComments}  className='btn btn-primary'><CommentIcon size={26} /><span className="d-none d-md-inline-block">&nbsp;{this.props.comments.length}&nbsp;Comments&nbsp;</span></button>}
+                             
+                             //{question.access === "public" && this.props.user && (!this.props.comments || this.props.comments.length === 0) && <button style={{marginTop:'1em',float:'right'}} onClick={this.props.newComment} className='btn btn-primary'><CommentIcon size={26} /><span className="d-none d-md-inline-block">&nbsp;Comment&nbsp;</span></button>}
+                             //&nbsp;  

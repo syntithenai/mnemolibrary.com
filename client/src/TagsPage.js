@@ -28,7 +28,7 @@ export default class TagsPage extends Component {
     
     filterTags(title) {
         let that = this;
-          that.props.fetch('/api/tags?title='+(title ? title.toLowerCase() : '') )
+          that.props.fetch('/api/tags',{},{title: (title ? title.toLowerCase() : '') })
           .then(function(response) {
             return response.json()
           }).then(function(json) {

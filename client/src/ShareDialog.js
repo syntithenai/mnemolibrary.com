@@ -3,9 +3,9 @@ import React, { Component } from 'react';
         
 import {InlineShareButtons} from 'sharethis-reactjs';
 
-import {
-  FacebookShareButton
-} from 'react-share';
+//import {
+  //FacebookShareButton
+//} from 'react-share';
 
 
 //import Email from 'react-icons/lib/fa/envelope-o';

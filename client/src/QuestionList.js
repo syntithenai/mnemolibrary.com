@@ -44,7 +44,7 @@ export default class QuestionList extends Component {
 				////console.log(['got response', response])
 				return response.json()
 			  }).then(function(json) {
-				    console.log(['got response', json])
+				    //console.log(['got response', json])
 					let mnemonicsByQuestion={};
 					let mnemonics={};
 					let selectedMnemonics={};
@@ -63,7 +63,7 @@ export default class QuestionList extends Component {
 							selectedMnemonics[question._id] = mnemonicsByQuestion.hasOwnProperty(question._id) && mnemonicsByQuestion[question._id].length > 0 && mnemonics.hasOwnProperty(mnemonicsByQuestion[question._id][0]) ? mnemonics[mnemonicsByQuestion[question._id][0]].mnemonic : '';
 						}
 					})
-				   console.log(['COLLATED',mnemonics,mnemonicsByQuestion,selectedMnemonics])
+				   //console.log(['COLLATED',mnemonics,mnemonicsByQuestion,selectedMnemonics])
 							
 				   
 					that.setState({mnemonics:selectedMnemonics});

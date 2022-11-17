@@ -20,12 +20,8 @@ export default class SiteMap extends Component {
 			<div className="container" >
 				
 				  <div className="row" style={blockStyle}>
-				 {this.props.isLoggedIn() && <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/profile"  >Profile</Link><Link style={buttonStyle} className='btn btn-info'  to="/settings"  >Settings</Link></div>}
-				  {(this.props.isLoggedIn()) && <div className="col"><div onClick={this.props.logout} style={buttonStyle} className='btn btn-danger'  to="/profile"  >Logout</div></div>}
-				  {!this.props.isLoggedIn() && <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/login"  >Login</Link></div>}
-				  
-				  <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/help"  >Help</Link></div>
-				 	
+				 {this.props.isLoggedIn() && <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/profile"  >Profile</Link></div>}
+				 
 					
 					</div>
 				
@@ -35,11 +31,10 @@ export default class SiteMap extends Component {
 				 <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/"  >Discover</Link></div>
 				  <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/multiplechoicetopics"  >Quizzes</Link></div>
 				  <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/review"  >Review</Link></div>
-			  <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/search/tags"  >Search Tags</Link></div>
 				  <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/search/questions"  >Search Questions</Link></div>
 			
 
-				  
+				    <div className="col"><Link style={buttonStyle} className='btn btn-info'  to="/help"  >Help</Link></div>
 				</div>
 			
 				  

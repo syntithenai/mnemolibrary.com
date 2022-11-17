@@ -113,7 +113,7 @@ export default class QuestionEditor extends Component {
              that.setState({tags:tags});
          }
          
-          that.props.fetch('/api/tags?sort=title&title=') //+(title ? title : '') )
+          that.props.fetch('/api/tags',{},{sort:title,title=''}) //+(title ? title : '') )
           .then(function(response) {
             return response.json()
           }).then(function(json) {
@@ -234,7 +234,7 @@ export default class QuestionEditor extends Component {
     
     finishUploadMedia(signResult) {
         //console.log(signResult);
-        console.log("Uppt media finished: " + signResult.publicUrl)
+        //console.log("Uppt media finished: " + signResult.publicUrl)
         let state = {...this.props.question};
         for (var key in signResult) {
             state['media_'+key]=signResult[key];

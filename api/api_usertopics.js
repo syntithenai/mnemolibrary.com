@@ -1,8 +1,9 @@
 var config = {}
 var ObjectId = require('mongodb').ObjectID;
-const get = require('simple-get');
+//const get = require('simple-get');
 
 
+const authenticate = require('./authenticate')
 
 
 
@@ -33,13 +34,13 @@ function initRoutes(router,initdb) {
 									if (word) {
 										////console.log('UPDATETAGS UPDATED');
 										word.value=result.length;
-										db.collection('words').save(word).then(function(saveres) {
+										db.collection('words').replaceOne({_id:word._id},word).then(function(saveres) {
 										  //      //console.log('UPDATETAGS TAG');
 												////console.log(saveres);
 												iresolve();
 										});                            
 									} else {
-										db.collection('words').save({'text':tag,value:result.length}).then(function(saveres) {
+										db.collection('words').insertOne({'text':tag,value:result.length}).then(function(saveres) {
 											//    //console.log('UPDATETAGS TAG NEW');
 											   // //console.log(saveres);
 											   iresolve();
@@ -153,7 +154,7 @@ function initRoutes(router,initdb) {
 						
 					}
 					
-					db.collection('userTopics').save(toSave).then(function(result) {
+					db.collection('userTopics').updateOne({_id: id},{$set:toSave}, {upsert: true}).then(function(result) {
 						//console.log(['saved usertopic',result]);
 						res.send({id:id,errors:errors,questions:questions});
 					}).catch(function(err) {
@@ -172,11 +173,11 @@ function initRoutes(router,initdb) {
 
 	router.post('/myusertopics', (req, res) => {
 		////console.log(['seen',req.body]);
-		if (req.body.user && req.body.user.length > 0) {
+		if (req.body.user && req.user._id.length > 0) {
 	  //      //console.log('MUT');
 	  //      //console.log(db);
 			initdb().then(function(db) {
-				db.collection('userTopics').find({user:ObjectId(req.body.user)}).sort({topic:1}).toArray(function(err, result) {
+				db.collection('userTopics').find({user:ObjectId(req.user._id)}).sort({topic:1}).toArray(function(err, result) {
 					res.send(result);
 				});
 			})
@@ -204,7 +205,7 @@ function initRoutes(router,initdb) {
 		////console.log(['del usrtop',req.body]);
 		if (req.body._id && req.body._id.length > 0) {
 			initdb().then(function(db) {
-				db.collection('userTopics').findOne({$and:[{user:ObjectId(req.body.user)},{_id:ObjectId(req.body._id)}]}).then(function(result) {
+				db.collection('userTopics').findOne({$and:[{user:ObjectId(req.user._id)},{_id:ObjectId(req.body._id)}]}).then(function(result) {
 				   if (result) {
 						let tags={};
 							   
@@ -237,7 +238,7 @@ function initRoutes(router,initdb) {
 							//console.log({'erri1':e});
 						});
 						result.published=false;
-						db.collection('userTopics').save(result);
+						db.collection('userTopics').save({_id:ObjectId(req.body._id)}, result, {upsert: true});
 						// TODO also tags and topics ??????
 						// topic
 				
@@ -261,7 +262,7 @@ function initRoutes(router,initdb) {
 		////console.log(['del usrtop',req.body]);
 		if (req.body._id && req.body._id.length > 0) {
 			initdb().then(function(db) {
-				db.collection('userTopics').findOne({$and:[{user:ObjectId(req.body.user)},{_id:ObjectId(req.body._id)}]}).then(function(result) {
+				db.collection('userTopics').findOne({$and:[{user:ObjectId(req.body.userd)},{_id:ObjectId(req.body._id)}]}).then(function(result) {
 				   if (result) {
 						let tags={};
 							   
@@ -323,9 +324,9 @@ function initRoutes(router,initdb) {
 		let tags={}
 		let mnemonics=[]; 
 		let mcQuestions=[];                     
-		if (req.body._id && req.body._id.length > 0) {
+		if (req.body.user && req.body._id && req.body._id.length > 0) {
 			initdb().then(function(db) {
-				db.collection('userTopics').findOne({$and:[{user:ObjectId(req.body.user)},{_id:ObjectId(req.body._id)}]}).then(function(userTopic) {
+				db.collection('userTopics').findOne({$and:[{user:ObjectId(req.user._id)},{_id:ObjectId(req.body._id)}]}).then(function(userTopic) {
 					db.collection('users').findOne({_id:ObjectId(userTopic.user)}).then(function(user) {
 						db.collection('questions').find({$and:[{userTopic:{$eq:req.body._id}},{isPreview:{$eq:false}}]}).toArray().then(function(questions) {
 							// save questions
@@ -440,7 +441,7 @@ function initRoutes(router,initdb) {
 												question.isPreview = true;
 												question.access = user._id;
 											}
-											db.collection('questions').save(question).then(function() {
+											db.collection('questions').updateOne({_id: question._id}, {$set:question}, {upsert: true}).then(function() {
 												////console.log(['saved q',question]);
 													//if (preview) {
 														//db.collection('questions').remove({$and:[{userTopic:{$eq:req.body._id}},{isPreview:true}]});  
@@ -475,7 +476,7 @@ function initRoutes(router,initdb) {
 										
 									
 										// save usertopic
-										db.collection('userTopics').save(userTopic).then(function(result) {
+										db.collection('userTopics').save({_id:ObjectId(req.body._id)}, userTopic).then(function(result) {
 											////console.log(['saved r',result]);
 										}).catch(function(e) {
 											 //console.log(['failed saved r',e]);

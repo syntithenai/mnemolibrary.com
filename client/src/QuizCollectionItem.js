@@ -75,7 +75,7 @@ export default class QuizCollectionItem extends Component {
 							<span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black',sfloat:'right',marginRight:'0.8em'}} >{getIcon(this.props.icon,iconStyle)}</span>
 							<span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black',fontSize:'1.4em',fontWeight:'bold'}}>{this.props.name}</span>
 						</div></Link>
-						{this.state.question && <div style={{height:'100%',display:'block'}} ><span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'}} >{this.state.question}</span></div>}
+						
 					</div>
 			} else if (!this.props.hideSingleQuestionInCollectionView) {
 			
@@ -84,7 +84,7 @@ export default class QuizCollectionItem extends Component {
 							<span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black',sfloat:'right',marginRight:'0.8em'}} >{getIcon(this.props.icon,iconStyle)}</span>
 							<span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black',fontSize:'1.4em',fontWeight:'bold'}}>{this.props.name}</span>
 						</div></Link>
-						{this.state.question && <div style={{height:'100%',display:'block'}} ><Link style={{height:'100%',display:'block'}} to={"/discover/topic/"+this.state.topic+"/"+this.state.id}  ><span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'}} >{this.state.question}</span></Link></div>}
+						
 					</div>
 			} else {
 				return <div style={Object.assign({backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'},blockStyle)}  className="col-lg-4 col-6" >
@@ -101,7 +101,7 @@ export default class QuizCollectionItem extends Component {
                         <span style={{sfloat:'right',marginRight:'0.8em'}} >{getIcon(this.props.icon,iconStyle)}</span>
                         <span style={{fontSize:'1.4em',fontWeight:'bold'}}>{this.props.name}</span>
                     </div>
-                    {this.state.question && <div style={{height:'100%',display:'block'}}><Link style={{height:'100%',display:'block'}} to={"/discover/topic/"+this.state.topic+"/"+this.state.id}  ><span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'}} >{this.state.question}</span></Link></div>}
+                    
                    </div>
 			 } else if (!this.props.hideSingleQuestionInCollectionView) {
 				return <div style={Object.assign({backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'},blockStyle)}  className="col-lg-4 col-6" >
@@ -109,7 +109,7 @@ export default class QuizCollectionItem extends Component {
                         <span style={{sfloat:'right',marginRight:'0.8em'}} >{getIcon(this.props.icon,iconStyle)}</span>
                         <span style={{fontSize:'1.4em',fontWeight:'bold'}}>{this.props.name}</span>
                     </div>
-                    {this.state.question && <div style={{height:'100%',display:'block'}}><Link style={{height:'100%',display:'block'}} to={"/discover/topic/"+this.state.topic+"/"+this.state.id}  ><span style={{backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'}} >{this.state.question}</span></Link></div>}
+                   
                 </div>
                } else {
 				   return <div style={Object.assign({backgroundColor:this.props.backgroundColor, color: this.props.color ? this.props.color : 'black'},blockStyle)}  className="col-lg-4 col-6" >

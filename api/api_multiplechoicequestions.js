@@ -1,7 +1,8 @@
 var config = {}
 var ObjectId = require('mongodb').ObjectID;
-const get = require('simple-get');
+//const get = require('simple-get');
 
+const authenticate = require('./authenticate')
 
 let questionExists = {$and:[{question:{$exists:true,$ne: ""}} ]};
 let answerExists = {$and:[{answer:{$exists:true,$ne: ""}}]};
@@ -17,129 +18,129 @@ let answerNotExists = {or:[{answer:{$exists:false}},{answer:{$in:[null, ""]}} ]}
 
 function initRoutes(router,initdb) {
 	
-	router.post('/savemcquestion', (req, res) => {
-		//console.log(['TRY save mc questions',req.body]);
-		// stage 1 (ask question) - require question,user,questionId - set ask_date
-		// stage 2 (answer question) - require answer, multiple_choice - set answer_date
-		// stage 3 (publish question) - require topic (admin user) - set publish_date
-		let data = {}
-		if (req.body.user && req.body.user.length > 0) data.user = ObjectId(req.body.user)
-		if (req.body.question && req.body.question.length > 0) data.question = req.body.question;
-		if (req.body.questionId && req.body.questionId.length > 0) data.questionId = ObjectId(req.body.question)
-		if (req.body.answer && req.body.answer.length > 0) data.answer = req.body.answer;
-		if (req.body.multiple_choices && req.body.multiple_choices.length > 0) data.multiple_choices = req.body.multiple_choices;
-		if (req.body.feedback && req.body.feedback.length > 0) data.feedback = req.body.feedback;
-		initdb().then(function(db) {
-			let error = null;
-			if (req.body.mode && req.body.mode === "ask") {
-				if (!data.question) {
-					error ='You need to provide a question'
-					res.send({error:error});
-				} else if (!data.questionId) {
-					error = 'Missing related question ID'
-					res.send({error:error});
-				} else {
-					data.createDate=new Date().getTime();
-					db.collection('multiplechoicequestions').insertOne(data).then(function() {
-						//console.log(['saved asked question',data]);
-						res.send({ok:true})
-					});
-				}
-			} else if (req.body.mode && req.body.mode === "answer") {
-				if (!req.body._id) {
-					error ='Invalid request missing question _id'
-					res.send({error:error});
-				} else if (!data.question) {
-					error ='You need to provide a question'
-					res.send({error:error});
-				} else if (!data.answer) {
-					error ='You need to provide an answer'
-					res.send({error:error});
-				}  else {
-					data.createDate=new Date().getTime();
-					db.collection('multiplechoicequestions').updateOne({_id:ObjectId(req.body._id)},{$set:data}).then(function() {
-						//console.log(['saved answered question',data]);
-						res.send({ok:true})
-					});
-				}
-			} else if (req.body.mode && (req.body.mode === "publish" || req.body.mode === "save")) {
-				if (!req.body._id) {
-					error ='Invalid request missing question _id'
-					res.send({error:error});
-				} else if (!data.question) {
-					error ='You need to provide a question'
-					res.send({error:error});
-				} else if (!data.answer) {
-					error ='You need to provide an answer'
-					res.send({error:error});
-				} else if (!data.multiple_choice) {
-					error = 'You need to provide at least one incorrect multiple choice answer'
-					res.send({error:error});
-				} else if (!req.body.topic) {
-					error = 'You need to provide a topic'
-					res.send({error:error});
-				} else {
-					data.topic = req.body.topic;
-					data.createDate=new Date().getTime();
-					db.collection('multiplechoicequestions').updateOne({_id:ObjectId(req.body._id)},{$set:data}).then(function() {
-						//console.log(['saved published question',data]);
-						res.send({ok:true})
-					});
-				}
-			} else {
-				res.send({error:'Invalid request missing mode'})
-			}
-		})
-	});
+	//router.post('/savemcquestion', (req, res) => {
+		////console.log(['TRY save mc questions',req.body]);
+		//// stage 1 (ask question) - require question,user,questionId - set ask_date
+		//// stage 2 (answer question) - require answer, multiple_choice - set answer_date
+		//// stage 3 (publish question) - require topic (admin user) - set publish_date
+		//let data = {}
+		//if (req.body.user && req.body.user.length > 0) data.user = ObjectId(req.body.user)
+		//if (req.body.question && req.body.question.length > 0) data.question = req.body.question;
+		//if (req.body.questionId && req.body.questionId.length > 0) data.questionId = ObjectId(req.body.question)
+		//if (req.body.answer && req.body.answer.length > 0) data.answer = req.body.answer;
+		//if (req.body.multiple_choices && req.body.multiple_choices.length > 0) data.multiple_choices = req.body.multiple_choices;
+		//if (req.body.feedback && req.body.feedback.length > 0) data.feedback = req.body.feedback;
+		//initdb().then(function(db) {
+			//let error = null;
+			//if (req.body.mode && req.body.mode === "ask") {
+				//if (!data.question) {
+					//error ='You need to provide a question'
+					//res.send({error:error});
+				//} else if (!data.questionId) {
+					//error = 'Missing related question ID'
+					//res.send({error:error});
+				//} else {
+					//data.createDate=new Date().getTime();
+					//db.collection('multiplechoicequestions').insertOne(data).then(function() {
+						////console.log(['saved asked question',data]);
+						//res.send({ok:true})
+					//});
+				//}
+			//} else if (req.body.mode && req.body.mode === "answer") {
+				//if (!req.body._id) {
+					//error ='Invalid request missing question _id'
+					//res.send({error:error});
+				//} else if (!data.question) {
+					//error ='You need to provide a question'
+					//res.send({error:error});
+				//} else if (!data.answer) {
+					//error ='You need to provide an answer'
+					//res.send({error:error});
+				//}  else {
+					//data.createDate=new Date().getTime();
+					//db.collection('multiplechoicequestions').updateOne({_id:ObjectId(req.body._id)},{$set:data}).then(function() {
+						////console.log(['saved answered question',data]);
+						//res.send({ok:true})
+					//});
+				//}
+			//} else if (req.body.mode && (req.body.mode === "publish" || req.body.mode === "save")) {
+				//if (!req.body._id) {
+					//error ='Invalid request missing question _id'
+					//res.send({error:error});
+				//} else if (!data.question) {
+					//error ='You need to provide a question'
+					//res.send({error:error});
+				//} else if (!data.answer) {
+					//error ='You need to provide an answer'
+					//res.send({error:error});
+				//} else if (!data.multiple_choice) {
+					//error = 'You need to provide at least one incorrect multiple choice answer'
+					//res.send({error:error});
+				//} else if (!req.body.topic) {
+					//error = 'You need to provide a topic'
+					//res.send({error:error});
+				//} else {
+					//data.topic = req.body.topic;
+					//data.createDate=new Date().getTime();
+					//db.collection('multiplechoicequestions').updateOne({_id:ObjectId(req.body._id)},{$set:data}).then(function() {
+						////console.log(['saved published question',data]);
+						//res.send({ok:true})
+					//});
+				//}
+			//} else {
+				//res.send({error:'Invalid request missing mode'})
+			//}
+		//})
+	//});
 	
-	router.post('/updatemcquestion', (req, res) => {
-		if (req.body.question && req.body._id) {
+	//router.post('/updatemcquestion', (req, res) => {
+		//if (req.body.question && req.body._id) {
 			
-			let filter = {$and:[{_id:{$eq:ObjectId(req.body._id)}},{question:{$eq:req.body.question}}]}
-			initdb().then(function(db) {
-				db.collection('multiplechoicequestions').updateOne(filter,{$set:req.body}).then(function() {
-				//console.log(['deleted multiplechoicequestions',JSON.stringify(filter)]);
-					res.send({ok:true})
-				});
-			})
-		} else {
-			console.log('no delete invalid filter')
-			res.send({ok:false})
-		}
-	});
+			//let filter = {$and:[{_id:{$eq:ObjectId(req.body._id)}},{question:{$eq:req.body.question}}]}
+			//initdb().then(function(db) {
+				//db.collection('multiplechoicequestions').updateOne(filter,{$set:req.body}).then(function() {
+				////console.log(['deleted multiplechoicequestions',JSON.stringify(filter)]);
+					//res.send({ok:true})
+				//});
+			//})
+		//} else {
+			//console.log('no delete invalid filter')
+			//res.send({ok:false})
+		//}
+	//});
 	
 	
-	router.post('/deletemcquestion', (req, res) => {
-		if (req.body.question && req.body._id) {
+	//router.post('/deletemcquestion', (req, res) => {
+		//if (req.body.question && req.body._id) {
 			
-			let filter = {$and:[{_id:{$eq:ObjectId(req.body._id)}},{question:{$eq:req.body.question}}]}
-			initdb().then(function(db) {
-				db.collection('multiplechoicequestions').deleteOne(filter).then(function() {
-				//console.log(['deleted multiplechoicequestions',JSON.stringify(filter)]);
-					res.send({ok:true})
-				});
-			})
-		} else {
-			console.log('no delete invalid filter')
-			res.send({ok:false})
-		}
-	});
+			//let filter = {$and:[{_id:{$eq:ObjectId(req.body._id)}},{question:{$eq:req.body.question}}]}
+			//initdb().then(function(db) {
+				//db.collection('multiplechoicequestions').deleteOne(filter).then(function() {
+				////console.log(['deleted multiplechoicequestions',JSON.stringify(filter)]);
+					//res.send({ok:true})
+				//});
+			//})
+		//} else {
+			//console.log('no delete invalid filter')
+			//res.send({ok:false})
+		//}
+	//});
 	
 	router.post('/resetmcquiz', (req, res) => {
 		//console.log(['myquestions',req.body])
-		if (req.body.user && req.body.user.length > 0 && req.body.topic && req.body.topic.length > 0) {
-			let userMatch='seenBy.'+req.body.user
+		if (req.user  && req.body.topic && req.body.topic.length > 0) {
+			let userMatch='seenBy.'+req.user._id
 			let userFilter={}
 			userFilter[userMatch] = {$exists:true}
 			//let userUpdate = {};
-			//userUpdate['seenBy.'+req.body.user] = null;
+			//userUpdate['seenBy.'+req.user._id] = null;
 			initdb().then(function(db) {
 				db.collection('multiplechoicequestions').find({$and:[{topic:{$eq:req.body.topic}}]}).toArray().then(function(myquestions) {
 					if (myquestions) {
 						myquestions.map(function(question) {
 							question.seenBy = question.seenBy ? question.seenBy : {};
-							delete question.seenBy[req.body.user];
-							db.collection('multiplechoicequestions').save(question).then(function() {
+							delete question.seenBy[req.user._id];
+							db.collection('multiplechoicequestions').replaceOne({_id: question._id},question).then(function() {
 								//console.log('cleared user for question '+question._id);
 							});
 						})
@@ -152,22 +153,22 @@ function initRoutes(router,initdb) {
 	})
 	
 	router.post('/submitmcquestion', (req, res) => {
-		if (req.body.user && req.body._id && req.body.answer) {
+		if (req.user  && req.body._id && req.body.answer) {
 			initdb().then(function(db) {
 				db.collection('multiplechoicequestions').findOne({_id:ObjectId(req.body._id)}).then(function(mcQuestion) {
-					if (mcQuestion && mcQuestion.seenBy && mcQuestion.seenBy.hasOwnProperty(req.body.user)) {
+					if (mcQuestion && mcQuestion.seenBy && mcQuestion.seenBy.hasOwnProperty(req.user._id)) {
 						res.send({error:'You have already answered this question'});
 					} else if (mcQuestion.answer === req.body.answer) {
 				
 						mcQuestion.seen = mcQuestion.seen ? mcQuestion.seen + 1 : 1; 
 						mcQuestion.success = mcQuestion.success ? mcQuestion.success + 1 : 1;
 						mcQuestion.overallPercentCorrect = (mcQuestion.seen > 0 && mcQuestion.success > 0) ? String(parseInt(mcQuestion.success/mcQuestion.seen*100,10)) : "0"
-						if (req.body.user === 'unknownuser') {
+						if (req.user._id === 'unknownuser') {
 							res.send({correct:true,overallPercentCorrect:mcQuestion.overallPercentCorrect});
 						} else {
 					
 							let seenBy = mcQuestion.seenBy ? mcQuestion.seenBy : {};
-							seenBy[req.body.user] = req.body.answer;
+							seenBy[req.user._id] = req.body.answer;
 							mcQuestion.seenBy = seenBy;
 							//console.log(['submitting  question',mcQuestion]);
 								
@@ -180,11 +181,11 @@ function initRoutes(router,initdb) {
 						mcQuestion.seen = mcQuestion.seen ? mcQuestion.seen + 1 : 1; 
 						mcQuestion.success = mcQuestion.success ? mcQuestion.success  : 0;
 						mcQuestion.overallPercentCorrect = (mcQuestion.seen > 0 && mcQuestion.success > 0) ? String(parseInt(mcQuestion.success/mcQuestion.seen*100,10)) : "0"
-						if (req.body.user === 'unknownuser') {
+						if (req.user._id === 'unknownuser') {
 							res.send({correct:true,overallPercentCorrect:mcQuestion.overallPercentCorrect});
 						} else {
 							let seenBy = mcQuestion.seenBy ? mcQuestion.seenBy : {};
-							seenBy[req.body.user] = req.body.answer;
+							seenBy[req.user._id] = req.body.answer;
 							mcQuestion.seenBy = seenBy;
 							db.collection('multiplechoicequestions').updateOne({_id:ObjectId(req.body._id)},{$set:mcQuestion}).then(function() {
 								//console.log(['submitted  question',mcQuestion]);
@@ -197,16 +198,16 @@ function initRoutes(router,initdb) {
 		}
 	});
 	
-	router.get('/mymcquestions', (req, res) => {
-		if (req.query.user && req.query.user.length > 0) {
+	router.post('/mymcquestions', async (req, res) => {
+		if (req.user) {
 			let collatedTopics={};
 			//
 		   // $or:[{'successTally':{$lt : 7}},{'successTally':{$exists : false}}]
-			initdb().then(function(db) {
+			initdb().then(async function(db) {
 				//  collate all user progress by topic
-				db.collection('userquestionprogress').aggregate([
+				var aggCursor = db.collection('userquestionprogress').aggregate([
 					{ $match: {
-							$and:[{block:{$ne:1}},{'user': {$eq:ObjectId(req.query.user)}}]
+							$and:[{block:{$ne:1}},{'user': {$eq:ObjectId(req.user._id)}}]
 				   }},
 					{ $group: {'_id': "$question",
 						'questions': { $sum: 1 },
@@ -216,74 +217,63 @@ function initRoutes(router,initdb) {
 						'blocks' : {$sum:"$block"}
 					}},
 					{$sort:{"successRate":1}}
-				], function (err, result) {
-					if (err) {
-						//console.log(err);
-						return;
-					}
-					let myQuestions=[];
-					// collate questions
-					result.toArray().then(function(final) {
-						if (final && final.length > 0) {
-							//console.log(['FINAL MY TOPICS',JSON.stringify(final)])
-							final.map(function(tc) {
-								//console.log(['PUSH TOPIC',tc,tc.topic])
-								myQuestions.push(ObjectId(tc.question));
-							})
+				])
+				
+				let myQuestions=[];
+				await aggCursor.forEach(function(tc) {
+					//console.log(['PUSH TOPIC',tc,tc.topic])
+					myQuestions.push(ObjectId(tc.question));
+				})
 							//res.send(final);
 							
-							//find mc questions in these topics (not seen by this user)
-							//console.log(['FIND my topics',myTopics])
-							let filter = []
-							// filter by topics
-							filter.push({questionId : {$in:myQuestions}});
-							let userMatch='seenBy.'+req.query.user
-							let userFilter={}
-							userFilter[userMatch] = {$exists:false, $ne:''}
-							filter.push(userFilter)
+				//find mc questions in these topics (not seen by this user)
+				//console.log(['FIND my topics',myTopics])
+				let filter = []
+				// filter by topics
+				filter.push({questionId : {$in:myQuestions}});
+				let userMatch='seenBy.'+req.user._id
+				let userFilter={}
+				userFilter[userMatch] = {$exists:false, $ne:''}
+				filter.push(userFilter)
 							
 							
-							//console.log(['FIND mc questions',JSON.stringify({$and:filter})])
-							db.collection('multiplechoicequestions').find({$and:filter}).sort({difficulty:1,sort:1,createDate:-1}).limit(req.query.limit > 0 ? req.query.limit : 10).toArray(function(err,results) {
-							//	console.log(['FOUND mc questions',err,results])
-								let promises=[];
-								if (results) {
-									//console.log([' MC FIND',results])
-									results.map(function(mcQuestion) {
-										//console.log([' MC FIND qid',mcQuestion.questionId])
-										if (mcQuestion.questionId) {
-											promises.push(new Promise(function(resolve,reject) {
-												db.collection('questions').findOne({_id:ObjectId(mcQuestion.questionId)}).then(function(question) {
-													if (question) {
-														//console.log([' MC FINDhave related',question])
-														mcQuestion.relatedQuestion = question;
-														resolve(mcQuestion)
-													} else {
-														//console.log([' MC FIND no find related',question])
-														resolve({})
-													}
-												})
-											}));
+				//console.log(['FIND mc questions',JSON.stringify({$and:filter})])
+				db.collection('multiplechoicequestions').find({$and:filter}).sort({difficulty:1,sort:1,createDate:-1}).limit(req.body.limit > 0 ? req.body.limit : 10).toArray(function(err,results) {
+				//	console.log(['FOUND mc questions',err,results])
+					let promises=[];
+					if (results) {
+						//console.log([' MC FIND',results])
+						results.map(function(mcQuestion) {
+							//console.log([' MC FIND qid',mcQuestion.questionId])
+							if (mcQuestion.questionId) {
+								promises.push(new Promise(function(resolve,reject) {
+									db.collection('questions').findOne({_id:ObjectId(mcQuestion.questionId)}).then(function(question) {
+										if (question) {
+											//console.log([' MC FINDhave related',question])
+											mcQuestion.relatedQuestion = question;
+											resolve(mcQuestion)
 										} else {
-											//console.log([' MC FIND no have related',question])
-
-											promises.push(new Promise(function(resolve,reject) {
-												resolve(mcQuestion);
-											}))
+											//console.log([' MC FIND no find related',question])
+											resolve({})
 										}
-									});
-								}
-								Promise.all(promises).then(function(final) {
-									//console.log(['FINAL ALL MC FIND',final])
-									res.send(final)
-								})
-								
-							});
-						}
+									})
+								}));
+							} else {
+								//console.log([' MC FIND no have related',question])
 
-						//res.send(myTopics);
+								promises.push(new Promise(function(resolve,reject) {
+									resolve(mcQuestion);
+								}))
+							}
+						});
+					}
+					Promise.all(promises).then(function(final) {
+						//console.log(['FINAL ALL MC FIND',final])
+						res.send(final)
 					})
+					
 				});
+
 			})
 		} else {
 			res.send({});
@@ -293,16 +283,16 @@ function initRoutes(router,initdb) {
 	});
 	
 	
-	router.get('/mymctopics', (req, res) => {
-		if (req.query.user && req.query.user.length > 0) {
+	router.post('/mymctopics',  async (req, res) => {
+		if (req.user) {
 			let collatedTopics={};
 			//
 		   // $or:[{'successTally':{$lt : 7}},{'successTally':{$exists : false}}]
-			initdb().then(function(db) {
+			initdb().then(async function(db) {
 			//  collate all user progress by topic
-				db.collection('userquestionprogress').aggregate([
+				var aggCursor = db.collection('userquestionprogress').aggregate([
 					{ $match: {
-							$and:[{block:{$ne:1}},{'user': {$eq:ObjectId(req.query.user)}}]
+							$and:[{block:{$ne:1}},{'user': {$eq:ObjectId(req.user._id)}}]
 				   }},
 					{ $group: {'_id': "$topic",
 						'questions': { $sum: 1 },
@@ -311,73 +301,60 @@ function initRoutes(router,initdb) {
 						'blocks' : {$sum:"$block"}
 					}},
 					{$sort:{"successRate":1}}
-				], function (err, result) {
-					if (err) {
-						//console.log(err);
-						return;
-					}
-					let myTopics=[];
-					// collate topics
-					result.toArray().then(function(final) {
-						if (final && final.length > 0) {
-							//console.log(['FINAL MY TOPICS',JSON.stringify(final)])
-							final.map(function(tc) {
-								//console.log(['PUSH TOPIC',tc,tc.topic])
-								myTopics.push(tc.topic);
-							})
+				])
+				let myTopics=[];
+				await aggCursor.forEach(function(tc) {
+					//console.log(['PUSH TOPIC',tc,tc.topic])
+					myTopics.push(tc.topic);
+				})
 							//res.send(final);
-							
-							//find mc questions in these topics (not seen by this user)
-							//console.log(['FIND my topics',myTopics])
-							let filter = []
-							// filter by topics
-							filter.push({topic : {$in:myTopics}});
-							let userMatch='seenBy.'+req.query.user
-							let userFilter={}
-							userFilter[userMatch] = {$exists:false, $ne:''}
-							filter.push(userFilter)
-							
-							
-						//	console.log(['FIND mc questions',JSON.stringify({$and:filter})])
-							db.collection('multiplechoicequestions').find({$and:filter}).sort({difficulty:1,sort:1,createDate:-1}).limit(req.query.limit > 0 ? req.query.limit : 10).toArray(function(err,results) {
-							//	console.log(['FOUND mc questions',err,results])
-								let promises=[];
-								if (results) {
-									//console.log([' MC FIND',results])
-									results.map(function(mcQuestion) {
-										//console.log([' MC FIND qid',mcQuestion.questionId])
-										if (mcQuestion.questionId) {
-											promises.push(new Promise(function(resolve,reject) {
-												db.collection('questions').findOne({_id:ObjectId(mcQuestion.questionId)}).then(function(question) {
-													if (question) {
-														//console.log([' MC FINDhave related',question])
-														mcQuestion.relatedQuestion = question;
-														resolve(mcQuestion)
-													} else {
-														//console.log([' MC FIND no find related',question])
-														resolve({})
-													}
-												})
-											}));
+				
+				//find mc questions in these topics (not seen by this user)
+				//console.log(['FIND my topics',myTopics])
+				let filter = []
+				// filter by topics
+				filter.push({topic : {$in:myTopics}});
+				let userMatch='seenBy.'+req.user._id
+				let userFilter={}
+				userFilter[userMatch] = {$exists:false, $ne:''}
+				filter.push(userFilter)
+				
+				
+			//	console.log(['FIND mc questions',JSON.stringify({$and:filter})])
+				db.collection('multiplechoicequestions').find({$and:filter}).sort({difficulty:1,sort:1,createDate:-1}).limit(req.body.limit > 0 ? req.body.limit : 10).toArray(function(err,results) {
+				//	console.log(['FOUND mc questions',err,results])
+					let promises=[];
+					if (results) {
+						//console.log([' MC FIND',results])
+						results.map(function(mcQuestion) {
+							//console.log([' MC FIND qid',mcQuestion.questionId])
+							if (mcQuestion.questionId) {
+								promises.push(new Promise(function(resolve,reject) {
+									db.collection('questions').findOne({_id:ObjectId(mcQuestion.questionId)}).then(function(question) {
+										if (question) {
+											//console.log([' MC FINDhave related',question])
+											mcQuestion.relatedQuestion = question;
+											resolve(mcQuestion)
 										} else {
-											//console.log([' MC FIND no have related',question])
-
-											promises.push(new Promise(function(resolve,reject) {
-												resolve(mcQuestion);
-											}))
+											//console.log([' MC FIND no find related',question])
+											resolve({})
 										}
-									});
-								}
-								Promise.all(promises).then(function(final) {
-									//console.log(['FINAL ALL MC FIND',final])
-									res.send(final)
-								})
-								
-							});
-						}
+									})
+								}));
+							} else {
+								//console.log([' MC FIND no have related',question])
 
-						//res.send(myTopics);
+								promises.push(new Promise(function(resolve,reject) {
+									resolve(mcQuestion);
+								}))
+							}
+						});
+					}
+					Promise.all(promises).then(function(final) {
+						//console.log(['FINAL ALL MC FIND',final])
+						res.send(final)
 					})
+					
 				});
 			})
 			
@@ -391,34 +368,34 @@ function initRoutes(router,initdb) {
 	
 		
 	
-	router.get('/mcquestions', (req, res) => {
-		//console.log(['FIND mc questions',req.query])
+	router.post('/mcquestions', (req, res) => {
+		//console.log(['FIND mc questions',req.body])
 		let filter = []
 		// filter by question
-		if (req.query.questionId) {
-			filter.push({questionId : {$eq: ObjectId(req.query.questionId)}});
+		if (req.body.questionId) {
+			filter.push({questionId : {$eq: ObjectId(req.body.questionId)}});
 		} else {
 		//	filter.push({$and:[questionExists,answerNotExists]});
 		}
 		// filter by topic
-		if (req.query.topic) {
-			filter.push({topic : {$eq:decodeURI(req.query.topic)}});
+		if (req.body.topic) {
+			filter.push({topic : {$eq:decodeURI(req.body.topic)}});
 		}
-		if (req.query.user)  {
-			let userMatch='seenBy.'+req.query.user
+		if (req.user)  {
+			let userMatch='seenBy.'+req.user._id
 			let userFilter={}
 			userFilter[userMatch] = {$exists:false, $ne:''}
 			filter.push(userFilter)
 		}	
 		
 		// filter incomplete
-		if (req.query.status === 'all') {
+		if (req.body.status === 'all') {
 			//filter.push({$and:[]});
-		} else if (req.query.status === 'complete') {
+		} else if (req.body.status === 'complete') {
 			filter.push({$and:[questionExists,answerExists,multiple_choiceExists,topicExists]});
-		} else if (req.query.status === 'answered') {
+		} else if (req.body.status === 'answered') {
 			filter.push({$and:[questionExists,answerExists]});
-		} else if (req.query.status === 'asked') {
+		} else if (req.body.status === 'asked') {
 			//filter.push({$and:[questionExists,answerNotExists]});
 		// default show only complete
 		} else {
@@ -426,7 +403,7 @@ function initRoutes(router,initdb) {
 		}
 		initdb().then(function(db) {
 			//console.log(['FIND mc questions',JSON.stringify({$and:filter})])
-			db.collection('multiplechoicequestions').find({$and:filter}).sort({difficulty:1,sort:1,createDate:-1}).limit(req.query.limit > 0 ? req.query.limit : 10).toArray(function(err,results) {
+			db.collection('multiplechoicequestions').find({$and:filter}).sort({difficulty:1,sort:1,createDate:-1}).limit(req.body.limit > 0 ? req.body.limit : 10).toArray(function(err,results) {
 				//console.log(['FOUND mc qcreateDateuestions',err,results])
 				let promises=[];
 				if (results) {
@@ -526,136 +503,171 @@ function initRoutes(router,initdb) {
 
 	});
 	
-	router.get('/mctopics', (req, res) => {
-		//console.log(['FIND mc topics',req.query])
+	router.post('/mctopics', async (req, res) => {
+		//console.log(['FIND mc topics',req.body])
 		////console.log(['topics',req.body]);
-		let search = req.query.filter;
-		initdb().then(function(db) {
-			db.collection('multiplechoicequestions').aggregate([
+		let search = req.body.filter;
+		initdb().then(async function(db) {
+			//console.log(['DB INIT']);
+			var aggCursor = db.collection('multiplechoicequestions').aggregate([
 				// complete questions only
 				{ $match: {$and:[questionExists,answerExists,multiple_choiceExists,topicExists]}},// 
 				{ $group: {
 					_id : "$topic",
 					tally: { $sum: 1 }
 				}}
-			], function (err, result) {
-				if (err) {
-					console.log(err);
-					return;
-				}
-				result.toArray().then(function(results) {
+			])
+			//console.log(['DB agg']);
+			//console.log(typeof aggCursor, aggCursor)
+			let final={};
 					
-					//console.log(results);
-					let final={};
-					results.map(function(topic) {
-						let key = topic._id;
-			  //          //console.log([search,key,val]);
-						if (search && search.length > 0) {
-							if (key.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
-								final[key]={topic:key,tally:topic.tally};
-							}
-						 } else {
-							final[key]={topic:key,tally:topic.tally};
-						}
-						if (req.query.user) {
-							final[key].userTally = 0;
-						}
-					});
-					// add user seen tally
-					if (req.query.user) {
-						let userMatch='seenBy.'+req.query.user
-						let userFilter={}
-						userFilter[userMatch] = {$exists:true}
-						db.collection('multiplechoicequestions').aggregate([
-							// complete questions only
-							{ $match: {$and:[userFilter,questionExists,answerExists,multiple_choiceExists,topicExists]}},// 
-							{ $group: {
-								_id : "$topic",
-								tally: { $sum: 1 }
-							}}
-						], function (err, userResultsa) {
-							if (err) {
-								console.log(err);
-								return;
-							}
-							userResultsa.toArray().then(function(userResults) {
-							//	console.log(['USER RESULTS',userResults])
-								userResults.map(function(userResult) {
-									if (userResult && userResult._id && final.hasOwnProperty(userResult._id)) {
-										final[userResult._id].userTally = userResult.tally;
-									}
-									return;
-								});
-								let sorted = Object.values(final);
-								sorted.sort(function(a,b) {
-									if (a.topic < b.topic) {
-										return -1 
-									} else {
-										return 1;
-									}
-								});
-								res.send(sorted);
-							})
-						})
-					} else {
-						let sorted = Object.values(final);
-						sorted.sort(function(a,b) {
-							if (a.topic < b.topic) {
-								return -1 
-							} else {
-								return 1;
-							}
-						});
-						res.send(sorted);
+			await aggCursor.forEach(function(topic) {
+				//console.log(topic)
+				let key = topic._id;
+				//          //console.log([search,key,val]);
+				if (search && search.length > 0) {
+					if (key.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
+						final[key]={topic:key,tally:topic.tally};
 					}
+				 } else {
+					final[key]={topic:key,tally:topic.tally};
+				}
+				if (req.user) {
+					final[key].userTally = 0;
+				}
+			})
+			
+			let sorted = Object.values(final);
+			sorted.sort(function(a,b) {
+				if (a.topic < b.topic) {
+					return -1 
+				} else {
+					return 1;
+				}
+			});
+			res.send(sorted);
+			
+			//res.send(final)
+			//.then(function (result) {
+				
+				//result.toArray().then(function(results) {
+					
+					////console.log(results);
+					//let final={};
+					//results.map(function(topic) {
+						//let key = topic._id;
+			  ////          //console.log([search,key,val]);
+						//if (search && search.length > 0) {
+							//if (key.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
+								//final[key]={topic:key,tally:topic.tally};
+							//}
+						 //} else {
+							//final[key]={topic:key,tally:topic.tally};
+						//}
+						//if (req.user._id) {
+							//final[key].userTally = 0;
+						//}
+					//});
+					//// add user seen tally
+					//if (req.user._id) {
+						//let userMatch='seenBy.'+req.user._id
+						//let userFilter={}
+						//userFilter[userMatch] = {$exists:true}
+						//db.collection('multiplechoicequestions').aggregate([
+							//// complete questions only
+							//{ $match: {$and:[userFilter,questionExists,answerExists,multiple_choiceExists,topicExists]}},// 
+							//{ $group: {
+								//_id : "$topic",
+								//tally: { $sum: 1 }
+							//}}
+						//], function (err, userResultsa) {
+							//if (err) {
+								//console.log(err);
+								//return;
+							//}
+							//userResultsa.toArray().then(function(userResults) {
+							////	console.log(['USER RESULTS',userResults])
+								//userResults.map(function(userResult) {
+									//if (userResult && userResult._id && final.hasOwnProperty(userResult._id)) {
+										//final[userResult._id].userTally = userResult.tally;
+									//}
+									//return;
+								//});
+								//let sorted = Object.values(final);
+								//sorted.sort(function(a,b) {
+									//if (a.topic < b.topic) {
+										//return -1 
+									//} else {
+										//return 1;
+									//}
+								//});
+								//res.send(sorted);
+							//})
+						//})
+					//} else {
+						//let sorted = Object.values(final);
+						//sorted.sort(function(a,b) {
+							//if (a.topic < b.topic) {
+								//return -1 
+							//} else {
+								//return 1;
+							//}
+						//});
+						//res.send(sorted);
+					//}
 					
 					//console.log(['GET TOPICS FINALLY',final]);
 					
-				})
-			})
+				//})
+			//}).catch(function(e) {
+				//console.log(e)
+			//})
 		})
 	});
 	
 	
-	router.get('/mymcstats', (req, res) => {
-		//console.log(['FIND mc topics',req.query])
+	router.post('/mymcstats', (req, res) => {
+		//console.log(['FIND mc topics',req.body])
 		////console.log(['topics',req.body]);
-		if (req.user && req.user.email && req.user.email.length > 0) {
+		if (req.user ) {
 			initdb().then(function(db) {
-				db.collection('users').findOne({username:req.user.email}).then(function(user) {
+				db.collection('users').findOne({_id:req.user._id}).then(function(user) {
 					if (user && user._id) {
 						let userMatch='seenBy.'+user._id
-						console.log(userMatch)
+						//console.log(userMatch)
 						let userFilter={}
 						userFilter[userMatch] = {$exists:true}
-				
-						db.collection('multiplechoicequestions').aggregate(
+						
+						db.collection('multiplechoicequestions').aggregate([
 							{$match:userFilter},
 							{$group:{_id:"$topic",count:{$sum:1}}},
-							{$project:{_id:1,topic:1}}
+							{$project:{_id:1,topic:1, count: 1}}]
 						).toArray(function(err,allResults) {
+							//console.log(['mcq',allResults]);
 							let collation={}
 							if (allResults) {
 								allResults.map(function(mc) {
 									collation[mc._id]={attempts:mc.count};
 								})
 							}
-							//console.log(allResults)
-							db.collection('multiplechoicequestions').aggregate(
+							//console.log('ccc',collation)
+							db.collection('multiplechoicequestions').aggregate([
 								{$match:{$and:[userFilter,{$expr: {$eq: ['$seenBy.'+user._id,'$answer']}}   ]}},
 								{$group:{_id:"$topic",count:{$sum:1}}},
-								{$project:{_id:1,topic:1}}
+								{$project:{_id:1,topic:1, count: 1}}]
 							).toArray(function(err,correctResults) {
+								//console.log('ddd',correctResults)
 								if (correctResults) {
 									correctResults.map(function(mc) {
 										if (!collation.hasOwnProperty(mc._id)) collation[mc._id]={}
 										collation[mc._id].correct=mc.count;
 									})
 								}
-								db.collection('multiplechoicequestions').aggregate(
+								//console.log('ddd',collation)
+								db.collection('multiplechoicequestions').aggregate([
 									{$match:{topic:{$in:Object.keys(collation)}}},
 									{$group:{_id:"$topic",count:{$sum:1}}},
-									{$project:{_id:1,topic:1}}
+									{$project:{_id:1,topic:1, count: 1}}]
 								).toArray(function(err,totalResults) {
 									if (totalResults) {
 										totalResults.map(function(mc) {
@@ -663,8 +675,8 @@ function initRoutes(router,initdb) {
 											collation[mc._id].total=mc.count;
 										})
 									}
-									console.log('collation')
-								console.log(collation)
+									//console.log('collation f')
+								//console.log(collation)
 									//console.log('total')
 								//console.log(totalResults)
 								res.send(collation)

@@ -49,7 +49,7 @@ export default class SearchPage extends Component {
       if ((filters.titleFilter && filters.titleFilter.length > 0) || (filters.techniqueFilter && filters.techniqueFilter.length > 0)) {
 		  // console.log(['filter questions'])
 		  // load mnemonics and collate tags, topics
-		  that.props.fetch('/api/questions?search='+filters.titleFilter+'&technique='+filters.techniqueFilter.toLowerCase())
+		  that.props.fetch('/api/questions',{},{user: that.props.user ? that.props.user._id : null, search: filters.titleFilter, technique: filters.techniqueFilter.toLowerCase()})
 		  .then(function(response) {
 		// console.log(['got response', response])
 			return response.json()
@@ -103,8 +103,7 @@ export default class SearchPage extends Component {
         return (
         <div>
                 <Link className="btn btn-info" to="/search" >Topics</Link>
-                  <Link className="btn btn-info"  to="/search/tags"  >Tags</Link>
-              
+                
             
               
                 <form className="form-inline" onSubmit={(e) => e.preventDefault()}>

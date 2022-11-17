@@ -30,8 +30,8 @@ export default class QuizList extends Component {
 			let quizzesList = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
 				return quiz.quiz;
 			})
-			console.log('LOAD QUIZ DETAILS')
-			console.log(quizzesList);
+			//console.log('LOAD QUIZ DETAILS')
+			//console.log(quizzesList);
 			let url='/api/topicdetails';
 			that.props.fetch(url,{ method: "POST",headers: {
 				"Content-Type": "application/json"
@@ -43,7 +43,7 @@ export default class QuizList extends Component {
 			.then(function(response) {
 				return response.json()
 			}).then(function(json) {
-			    console.log(['LOAD QUIZzes DETAILS',json]);
+			    //console.log(['LOAD QUIZzes DETAILS',json]);
 				if (json && json.length > 0) {
 				  
 				}
@@ -69,38 +69,38 @@ export default class QuizList extends Component {
     };
     
     loadMissingMnemonics() {
-        let that = this;
+        //let that = this;
       
-        if (Utils.isObject(this.props.quizzes)) {
-            let quizzes = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
-                return quiz;
-            });
-            // var title = Utils.snakeToCamel(quiz)
-            let url='/api/missingmnemonics?rand='+Math.random();
-            that.props.fetch(url,{ method: "POST",headers: {
-                "Content-Type": "application/json"
-                },
-                body:JSON.stringify({
-                    topics:quizzes.join(",")
-                })
-            })
-            .then(function(response) {
-                return response.json()
-            }).then(function(json) {
-                that.setState({questionsMissingMnemonics:json});
-                //console.log(['LOAD missing DETAILS',json]);
-                //if (json && json.length > 0 && json[0].description && json[0].description.length > 0) {
-                  //let descriptionState = that.state.description;
-                  //descriptionState[quiz] = json[0].description;
-                  //that.setState({description:descriptionState});
-              //} else {
-                  //return [];
-              //}
+        //if (Utils.isObject(this.props.quizzes)) {
+            //let quizzes = Object.keys(this.props.quizzes).sort().map((quiz, key) => {
+                //return quiz;
+            //});
+            //// var title = Utils.snakeToCamel(quiz)
+            //let url='/api/missingmnemonics?rand='+Math.random();
+            //that.props.fetch(url,{ method: "POST",headers: {
+                //"Content-Type": "application/json"
+                //},
+                //body:JSON.stringify({
+                    //topics:quizzes.join(",")
+                //})
+            //})
+            //.then(function(response) {
+                //return response.json()
+            //}).then(function(json) {
+                //that.setState({questionsMissingMnemonics:json});
+                ////console.log(['LOAD missing DETAILS',json]);
+                ////if (json && json.length > 0 && json[0].description && json[0].description.length > 0) {
+                  ////let descriptionState = that.state.description;
+                  ////descriptionState[quiz] = json[0].description;
+                  ////that.setState({description:descriptionState});
+              ////} else {
+                  ////return [];
+              ////}
 
-            }).catch(function(ex) {
-                console.log(['parsing failed', ex])
-            })
-        };
+            //}).catch(function(ex) {
+                //console.log(['parsing failed', ex])
+            //})
+        //};
             
         
     };

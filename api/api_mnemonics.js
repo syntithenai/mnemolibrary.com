@@ -1,44 +1,45 @@
 var config = {}
 var ObjectId = require('mongodb').ObjectID;
-const get = require('simple-get');
+//const get = require('simple-get');
+const authenticate = require('./authenticate')
 
 function initRoutes(router,initdb) {
 
 
-	router.use('/missingmnemonics', (req, res) => {
-		console.log(['mmNEM',req.body]);
-		res.send({})
-		return
+	//router.use('/missingmnemonics', (req, res) => {
+		//console.log(['mmNEM',req.body]);
+		//res.send({})
+		//return
 		
-		let missingQuestionsByTopic={}
-		let missingMnemonicFilter={hasMnemonic:{$ne:true}};
-		let rData = req.body ? req.body : req.query
-		let filter=missingMnemonicFilter
-		if (rData.topic) {
-			filter={$and:[missingMnemonicFilter,{quiz:rData.topic}]}
-		} else if (rData.topics) {
+		////let missingQuestionsByTopic={}
+		////let missingMnemonicFilter={hasMnemonic:{$ne:true}};
+		////let rData = req.body ? req.body : req.query
+		////let filter=missingMnemonicFilter
+		////if (rData.topic) {
+			////filter={$and:[missingMnemonicFilter,{quiz:rData.topic}]}
+		////} else if (rData.topics) {
 			
-			let topicFilter = rData.topics.split(",").map(function(topic) {
-				return {quiz:topic}
-			}) ;
-			filter={$and:[missingMnemonicFilter,{$or:topicFilter}]}
-		}
-		 console.log(['LOADING MISSING MNEM',JSON.stringify(filter)]);
-		initdb().then(function(db) {
-			console.log(['LOADING MISSING MNEM db initied']);
-			db.collection('questions').find(filter).toArray().then(function(questions) {
-			    console.log(['LOADING MISSING MNEM, FOUND MNEM FREE QU',questions,JSON.stringify(filter)]);
-				questions.map(function(question,key) {
-					console.log(['LOADING TOPICS, FOUND Q',question,key]);
-					if (question.quiz && question.quiz.length > 0) {
-						missingQuestionsByTopic[question.quiz] = (parseInt(missingQuestionsByTopic[question.quiz],10) > 0) ? parseInt(missingQuestionsByTopic[question.quiz],10) + 1 : 1;
-					 }
-				});
-				console.log(['MISSING',missingQuestionsByTopic]);
-				res.send(missingQuestionsByTopic);
-			});   
-		}) 
-	});
+			////let topicFilter = rData.topics.split(",").map(function(topic) {
+				////return {quiz:topic}
+			////}) ;
+			////filter={$and:[missingMnemonicFilter,{$or:topicFilter}]}
+		////}
+		 ////console.log(['LOADING MISSING MNEM',JSON.stringify(filter)]);
+		////initdb().then(function(db) {
+			////console.log(['LOADING MISSING MNEM db initied']);
+			////db.collection('questions').find(filter).toArray().then(function(questions) {
+			    ////console.log(['LOADING MISSING MNEM, FOUND MNEM FREE QU',questions,JSON.stringify(filter)]);
+				////questions.map(function(question,key) {
+					////console.log(['LOADING TOPICS, FOUND Q',question,key]);
+					////if (question.quiz && question.quiz.length > 0) {
+						////missingQuestionsByTopic[question.quiz] = (parseInt(missingQuestionsByTopic[question.quiz],10) > 0) ? parseInt(missingQuestionsByTopic[question.quiz],10) + 1 : 1;
+					 ////}
+				////});
+				////console.log(['MISSING',missingQuestionsByTopic]);
+				////res.send(missingQuestionsByTopic);
+			////});   
+		////}) 
+	//});
 
 
 	router.post('/mnemonics', (req, res) => {
@@ -69,9 +70,9 @@ function initRoutes(router,initdb) {
 
 	router.post('/mymnemonics', (req, res) => {
 		////console.log(['seen',req.body]);
-		if (req.body.user && req.body.user.length > 0) {
+		if (req.user) {
 			initdb().then(function(db) {
-				db.collection('mnemonics').find({user:ObjectId(req.body.user)}).toArray(function(err, result) {
+				db.collection('mnemonics').find({user:ObjectId(req.user._id)}).toArray(function(err, result) {
 					res.send(result);
 				});
 			})
@@ -84,15 +85,15 @@ function initRoutes(router,initdb) {
 	router.post('/savemnemonic', (req, res) => {
 	 //   //console.log(['seen',req.body]);
 	// console.log(['save mnem']);
-		if (req.body.user && req.body.question && req.body.mnemonic && req.body.mnemonic.length > 0) {//   && req.body.technique  && req.body.questionText ) {
+		if (req.user && req.body.question && req.body.mnemonic && req.body.mnemonic.length > 0) {//   && req.body.technique  && req.body.questionText ) {
 			//console.log(['save mnem have params']);
-			let user = req.body.user;
+			//let user = req.user;
 			let question = req.body.question;
 			let id = req.body._id ? ObjectId(req.body._id) : new ObjectId();
-			let toSave = {_id:id,user:ObjectId(req.body.user),question:ObjectId(req.body.question),mnemonic:req.body.mnemonic,questionText:req.body.questionText,technique:req.body.technique};
+			let toSave = {_id:id,user:ObjectId(req.user._id),question:ObjectId(req.body.question),mnemonic:req.body.mnemonic,questionText:req.body.questionText,technique:req.body.technique};
 		   // console.log(['save mnem',toSave]);
 			initdb().then(function(db) {
-				db.collection('mnemonics').save(toSave).then(function(updated) {
+				db.collection('mnemonics').updateOne({_id:toSave._id },{$set:toSave}, {upsert:true}).then(function(updated) {
 					//console.log(['saved mnem']);
 					db.collection('questions').findOne({_id:ObjectId(req.body.question)}).then(function(questionRec) {
 						if (questionRec && questionRec._id) {

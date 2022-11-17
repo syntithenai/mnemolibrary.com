@@ -79,7 +79,7 @@ export default withRouter( class QuizCarousel extends Component {
 
     
     componentDidUpdate(props) {
-		console.log(['QUIZ CAR DID UPDATE',props.match,this.props.match]);
+		//console.log(['QUIZ CAR DID UPDATE',props.match,this.props.match]);
         if (this.props.isReview !== true) {
             // ensure existence old and new match.params    
 			if (this.props.match && props.match && this.props.match.params && props.match.params) {
@@ -116,7 +116,7 @@ export default withRouter( class QuizCarousel extends Component {
 		window.removeEventListener('keydown',this.handleStartKeyPress)
 		this.setState({modalDialog: null})
 		let that = this;
-			console.log(['QUIZ CAR DID MOUNT',this.props,this.props.isReview,this.props.match]); //this.state.currentQuiz,this.props.questions
+			//console.log(['QUIZ CAR DID MOUNT',this.props,this.props.isReview,this.props.match]); //this.state.currentQuiz,this.props.questions
             if (this.props.match && this.props.match.params && this.props.match.params.searchtopic && this.props.match.params.searchtopic.length > 0) {
                 // DISCOVERY
                that.props.fetch('/api/checktopic',{ method: "POST",headers: {
@@ -132,7 +132,7 @@ export default withRouter( class QuizCarousel extends Component {
 					return response.json()
 				}).then(function(json) {
 					if (json.ok === true) {
-						  console.log(['loaded searcg topic',json])
+						  //console.log(['loaded searcg topic',json])
 						setTimeout(function() {
 							 that.props.setQuizFromTopic(that.props.match.params.searchtopic,that.props.match.params.topicquestion);
 							 if (that.props.match && that.props.match.params && that.props.match.params.topicquestion && that.props.match.params.topicquestion.length > 0) that.hideQuestionList();
@@ -156,10 +156,10 @@ export default withRouter( class QuizCarousel extends Component {
 				  .then(function(response) {
 					return response.json()
 				}).then(function(json) {
-						  console.log(['loaded topic',json])
+						  //console.log(['loaded topic',json])
 					if (json.ok === true) {
 						//setTimeout(function() {
-							 that.props.discoverQuizFromTopic(that.props.match.params.topic,that.props.match.params.topicquestion);
+							 that.props.discoverQuizFromTopic(that.props.match.params.topic,that.props.match.params.topicquestion, that.props.user);
 							if (that.props.match && that.props.match.params && that.props.match.params.topicquestion && that.props.match.params.topicquestion.length > 0) that.hideQuestionList();
 						//},1000);
 					} else {
@@ -174,7 +174,7 @@ export default withRouter( class QuizCarousel extends Component {
                 },1000);
             } else if (this.props.match &&  this.props.match.params && this.props.match.params.tag && this.props.match.params.tag.length > 0) {
                 // SEARCH
-                console.log(['QUIZ CAR FROMTAG',that.props.match.params.tag]);
+                //console.log(['QUIZ CAR FROMTAG',that.props.match.params.tag]);
                 setTimeout(function() {
                      that.props.setQuizFromTag(that.props.match.params.tag);
                      if (that.props.match && that.props.match.params && that.props.match.params.topicquestion && that.props.match.params.topicquestion.length > 0) that.hideQuestionList();
@@ -201,7 +201,7 @@ export default withRouter( class QuizCarousel extends Component {
             } else {
                 // DISCOVER ALL
                 setTimeout(function() {
-                    that.props.discoverQuestions();
+                    that.props.discoverQuestions(that.props.user);
                 },1000);
             } 
     }
@@ -226,7 +226,7 @@ export default withRouter( class QuizCarousel extends Component {
   };
       
   logStatus(status,question,preview,topic) {
-     console.log(['log status',status,question,preview,topic,this.props.user,this.state.logged[status]]);
+     //console.log(['log status',status,question,preview,topic,this.props.user,this.state.logged[status]]);
      if (!this.state.logged[status]) {
          let logged = this.state.logged;
          logged[status]={};
@@ -237,9 +237,9 @@ export default withRouter( class QuizCarousel extends Component {
           if (!question) question = this.props.questions[this.props.indexedQuestions[this.props.currentQuestion]]._id;
           //console.log(['logging status',question]);
           if (this.state.logged[status].hasOwnProperty(question)) {
-              console.log(['ignore duplicate logs']);
+              //console.log(['ignore duplicate logs']);
           } else {
-              console.log(['REALLY log status',status,question]);
+              //console.log(['REALLY log status',status,question]);
               let logged = this.state.logged;
               logged[status][question] = true;
               this.setState({logged:logged});
@@ -252,7 +252,7 @@ export default withRouter( class QuizCarousel extends Component {
                   },
                   body: JSON.stringify({'user':this.props.user._id,'question':question,topic:topic})
                 }).then(function() {
-					console.log('saved log status')  
+					//console.log('saved log status')  
 				}).catch(function(err) {
                     console.log(err)
                     that.setState({'message':'Not Saved'});
@@ -288,7 +288,7 @@ export default withRouter( class QuizCarousel extends Component {
 	gotoQuestion(questionKey) {
 		window.removeEventListener('keydown',this.handleKeyPress)
 		window.removeEventListener('keydown',this.handleStartKeyPress)
-		console.log(['GOTO QUESTION',questionKey])
+		//console.log(['GOTO QUESTION',questionKey])
 		let question = parseInt(questionKey,10) != NaN && this.props.questions && this.props.questions[parseInt(questionKey,10)] ? this.props.questions[parseInt(questionKey,10)] : null;
 		if (question) {
 			let url = '/discover/topic/'+question.quiz+'/'+question._id;
@@ -303,7 +303,7 @@ export default withRouter( class QuizCarousel extends Component {
 	  window.removeEventListener('keydown',this.handleKeyPress)
       this.props.setMessage('');
       const id = question._id;
-      console.log(['handle response',response,id,question]);
+      //console.log(['handle response',response,id,question]);
       const time = new Date().getTime();
       if (response === "list") {
          this.setState({'showList':true});  
@@ -395,7 +395,7 @@ export default withRouter( class QuizCarousel extends Component {
     
     handleStartKeyPress(e) {
 		let that = this
-			console.log(['carousel key',e])
+			//console.log(['carousel key',e])
 			if (e.code === "ArrowRight") {
 				this.setState({'showList':false});
 				window.removeEventListener('keydown',this.handleStartKeyPress)
@@ -404,7 +404,7 @@ export default withRouter( class QuizCarousel extends Component {
     
     handleKeyPress(e) {
 		let that = this
-			console.log(['carousel key',e])
+			//console.log(['carousel key',e])
 			if (e.code === "ArrowRight") {
 				that.initialiseFromParams()
 				this.setState({'showList':false});
@@ -577,7 +577,7 @@ export default withRouter( class QuizCarousel extends Component {
 			questions.map(function(question) {
 				if (question) ids.push(question._id);
 			})
-			console.log(['SEND Q R',ids,questions])
+			//console.log(['SEND Q R',ids,questions])
 			this.props.fetch('/api/markallreviewed', {
 			  method: 'POST',
 			   headers: {
@@ -668,7 +668,7 @@ export default withRouter( class QuizCarousel extends Component {
                         
                     {!this.state.showQuestionListDetails && <button style={{float:'right'}} className='btn btn-info' onClick={this.showQuestionListDetails}  >Show Details</button>}
                     
-                    {!this.props.isReview && this.state.showQuestionListDetails && <button style={{float:'right'}} className='btn btn-success' onClick={(e) => this.props.sendAllQuestionsForReview(listQuestions)} >Send All To My Review List</button>}
+                    {!this.props.isReview && this.props.user && this.state.showQuestionListDetails && <button style={{float:'right'}} className='btn btn-success' onClick={(e) => this.props.sendAllQuestionsForReview(listQuestions)} >Send All To My Review List</button>}
                                         
                     {this.state.showQuestionListDetails && <button style={{float:'right'}} className='btn btn-info' onClick={this.hideQuestionListDetails} >Hide Details</button>}
                     <div style={{width:'100%',clear:'both'}}></div>

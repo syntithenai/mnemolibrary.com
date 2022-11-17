@@ -243,9 +243,9 @@ Mnemo's Library
                                   </div>`,{link:link,name:item.name});
        //                //console.log(mailTemplate);
                                 //res.redir(config.authorizeUrl);
-                       utils.sendMail(config.mailFrom,req.body.email,"Update your password on Mnemo's Library",
-                                 mailTemplate
-                              );  
+                       //utils.sendMail(config.mailFrom,req.body.email,"Update your password on Mnemo's Library",
+                                 //mailTemplate
+                              //);  
                       item.warning_message="Sent recovery email";
                       res.send(item);
                   });  
@@ -316,23 +316,23 @@ router.post('/signup', function(req, res) {
                                                  //var host = hostParts[0];
                                                  var link = config.protocol + "://"  + config.host + '/?confirm='+token.access_token;
                                                 //res.redir(config.authorizeUrl);
-                                                  utils.sendMail(config.mailFrom,req.body.username,'Confirm your registration with Mnemos Library',
-                                                  mustache.render(`<div>Hi {{name}}! <br/>
+                                                  //utils.sendMail(config.mailFrom,req.body.username,'Confirm your registration with Mnemos Library',
+                                                  //mustache.render(`<div>Hi {{name}}! <br/>
 
-                                Welcome to Mnemo's Library.<br/>
+                                //Welcome to Mnemo's Library.<br/>
 
-                                To confirm your registration, please click the link below.<br/>
+                                //To confirm your registration, please click the link below.<br/>
 
-                                <a href="{{link}}" >Confirm registration</a> ({{link}})<br/>
+                                //<a href="{{link}}" >Confirm registration</a> ({{link}})<br/>
 
-                                If you did not recently register with Mnemo's Library, please ignore this email.<br/><br/>
+                                //If you did not recently register with Mnemo's Library, please ignore this email.<br/><br/>
 
-                                Mnemo's Library
+                                //Mnemo's Library
 
                                                   
                                                   
-                                                  </div>`,{link:link,name:item.name})
-                                              );
+                                                  //</div>`,{link:link,name:item.name})
+                                              //);
                                               item.warning_message = 'Check your email to confirm your sign up.';
                                               res.send(item);
                                             

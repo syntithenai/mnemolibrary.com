@@ -1,147 +1,74 @@
-const axios = require('axios');
+//const axios = require('axios');
 //const debug = require('debug')('auth');
 //const config = require('../../config');
-const qs = require('qs');
+//const qs = require('qs');
 const AWS = require('aws-sdk');
 
 const jwt = require('jsonwebtoken');
-const jwkToPem = require('jwk-to-pem');
-const jwksClient = require('jwks-rsa');
-const ms = require('ms');
+//const jwkToPem = require('jwk-to-pem');
+//const jwksClient = require('jwks-rsa');
+//const ms = require('ms');
 var ObjectId = require('mongodb').ObjectID;
-var faker = require('faker');
+//var faker = require('faker');
 var crypto = require('crypto');
-
-//async  function loadToken(grantType, accessToken) {
-	
-	//console.log([process.env.authClientId,process.env.websiteUrl,process.env.authClientSecret])
-	
-  //const data = {
-	//grant_type: grantType,
-	//client_id: process.env.authClientId,
-	//code: accessToken,
-	//scope: 'profile',
-	//redirect_uri: process.env.websiteUrl,
-  //};
-
-  //const p = {
-	//method: 'post',
-	//url: process.env.authUrl + `/oauth2/token`,
-	//data: qs.stringify(data),
-
-	////auth: {
-	  ////client_id: process.env.authClientId,
-	//////  client_secret: process.env.authClientSecret,
-	////},
-  //};
-	//var promise = new Promise(function(resolve,reject) {
-	  //console.log(`AWS oauth2/token request parameters: ${JSON.stringify(p)}`);
-	  //axios(p).then(function(awsResponse) {
-	      //console.log(`AWS oauth2/token response : ${JSON.stringify(awsResponse)}`);
-		  //resolve(awsResponse)
-	   //});
-	//})
-	//return promise;
-//}
-
-
-	//async  function getEmailFromCode(code) {
-	
-		//return new Promise(function(resolve,reject) {
-				
-		////  loadToken('authorization_code', code).then(function(awsAuthorizationCodeResponse) {
-				  
-
-			  //const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(awsAuthorizationCodeResponse.data.id_token, { complete: true });
-			  //const unverifiedDecodedAuthorizationCodeAccessToken = jwt.decode(awsAuthorizationCodeResponse.data.access_token, { complete: true });
-			  //const unverifiedDecodedAuthorizationCodeRefreshToken = jwt.decode(awsAuthorizationCodeResponse.data.refresh_token, { complete: true });
-
-			  //console.log(`AWS oauth2/token authorization code response id_token decoded but inverified: ${JSON.stringify(unverifiedDecodedAuthorizationCodeIdToken)}`);
-			  //console.log(`AWS oauth2/token authorization code response access_token decoded but inverified: ${JSON.stringify(unverifiedDecodedAuthorizationCodeAccessToken)}`);
-			  //debug(`AWS oauth2/token authorization code response refresh_token decoded but inverified: ${JSON.stringify(unverifiedDecodedAuthorizationCodeRefreshToken)}`);
-
-			  //const { kid } = unverifiedDecodedAuthorizationCodeIdToken.header;
-
-
-			 //async  function getKey(kidId) {
-				//return new Promise(((resolve, reject) => {
-				  //client.getKeys((err, keys) => {
-					//const key1 = keys.find(k => k.kid === kidId);
-					//resolve(key1);
-				  //});
-				//}));
-			  //}
-
-			  //getKey(kid).then(function(jwk) {
-				  //const pem = jwkToPem(jwk);
-				  //jwt.verify(awsAuthorizationCodeResponse.data.id_token, pem, { algorithms: ['RS256'] }).then(function(decodedIdToken) {
-					  //console.log(`Decoded and verified id token from aws ${JSON.stringify(decodedIdToken)}`);
-					  //// Make sure that the profile checkbox is selected in the App client settings in cognito for the app. Otherwise you will get just the email
-					  //const { email } = decodedIdToken;
-					  //const { name } = decodedIdToken;
-					  //const { family_name } = decodedIdToken;
-					  //const returnObject = {
-						//email: email.toLowerCase(),
-						//firstName: name,
-						//lastName: family_name,
-					  //};
-					  //resolve(returnObject);
-					//})
-				 //})
-			//})
-		////})
-	//}
-	
-	
-	
-
-
-
-
+var authenticate = require('./authenticate')
 
 function initRoutes(router,initdb) {
 
-	router.get('/me', (req, res) => {
+	router.use('/me', (req, res) => {
 		//console.log('AUTH')
 		//console.log(req.query.id_token)
 		//var id_token = req.query.id_token;
 		//if (id_token) {
 			//const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(id_token, { complete: true });
 			//var emailDirect = unverifiedDecodedAuthorizationCodeIdToken && unverifiedDecodedAuthorizationCodeIdToken.payload ? unverifiedDecodedAuthorizationCodeIdToken.payload.email : 'noemail';
-		//console.log('ME')
-		//console.log(req.user)
-		let emailDirect = req.user && req.user.email ? req.user.email : ''
-		if (emailDirect.length > 0) { 
-			initdb().then(function(db) {
-				//res.send({email:emailDirect})
-							//console.log('FIND')
-							//console.log(emailDirect);
-				
-					db.collection('users').findOne({username:emailDirect}).then(function(user) {
-						if (user && user._id) {
-							//console.log('found')
-							//console.log(user);
-							res.send(user);
-						} else {
-							user = {}
-							user._id = ObjectId()
-							user.email = emailDirect;
-							user.username = emailDirect;
-							var pw = crypto.randomBytes(20).toString('hex');
-							user.password = pw;
-							user.avatar = faker.commerce.productAdjective()+faker.name.firstName()
-						
-							db.collection('users').insertOne(user).then(function() {
-								//console.log('inserted')
+			
+		let token = req.headers.authorization ? req.headers.authorization : ((req.body && req.body.id_token) ? req.body.id_token : null)
+		//console.log('headers',req.headers, req.body,req.query)
+		if (token) { 
+			//console.log('token',token)
+			var emailDirect = '';
+			try {
+				const unverifiedDecodedAuthorizationCodeIdToken = jwt.decode(token, { complete: true });
+				emailDirect = unverifiedDecodedAuthorizationCodeIdToken && unverifiedDecodedAuthorizationCodeIdToken.payload ? unverifiedDecodedAuthorizationCodeIdToken.payload.email : '';
+				if (emailDirect.length > 0) { 
+					initdb().then(function(db) {
+					
+						db.collection('users').findOne({username:emailDirect}).then(function(user) {
+							if (user && user._id) {
+								//console.log('found')
 								//console.log(user);
 								res.send(user);
-							})
-						}
+							} else {
+								user = {}
+								user._id = ObjectId()
+								user.email = emailDirect;
+								user.username = emailDirect;
+								var pw = crypto.randomBytes(20).toString('hex');
+								user.password = pw;
+								user.avatar = faker.commerce.productAdjective()+faker.name.firstName()
+							
+								db.collection('users').insertOne(user).then(function() {
+									//console.log('inserted')
+									//console.log(user);
+									res.send(user);
+								}) 
+							}
+						})
 					})
-			})
+				} else {
+					res.send({})
+				}
+			
+				
+			} catch (e) {
+				console.log(e)
+				res.send({})
+			}
 		} else {
 			res.send({})
 		}
+		
 			
 		//}
 	})

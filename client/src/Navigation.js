@@ -1,5 +1,6 @@
 /* eslint-disable */ 
 import React, { Component } from 'react';
+import {Button} from 'react-bootstrap'
 import 'whatwg-fetch'
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
 import Utils from './Utils'
@@ -31,6 +32,8 @@ export default class Navigation extends Component {
     constructor(props) {
         super(props);
         this.goHome = this.goHome.bind(this);
+	this.googleLogin = props.googleLogin
+	console.log("NAV",this.googleLogin)
         //this.isAdmin = this.isAdmin.bind(this);
     };
     
@@ -127,17 +130,14 @@ export default class Navigation extends Component {
           
                <span className="dcol-4">
                 <Link className="btn btn-secondary" to="/sitemap" >...</Link>
-                
+               
               </span>
               
               <span className="dcol-4">
-                
-                {this.props.isLoggedIn() && <Link to='/profile' className='btn btn-secondary'>
+                {this.props.user && <Link to='/profile' className='btn btn-secondary'>
                    {userIcon} <span  className="d-none d-sm-inline">Profile</span>
                   </Link>}
-                  {!this.props.isLoggedIn() && <Link  to='/login'  className='btn btn-outline btn-warning' style={{marginLeft: '1em'}}>
-                   {userIcon} <span  className="d-none d-sm-inline">Login</span>
-                  </Link>}
+                  
               </span>
            
               

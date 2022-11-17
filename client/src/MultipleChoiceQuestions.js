@@ -93,7 +93,7 @@ export default class MultipleChoiceQuestions extends Component {
 		this.playerRefs = {}
 		let that = this;
 		this.setPlayerRef = (key,element) => {
-			console.log(['SET PLAYER REF',key,element])
+			//console.log(['SET PLAYER REF',key,element])
 			if (key && element) {
 				element.subscribeToStateChange((state,prevState) => that.handleStateChange(key,state,prevState));
 				that.playerRefs[key] = element;
@@ -104,9 +104,9 @@ export default class MultipleChoiceQuestions extends Component {
 
     componentDidMount() {
       let that=this;
-        console.log(['MCQ dmount'])
+        //console.log(['MCQ dmount'])
         this.loadQuestions().then(function() {
-			console.log(['MCQ have loaded'])
+			//console.log(['MCQ have loaded'])
 			that.nextQuestion()
 		})
        //	this.nextQuestion()
@@ -117,26 +117,26 @@ export default class MultipleChoiceQuestions extends Component {
     
     componentDidUpdate(props,state) {
 		let that = this;
-		console.log(['MCQ update',this.props.user,props.user,state.currentQuestion ,this.state.currentQuestion])
+		//console.log(['MCQ update',this.props.user,props.user,state.currentQuestion ,this.state.currentQuestion])
         if (this.props.user && !props.user) {
-			console.log(['MCQ have user CHANGE'])
+			//console.log(['MCQ have user CHANGE'])
 			this.loadQuestions().then(function() {
-				console.log(['MCQ have loaded'])
+				//console.log(['MCQ have loaded'])
 				that.nextQuestion()
 			})
 		} else if (this.props.question !== props.question) {
 			// single question view
-			console.log(['MCQ have soingel view'])
+			//console.log(['MCQ have soingel view'])
 			that.loadQuestions().then(function() {
 				
 			})
 		} else if (this.props.topic !== props.topic) {
-			console.log(['MCQ have TOPIC CANNGE'])
+			//console.log(['MCQ have TOPIC CANNGE'])
 			this.loadQuestions().then(function() {
-				console.log(['MCQ have TOPIC LOADED'])
+				//console.log(['MCQ have TOPIC LOADED'])
 				that.nextQuestion();
 				if (state.currentQuestion != that.state.currentQuestion) {
-					console.log(['scroll to topichange','question_'+that.state.currentQuestion,that.scrollTo['question_'+that.state.currentQuestion]])
+					//console.log(['scroll to topichange','question_'+that.state.currentQuestion,that.scrollTo['question_'+that.state.currentQuestion]])
 					if (!that.props.viewOnly) scrollToComponent(that.scrollTo['question_'+that.state.currentQuestion],{align:'top',offset:-180});
 					let thisQuestion = that.state.questions && that.state.questions.length > that.state.currentQuestion ? that.state.questions[that.state.currentQuestion] : {};
 					that.startPlayer(thisQuestion._id)
@@ -145,7 +145,7 @@ export default class MultipleChoiceQuestions extends Component {
 			
 		}
 		if (state.currentQuestion != that.state.currentQuestion || this.props.questions != props.questions) {
-			console.log(['scroll to currentqchange','question_'+that.state.currentQuestion,that.scrollTo['question_'+that.state.currentQuestion]])
+			//console.log(['scroll to currentqchange','question_'+that.state.currentQuestion,that.scrollTo['question_'+that.state.currentQuestion]])
 			if (!that.props.viewOnly) scrollToComponent(that.scrollTo['question_'+that.state.currentQuestion],{align:'top',offset:-140});
 			let thisQuestion = that.state.questions && that.state.questions.length > that.state.currentQuestion ? that.state.questions[that.state.currentQuestion] : {};
 			if (thisQuestion && thisQuestion._id) that.startPlayer(thisQuestion._id)
@@ -154,14 +154,14 @@ export default class MultipleChoiceQuestions extends Component {
 	
 	startPlayer(questionId) {
 		let that = this;
-		console.log(['START PLAYER',questionId,that.playerRefs])
+		//console.log(['START PLAYER',questionId,that.playerRefs])
 		Object.keys(this.playerRefs).map(function(playerKey) {
 			let player = that.playerRefs[playerKey]
-			console.log(['test PLAYER',questionId,playerKey])
+			//console.log(['test PLAYER',questionId,playerKey])
 			if (player && player.pause && questionId == playerKey) {
-				console.log(['PLAY',player])
+				//console.log(['PLAY',player])
 				setTimeout(function() {
-					console.log(['PLAY real'])
+					//console.log(['PLAY real'])
 					try {
 						 player.play();
 					} catch (e) {
@@ -202,7 +202,7 @@ export default class MultipleChoiceQuestions extends Component {
 	}
         
      setShareDialog(val,topic) {
-		 console.log(['SETSHAREDIALOG',val,topic])
+		 //console.log(['SETSHAREDIALOG',val,topic])
 		if (topic) {
 			let host = 'mnemoslibrary.com' //window.location.host
 			let shareLink =  window.location.protocol+'//'+host+'/multiplechoicequestions/'+encodeURIComponent(topic);
@@ -215,22 +215,23 @@ export default class MultipleChoiceQuestions extends Component {
 	loadMyTopics() {
 			
 		let that = this;
-		console.log(['load my topics',this.props])
+		//console.log(['load my topics',this.props])
 		this.stopAllPlayers();
 		return new Promise(function(resolve,reject) {
 			if (that.props.user) {
 				let topic = that.props.match && that.props.match.params && that.props.match.params.topic && that.props.match.params.topic.length > 0 ? that.props.match.params.topic : that.props.topic;
-				let topicQuery='';
+				let postData = {user: that.props.user._id}
 				if (topic && topic.length > 0 ) {
-					topicQuery='&topic='+topic;
+					postData['topicQuery'] = topic;
 				}
-				console.log(['FETCH','/api/mymctopics?user='+that.props.user._id + topicQuery])
-				that.props.fetch('/api/mymctopics?user='+that.props.user._id + topicQuery)
+				
+				//console.log(['FETCH','/api/mymctopics?user='+that.props.user._id + topicQuery])
+				that.props.fetch('/api/mymctopics',{},postData)
 				.then(function(response) {
-					console.log(['got response'])
+					//console.log(['got response'])
 					return response.json()
 				}).then(function(json) {
-					console.log(['got mount json',json])
+					//console.log(['got mount json',json])
 					let filteredQuestions = json.map(function(question,key) {
 						let a = {}
 						that.questionsIndex[question._id] = key;
@@ -264,16 +265,17 @@ export default class MultipleChoiceQuestions extends Component {
 		return new Promise(function(resolve,reject) {
 			if (that.props.user) {
 				let topic = that.props.match && that.props.match.params && that.props.match.params.topic && that.props.match.params.topic.length > 0 ? that.props.match.params.topic : that.props.topic;
-				let topicQuery='';
+				let postData = {user: that.props.user._id}
 				if (topic && topic.length > 0 ) {
-					topicQuery='&topic='+topic;
+					postData['topicQuery'] = topic;
 				}
-				that.props.fetch('/api/mymcquestions?user='+that.props.user._id + topicQuery)
+				
+				that.props.fetch('/api/mymcquestions',{},postData)
 				.then(function(response) {
-					console.log(['got response'])
+					//console.log(['got response'])
 					return response.json()
 				}).then(function(json) {
-					console.log(['got mount json',json])
+					//console.log(['got mount json',json])
 					let filteredQuestions = json.map(function(question,key) {
 						let a = {}
 						that.questionsIndex[question._id] = key;
@@ -310,7 +312,7 @@ export default class MultipleChoiceQuestions extends Component {
     
     loadQuestions() {
 		let that = this;
-		console.log(['LOAD Q',this.props.mode])
+		//console.log(['LOAD Q',this.props.mode])
 		this.setState({quizIsComplete:false})
 		this.stopAllPlayers();
 		if (this.props.mode && this.props.mode === "myquestions") {
@@ -321,20 +323,17 @@ export default class MultipleChoiceQuestions extends Component {
 			return new Promise(function(resolve,reject) {
 				let topic = that.props.match && that.props.match.params && that.props.match.params.topic && that.props.match.params.topic.length > 0 ? that.props.match.params.topic : that.props.topic;
 				if (topic && topic.length > 0 ) {
-					let questionQuery='';
+					let postData = {topic: topic}
 					if (that.props.question) {
-						questionQuery='&questionId='+that.props.question;
+						postData['questionId'] = that.props.question;
 					}
 					// single view page needs all but quiz list page needs not answered
-					if (that.props.user) {
-						questionQuery+=that.props.user ? '&user='+that.props.user._id : '';
-					}
-					that.props.fetch('/api/mcquestions?topic='+topic+questionQuery)
+					that.props.fetch('/api/mcquestions',{},postData)
 					.then(function(response) {
-						console.log(['got response'])
+						//console.log(['got response'])
 						return response.json()
 					}).then(function(json) {
-						console.log(['got mount json',json])
+						//console.log(['got mount json',json])
 						let filteredQuestions = []
 						json.map(function(question,key) {
 							//let a = {}
@@ -372,10 +371,10 @@ export default class MultipleChoiceQuestions extends Component {
 		let that = this;
 					
 		this.stopAllPlayers();
-		console.log('reset  ')
+		//console.log('reset  ')
 		let topic = this.props.match && this.props.match.params && this.props.match.params.topic && this.props.match.params.topic.length > 0 ? this.props.match.params.topic : this.props.topic;
 		if (topic && topic.length > 0 ) {
-			console.log('really reset  ')
+			//console.log('really reset  ')
 			var params={
 				'user':this.props.user ? this.props.user._id : null,
 				'topic':topic,
@@ -392,7 +391,7 @@ export default class MultipleChoiceQuestions extends Component {
 			}).then(function(response) {
 				return response.json();
 			}).then(function(res) {
-				console.log('done reset quiz')
+				//console.log('done reset quiz')
 				that.loadQuestions();
 				that.setState({currentQuestion:0})
 			})
@@ -427,10 +426,10 @@ export default class MultipleChoiceQuestions extends Component {
 		let that = this
 		this.stopAllPlayers();
 		let buttons=[];
-		this.props.fetch('/api/mymcstats').then(function(response) {
+		this.props.fetch('/api/mymcstats',{},{user: this.props.user ? this.props.user._id : null}).then(function(response) {
 			return response.json();
 		}).then(function(stats) {
-			console.log(['stats',stats])
+			//console.log(['stats',stats])
 			that.setState({stats:stats,quizIsComplete:true})
 			scrollToComponent(that.scrollTo['top'],{align:'top',offset:-100});
 		})
@@ -440,10 +439,10 @@ export default class MultipleChoiceQuestions extends Component {
     // scroll to next unanswered question
     nextQuestion() {
 		this.stopAllPlayers();
-		console.log(['NEXT QUESTION',this.state.questions,this.props.user,this.state.currentQuestion])
+		//console.log(['NEXT QUESTION',this.state.questions,this.props.user,this.state.currentQuestion])
 		
 		if (this.state.questions && this.state.questions.length > 0) {
-			console.log(['NEXT QUESTION f',this.state.currentQuestion])
+			//console.log(['NEXT QUESTION f',this.state.currentQuestion])
 			let userId = this.props.user ? this.props.user._id : 'unknownuser'
 			let currentQuestion = this.state.currentQuestion ;
 			// newly loaded, scroll to top
@@ -458,13 +457,13 @@ export default class MultipleChoiceQuestions extends Component {
 			for (var questionKey in this.state.questions) {
 				let question = this.state.questions[questionKey]
 				if (question) {
-					console.log(['NEXT QUESTION A',question.seenBy,userId,questionKey])
+					//console.log(['NEXT QUESTION A',question.seenBy,userId,questionKey])
 					
 					if (questionKey > currentQuestion && (!question.seenBy || !question.seenBy[userId])) {
 						this.setState({currentQuestion:questionKey})
 						this.startPlayer(question._id);
 						found = true;
-						console.log(['NEXT QUESTION A found',counter])
+						//console.log(['NEXT QUESTION A found',counter])
 				
 						break;
 					}
@@ -478,11 +477,11 @@ export default class MultipleChoiceQuestions extends Component {
 				for (var questionKey in this.state.questions) {
 					let question = this.state.questions[questionKey]
 					if (question) {
-						console.log(['NEXT QUESTION B',question.seenBy])
+						//console.log(['NEXT QUESTION B',question.seenBy])
 						if ((!question.seenBy || !question.seenBy[userId])) {
 							this.setState({currentQuestion:counter})
 							this.startPlayer(question._id);
-							console.log(['NEXT QUESTION B found',counter])
+							//console.log(['NEXT QUESTION B found',counter])
 							break;
 						}
 						counter++;
@@ -497,7 +496,7 @@ export default class MultipleChoiceQuestions extends Component {
 	}
 	
 	setCurrentQuestion(key) {
-		console.log(['set QUESTION',key])
+		//console.log(['set QUESTION',key])
 		this.setState({currentQuestion : key})
 	}
     
@@ -522,7 +521,7 @@ export default class MultipleChoiceQuestions extends Component {
 		this.stopAllPlayers();
 		//if (that.props.viewOnly) {
 			let that = this;
-			console.log('answered '+answer +'||' + id)
+			//console.log('answered '+answer +'||' + id)
 			var params={
 				'_id':id,
 				'user':this.props.user ? this.props.user._id : null,
@@ -532,13 +531,13 @@ export default class MultipleChoiceQuestions extends Component {
 			// view only mode, don't send save request  
 			if (this.props.viewOnly || !this.props.user) {
 				let questionKey = that.questionsIndex && that.questionsIndex.hasOwnProperty(id) ? that.questionsIndex[id] : null;
-				console.log(['Q KEY',questionKey]);
+				//console.log(['Q KEY',questionKey]);
 				if (questionKey !== null) {
 					let questions = that.state.questions;
 					let question = questions && questions.hasOwnProperty(questionKey) ? questions[questionKey] : null;
-					console.log(['have key',questionKey])
+					//console.log(['have key',questionKey])
 					if (question) {
-					console.log(['have question',question])
+					//console.log(['have question',question])
 						// update question with stats
 						//if (res.error) {
 							//question.error = res.error;
@@ -567,15 +566,15 @@ export default class MultipleChoiceQuestions extends Component {
 				}).then(function(response) {
 					return response.json();
 				}).then(function(res) {
-					console.log(['ANSWERdd RESPONSE',id,that.questionsIndex[id],that.questionsIndex])
+					//console.log(['ANSWERdd RESPONSE',id,that.questionsIndex[id],that.questionsIndex])
 						let questionKey = that.questionsIndex && that.questionsIndex.hasOwnProperty(id) ? that.questionsIndex[id] : null;
-						console.log(['Q KEY',questionKey]);
+						//console.log(['Q KEY',questionKey]);
 						if (questionKey !== null) {
 							let questions = that.state.questions;
 							let question = questions && questions.hasOwnProperty(questionKey) ? questions[questionKey] : null;
-							console.log(['have key',questionKey])
+							//console.log(['have key',questionKey])
 							if (question) {
-							console.log(['have question',question])
+							//console.log(['have question',question])
 								// update question with stats
 								if (res.error) {
 									question.error = res.error;
@@ -588,7 +587,7 @@ export default class MultipleChoiceQuestions extends Component {
 								}
 								
 								questions[questionKey] = question;
-								console.log(['SET MC STATE',question,questions])
+								//console.log(['SET MC STATE',question,questions])
 								that.setState({questions: questions});
 							} 
 						} 
@@ -602,15 +601,15 @@ export default class MultipleChoiceQuestions extends Component {
        	let that = this;
        	let question = mcquestion.relatedQuestion;
 		if (question) {
-			if (question.media && question.media.length > 0) sources.push(<source key={1} src={question.media} />)
-			if (question.media_ogg && question.media_ogg.length > 0) sources.push(<source key={2} src={question.media_ogg} />)
-			if (question.media_webm && question.media_webm.length > 0) sources.push(<source  key={3} src={question.media_webm} />)
-			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source  key={4} src={question.media_mp4} />)
+			if (question.media && question.media.length > 0) sources.push(<source key={1} src={Utils.devUriPrefix() +question.media} />)
+			if (question.media_ogg && question.media_ogg.length > 0) sources.push(<source key={2} src={Utils.devUriPrefix() +question.media_ogg} />)
+			if (question.media_webm && question.media_webm.length > 0) sources.push(<source  key={3} src={Utils.devUriPrefix() +question.media_webm} />)
+			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source  key={4} src={Utils.devUriPrefix() +question.media_mp4} />)
 				
-			if (question.media_mp3 && question.media_mp3.length > 0) sources.push(<source  key={5} src={question.media_mp3} />)
-			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source  key={6} src={question.media_mp4} />)
-			if (question.media_webmvideo && question.media_webmvideo.length > 0) sources.push(<source  key={7} src={question.media_webmvideo} />)
-			if (question.media_webmaudio && question.media_webmaudio.length > 0) sources.push(<source  key={8} src={question.media_webmaudio} />)
+			if (question.media_mp3 && question.media_mp3.length > 0) sources.push(<source  key={5} src={Utils.devUriPrefix() +question.media_mp3} />)
+			if (question.media_mp4 && question.media_mp4.length > 0) sources.push(<source  key={6} src={Utils.devUriPrefix() +question.media_mp4} />)
+			if (question.media_webmvideo && question.media_webmvideo.length > 0) sources.push(<source  key={7} src={Utils.devUriPrefix() +question.media_webmvideo} />)
+			if (question.media_webmaudio && question.media_webmaudio.length > 0) sources.push(<source  key={8} src={Utils.devUriPrefix() +question.media_webmaudio} />)
 			let dimensions = {x:400,y:50}
 			if (this.isVideo(question)) {
 				dimensions = {x:400,y:400}
@@ -773,7 +772,7 @@ export default class MultipleChoiceQuestions extends Component {
 		//this.props.match && this.props.match.params && this.props.match.params.topic && this.props.match.params.topic.length > 0 ? false : true;
 		let topic = this.props.match && this.props.match.params && this.props.match.params.topic && this.props.match.params.topic.length > 0 ? this.props.match.params.topic : this.props.topic;
 		//if (topic && topic.length > 0) {
-		console.log(['RENDER MQ QQQQ',this.state.questions])
+		//console.log(['RENDER MQ QQQQ',this.state.questions])
 		
 		if (this.state.quizIsComplete) {
 			
@@ -781,12 +780,12 @@ export default class MultipleChoiceQuestions extends Component {
 			
 			buttons.push(<button key='tryother' className='btn btn-info' onClick={() => this.goto('/multiplechoicetopics')} >Try a different Quiz</button>) 
 			if (this.props.user && this.props.user._id) {
-				console.log([that.state.stats,that.props.match.params])
-				console.log(that.state.stats[that.props.match.params.topic])
+				//console.log([that.state.stats,that.props.match.params])
+				//console.log(that.state.stats[that.props.match.params.topic])
 				if (that.props.match && that.props.match.params && that.props.match.params.topic) {
 					if (that.state.stats && that.state.stats.hasOwnProperty(that.props.match.params.topic)) {
 						let details = that.state.stats[that.props.match.params.topic];
-						console.log(['HAVE TOPIC DETAILS',details])
+						//console.log(['HAVE TOPIC DETAILS',details])
 						let attempts = parseInt(details.attempts,10) !== NaN ? parseInt(details.attempts,10) : 0;
 						let total = parseInt(details.total,10) !== NaN ? parseInt(details.total,10) : 0;
 						let remaining = total - attempts;
@@ -815,9 +814,9 @@ export default class MultipleChoiceQuestions extends Component {
 				buttons.push(<Link  key='login' to="/login" ><button className='btn btn-info'>Login to see more questions</button></Link>) 
 			}
 			if (that.props.match && that.props.match.params && that.props.match.params.topic) { 
-				buttons.push(<button  key='share' style={{float:'right'}} className='btn btn-info'  onClick={() => that.setShareDialog(!that.state.showShareDialog,that.props.match.params.topic)}  ><ShareIcon /> Share Quiz</button>) 
+				//buttons.push(<button  key='share' style={{float:'right'}} className='btn btn-info'  onClick={() => that.setShareDialog(!that.state.showShareDialog,that.props.match.params.topic)}  ><ShareIcon /> Share Quiz</button>) 
 			}
-			console.log(['questions?',this.state.questions])
+			//console.log(['questions?',this.state.questions])
 			let userAnsweredTally = 0
 			let userCorrectTally = 0
 			let wrongQuestions = []
@@ -838,11 +837,11 @@ export default class MultipleChoiceQuestions extends Component {
 					}
 				})
 			}
-			console.log(['questionsddd?',userAnsweredTally,userCorrectTally])
+			//console.log(['questionsddd?',userAnsweredTally,userCorrectTally])
 			let quizLength = this.state.questions ? this.state.questions.length : 0;
 			let successRate = (userCorrectTally > 0 && userAnsweredTally > 0) ? parseInt(userCorrectTally/userAnsweredTally*100,10) : 0;
 			let successMessage = '';
-			console.log(['SR',successRate])
+			//console.log(['SR',successRate])
 			if (successRate === 0) {
 				successMessage = 'You fail'
 			} else if (successRate < 10) {
@@ -980,7 +979,7 @@ export default class MultipleChoiceQuestions extends Component {
 						let questionKeyId ='question_'+questionKey;
 						return <div ref={(section) => { that.scrollTo['question_'+(questionKey)] = section; }}   key={question._id} style={{minHeight:'300px' ,paddingLeft:'1em',width:'100%',borderTop:'1px solid black', marginBottom: '1em'}} > 
 						
-										{that.props.isAdmin() && <div style={{float:'right'}}><button className='btn btn-danger' onClick={(e) => that.deleteMultipleChoiceQuestion(question)}>Delete</button></div>}
+									
 				
 						<div style={{fontWeight:'bold',paddingTop: '1em'}}>{question.question}</div>
 						
@@ -1079,8 +1078,7 @@ export default class MultipleChoiceQuestions extends Component {
 					  
 					  <div className="modaldialog-body">
 							<div>
-								{that.props.match && that.props.match.params && that.props.match.params.topic && <button  onClick={(e) => that.setShareDialog(!that.state.showShareDialog,that.props.match.params.topic)} className='btn btn-info' ><ShareIcon size={26} /> <span  className="d-none d-sm-inline" >Share Quiz</span></button>}
-
+								
 								<button style={{}} onClick={that.clickResetQuiz} className='btn btn-danger' >{resetIcon} <span className="d-none d-sm-inline" >Reset Answers</span></button>
 								
 							</div>
@@ -1109,7 +1107,7 @@ export default class MultipleChoiceQuestions extends Component {
 			
 			<div style={{border: '1px solid black',width:'100%',marginTop:'1.4em'}}>
 			
-			{this.state.showShareDialog && <ShareDialog analyticsEvent={this.props.analyticsEvent} shareLink={that.state.shareLink} shareText={that.state.shareText}  setShareDialog={this.setShareDialog} dialogTitle={'Share Quiz using'} twitterVia="MnemosLibrary" />}
+		
 			{questions}
 			</div>
 		</div>

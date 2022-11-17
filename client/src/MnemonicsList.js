@@ -292,7 +292,7 @@ export default class MnemonicsList extends Component {
                         // className="modal" tabIndex="-1" role="dialog"
             return (<div   className="card-block mnemonics list-group">
                 <div className='card-text'>
-                    {this.props.isLoggedIn() && <button  className='btn btn-success '  style={{float:'right'}} data-toggle="modal" data-target="#suggestdialog" onClick={this.createSuggestion} ><Plus size={26}  style={{float: 'left'}} /><span className="d-none d-md-inline-block">&nbsp;Suggest a Memory Aid&nbsp;</span></button>}
+                    
                     <b>Memory Aids</b>
                     {this.state.isEditing && <div id="suggestdialog" style={{zIndex:99999,position:'fixed',top:'0.02em',width:'95%'}}>
                       <div className="modal-dialog" role="document">

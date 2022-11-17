@@ -102,19 +102,20 @@ export default class TopicsChart extends React.Component {
         that.props.addAward('recall',null);
         that.props.addAward('successes',null);
         let colors = [];
-        let url='/api/recenttopics?user='+this.props.user._id;
+        let url='/api/recenttopics' 
+        let postData = {user: this.props.user._id}
         if (type==='blocks')  {
-            url='/api/blockedtopics?user='+this.props.user._id;
+            url='/api/blockedtopics'
         } else if (type==='archive')  {
-            url='/api/archivedtopics?user='+this.props.user._id;
+            url='/api/archivedtopics'
         }
         let promise = new Promise(function(resolve,reject) {
-			console.log(['TOPICS FETCH',url]);
-            that.props.fetch(url)
+			//console.log(['TOPICS FETCH',url]);
+            that.props.fetch(url,{},{user: that.props.user ? that.props.user._id : null})
             .then(function(response) {
                 return response.json()
             }).then(function(json) {
-               console.log(['got CORE response', json]);
+               //console.log(['got CORE response', json]);
 
                 let series=[];
                 let totalSeen=0;
@@ -170,7 +171,7 @@ export default class TopicsChart extends React.Component {
                    // that.props.addAward('questions',totalSeen);
                     that.props.addAward('recall',totalSuccess/countSuccess + totalSeen/1000) ;
                 }
-                console.log(['SET DATA',series,colors]);
+                //console.log(['SET DATA',series,colors]);
                 that.setState({colors:colors,series:series});
                 resolve();
                     
@@ -226,7 +227,7 @@ export default class TopicsChart extends React.Component {
     
     blockTopicReal(a) {
         let that = this;
-        that.props.fetch('/api/blocktopic?topic='+a.topic+'&user='+this.props.user._id)
+        that.props.fetch('/api/blocktopic' ,{}, {user: that.props.user ? that.props.user._id : null, topic: a.topic})
         .then(function(response) {
             return response.json()
         }).then(function(json) {
@@ -268,9 +269,9 @@ export default class TopicsChart extends React.Component {
     };
     unblockTopic(topic) {
         //console.log('unblock' + topic);
-         let url='/api/unblocktopic?user='+this.props.user._id+'&topic='+topic;
+         //let url=?user='+this.props.user._id+'&topic='+topic;
         let that=this;
-        that.props.fetch(url)
+        that.props.fetch('/api/unblocktopic',{},{user: that.props.user ? that.props.user._id : null,topic:topic})
         .then(function(response) {
             return response.json()
         }).then(function(json) {

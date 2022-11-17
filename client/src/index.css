@@ -135,7 +135,7 @@ box-shadow: 2px 2px 2px grey;
 margin-top:2em;
 }
 .holds-the-iframe {
-  background:url(/loading.gif) center center no-repeat;
+  background:url(loading.gif) center center no-repeat;
   min-height: 3em;
 }
 .scrollbuttons {

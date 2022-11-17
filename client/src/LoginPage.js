@@ -8,7 +8,7 @@ import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-d
 //import mustache  from 'mustache';
 const config={} // require('./config');
 //const utils=require('../../auth_utils');
-var faker = require('faker');
+//var faker = require('faker');
             
 import Utils from './Utils'
 //Utils.devUriPrefix() + 
@@ -32,7 +32,7 @@ export default class LoginPage extends Component {
             password2:'',
             justSignedUp: false,
             forgotPassword: false,
-            avatar: faker.commerce.productAdjective()+faker.name.firstName()
+            avatar: ''
             
         }
         this.change = this.change.bind(this);
@@ -126,7 +126,7 @@ export default class LoginPage extends Component {
         //.then(this.checkStatus)
       .then(this.parseJSON)
       .then(function(data) {
-            console.log(['gsignin request with JSON response', data])
+            //console.log(['gsignin request with JSON response', data])
            if (data.code && data.code.length > 0) {
               window.location='/?code='+data.code;
              // that.postToUrl('/',{code:data.code},'POST');

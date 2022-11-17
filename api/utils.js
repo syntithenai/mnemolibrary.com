@@ -1,8 +1,10 @@
 const mustache = require('mustache');
-const nodemailer = require('nodemailer');
+//const nodemailer = require('nodemailer');
 // ses sendmail
 const AWS = require('aws-sdk');
 const SES = new AWS.SES({ region: 'us-west-2' });
+const { OAuth2Client } = require('google-auth-library')
+var ObjectId = require('mongodb').ObjectID;
 
 
 //const config=require('./config');
@@ -30,7 +32,6 @@ var config={
 }
 
 
-var ObjectId = require('mongodb').ObjectID;
 //var removeDiacritics=require('./diacritics');
     
 let utilFunctions =  {
@@ -113,69 +114,69 @@ let utilFunctions =  {
        //});
     //return Object.keys(set);
   //},
-  sendMail : function(from,to,subject,html) {
-       // console.log(['out START SEND',config.transport,from,to,subject,html])
+  //sendMail : function(from,to,subject,html) {
+       //// console.log(['out START SEND',config.transport,from,to,subject,html])
 			
-        return new Promise(function(resolve,reject) {
-			console.log(['START SEND',config.transport])
-			console.log(JSON.stringify(config.transport))
-			try {
-				var transporter = nodemailer.createTransport(config.transport);
-			} catch (e) {
-				console.log(e);
-			}
-			console.log(['created transport'])
-			var mailOptions = {
-			  from: from,
-			  to: to,
-			  subject: subject,
-			  html: html
-			};
-			console.log(['SEND MAIL ',JSON.stringify(mailOptions)])
-			transporter.sendMail(mailOptions, function(error, info){
-			  if (error) {
-				console.log(error);
-				reject(error)
-				//res.send('FAIL');
-			  } else {
-				console.log('Email sent: ' + info.response);
-				resolve(info);
-				//res.send('OK');
-			  }
-			});
-		})
-   },
-	awssendMail : function(from,to,subject,htmlBody) {
-		console.log(['SENDMAIL',from,to,subject])
-        return new Promise(function(resolve,reject) {
-			const replyTo = from
-			const fromBase64 = Buffer.from(from).toString('base64');
-			const sesParams = {
-			Destination: {
-			ToAddresses: [to],
-			},
-			Message: {
-			Body: {
-			Html: {
-			  Charset: 'UTF-8',
-			  Data: htmlBody,
-			},
-			},
-			Subject: {
-			Charset: 'UTF-8',
-			Data: subject,
-			},
-			},
-			ReplyToAddresses: [replyTo],
-			Source: `=?utf-8?B?${fromBase64}?= <`+from+`>`,
-			};
+        //return new Promise(function(resolve,reject) {
+			//console.log(['START SEND',config.transport])
+			//console.log(JSON.stringify(config.transport))
+			//try {
+				//var transporter = nodemailer.createTransport(config.transport);
+			//} catch (e) {
+				//console.log(e);
+			//}
+			//console.log(['created transport'])
+			//var mailOptions = {
+			  //from: from,
+			  //to: to,
+			  //subject: subject,
+			  //html: html
+			//};
+			//console.log(['SEND MAIL ',JSON.stringify(mailOptions)])
+			//transporter.sendMail(mailOptions, function(error, info){
+			  //if (error) {
+				//console.log(error);
+				//reject(error)
+				////res.send('FAIL');
+			  //} else {
+				//console.log('Email sent: ' + info.response);
+				//resolve(info);
+				////res.send('OK');
+			  //}
+			//});
+		//})
+   //},
+	//awssendMail : function(from,to,subject,htmlBody) {
+		//console.log(['SENDMAIL',from,to,subject])
+        //return new Promise(function(resolve,reject) {
+			//const replyTo = from
+			//const fromBase64 = Buffer.from(from).toString('base64');
+			//const sesParams = {
+			//Destination: {
+			//ToAddresses: [to],
+			//},
+			//Message: {
+			//Body: {
+			//Html: {
+			  //Charset: 'UTF-8',
+			  //Data: htmlBody,
+			//},
+			//},
+			//Subject: {
+			//Charset: 'UTF-8',
+			//Data: subject,
+			//},
+			//},
+			//ReplyToAddresses: [replyTo],
+			//Source: `=?utf-8?B?${fromBase64}?= <`+from+`>`,
+			//};
 
-			SES.sendEmail(sesParams);
-			console.log(['SENDMAIL done',from,to,subject,sesParams])
+			//SES.sendEmail(sesParams);
+			//console.log(['SENDMAIL done',from,to,subject,sesParams])
         
-			resolve();
-		})
-	},
+			//resolve();
+		//})
+	//},
    
    
    renderLogin: function renderLogin(req,vars) {
@@ -241,6 +242,31 @@ let utilFunctions =  {
         return {'questions':questions,'tags':tags};
     },
    
+
+    /**
+     * @description Function to decode Google OAuth token
+     * @param token: string
+     * @returns ticket object
+     */
+    decodeGoogleOAuthJwt : async token => {
+	
+      const CLIENT_ID_GOOGLE = process.env.googleClientId
+      console.log('DECODE GOOGLE TOKEN',CLIENT_ID_GOOGLE, token)
+      try {
+	const client = new OAuth2Client(CLIENT_ID_GOOGLE)
+
+	const ticket = await client.verifyIdToken({
+	  idToken: token,
+	  audience: CLIENT_ID_GOOGLE,
+	})
+	console.log('DECODED GOOGLE TOKEN',ticket)
+    
+	return ticket
+      } catch (error) {
+	  console.log('FAILED DECODE GOOGLE TOKEN',error)
+	return { status: 500, data: error }
+      }
+    }
 
 }
 

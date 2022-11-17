@@ -59,6 +59,7 @@ function S3Router(options, middleware) {
             Bucket: S3_BUCKET,
             Key: checkTrailingSlash(getFileKeyDir(req)) + req.params[0]
         };
+        console.log('temp redir',params)
         var s3 = getS3();
         s3.getSignedUrl('getObject', params, function(err, url) {
             res.redirect(url);
@@ -76,6 +77,7 @@ function S3Router(options, middleware) {
      * Other file type(s) route.
      */
     router.get(/\/uploads\/(.*)/, middleware, function(req, res) {
+        console.log('router media',req)
         return tempRedirect(req, res);
     });
 

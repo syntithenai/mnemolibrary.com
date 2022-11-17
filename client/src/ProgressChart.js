@@ -16,7 +16,7 @@ export default class ProgressChart extends React.Component {
     componentDidMount() {
         let that = this;
         let ts = new Date().getTime();
-        that.props.fetch('/api/usersuccessprogress?rand='+ts+'&user='+this.props.user._id)
+        that.props.fetch('/api/usersuccessprogress', {},{user:this.props.user._id})
         .then(function(response) {
             return response.json()
         }).then(function(json) {
@@ -31,7 +31,7 @@ export default class ProgressChart extends React.Component {
                 else id=0;
                 if (id > max) max=id;
                 let point={y:val.questions,x:String(id),yColor:'yellow'}
-                console.log(['POINT',point])
+                //console.log(['POINT',point])
                 tally[id] = parseInt(val.questions,10);
                // val.questionsColor = "lightblue";
                 dataObject[id]=point;

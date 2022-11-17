@@ -1,165 +1,24 @@
-# MNEMO'S LIBRARY IS DEPLOYED IN THREE PARTS
-# 1. DEDICATED INSTANCE MONGO DATABASE SERVER
-# 2. S3 REACT WEBSITE WITH SERVERLESS LAMBDA ENDPOINTS FOR DYNAMIC WEBSITE AND AWS COGNITO LOGIN INTEGRATION
-# 3. DEDICATED INSTANCE RUNNING THIS DOCKER COMPOSE SUITE
+version: '3.1'
 
-version: '2'
 services:
-    ## ===========================================================================================   
-    ## HERMOD VOICE SERVICES SUITE
-    ## ===========================================================================================   
-  hermod:
-    build: ../hermod/
-    #image: encounterai-hermod
-    # volume mounts for development
-    volumes:
-      - ../hermod/:/usr/src/app
-      #  mount source for development
-      #GOOGLE_APPLICATION_CREDENTIALS=/home/stever/hermod-1548488627033-bdeb0a01d824.json
-      - /home/stever/hermod-1548488627033-bdeb0a01d824.json:/credentials.json
-      # direct sound card access        
-      #- /dev/snd:/dev/snd
-      # Deepspeech Models
-      #- ./deepspeech-models:/usr/src/app/deepspeech-models
-      # Use PULSE
-      #- ./pulseaudio/asound-pulse.conf:/etc/asound.conf
-      #- ./pulseaudio/client.conf:/etc/pulse/client.conf
-      # PULSE COOKIE FROM HOST
-      #- /home/stever/.config/pulse/cookie:/tmp/cookie
-    #ports:
-        # expose action server for development
-        # - 5055:5055  
-        
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/credentials.json
-      - MONGODB=mongodb://hermod2:hermod@mongo/hermod
-      #root:example@
-      #- RASA_SERVER=http://rasa:5005
-      #- ALLOWED_SITES=default
-      #- MQTT_SERVER=ws://mosquitto:9001
-      #- MQTT_USER=???
-      #- MQTT_PASSWORD=???
-      #- PULSE_SERVER: 192.168.1.200
-      #- PULSE_COOKIE: /tmp/cookie
+
+  mongo:
+    image: mongo
     restart: always
-  
-  
-    ##==========================================================================================
-    ## MONGODB TO SUPPORT DYNAMIC ACTIONS
-    ## ===========================================================================================
-  #mongo:
-    #image: mongo
-    #restart: always
-    #environment:
-      #MONGO_INITDB_ROOT_USERNAME: root
-      #MONGO_INITDB_ROOT_PASSWORD: example
-      #MONGO_INITDB_DATABASE: hermod
-    ## persistent database
-    #volumes:
-      #- "./docker-run/mongo_database:/data/db"
-      ## init with sample data
-      #- "./mongo_init:/docker-entrypoint-initdb.d/"
-    ## expose mongo to local tools for development
-    #ports:
-      #- 27017:27017
-    
-  #mongo-express:
-    #image: mongo-express
-    #restart: always
-    #ports:
-      #- 8081:8081
-    #environment:
-      #ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      #ME_CONFIG_MONGODB_ADMINPASSWORD: example
-  
-  
-    #==========================================================================================
-    # MQTT MESSAGING QUEUE 
-    # TODO ssl, auth
-    # ===========================================================================================
-  mosquitto:
-    image: toke/mosquitto
+    volumes:
+      - ./dbdump:/dbdump
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  mongo-express:
+    image: mongo-express
     restart: always
     ports:
-        #- 1883:1883
-        # mqtt web sockets 
-        - 9001:9001
- 
-    
-    # ==========================================================================================
-    # RASA 
-    # ===========================================================================================
-  rasa:
-    image: rasa/rasa:latest-full
-    restart: always
-    volumes:
-      # rasa model folder
-      - ./rasa:/app
-    entrypoint: rasa run --enable-api
-    # exposed for development, in production hermod sits in front of rasa so close the port
-    #ports:
-    #    - 5005:5005
-   
-     # ==========================================================================================
-    # RASA DUCKLING 
-    # ===========================================================================================
-  #duckling:
-    #image: rasa/duckling
-    #restart: always
- 
- 
- 
- 
- 
-     # RASA SETUP
-     # docker run -v $(pwd)/rasa:/app rasa/rasa init --no-prompt
-     # TEST
-     # docker run -it -v $(pwd)/rasa:/app rasa/rasa shell       
-     # TRAINING
-     # docker run   -v $(pwd):/app   rasa/rasa:latest-full   train     --domain domain.yml     --data data     --out models
-
-
-
-
-
-    # ==========================================================================================
-    # AUTOMATIC SSL for web 
-    # ===========================================================================================
- 
-  #nginxproxy:
-    #image: jwilder/nginx-proxy
-    #container_name: nginx-proxy
-    #restart: always
-    #ports:
-      #- "80:80"
-      #- "443:443"
-    #labels:
-      #- com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
-    #volumes:
-      #- /var/run/docker.sock:/tmp/docker.sock:ro
-      #- /etc/nginxcerts:/etc/nginx/certs
-      #- /var/docker/nginxproxy/vhosts:/etc/nginx/vhost.d
-      #- /var/www:/usr/share/nginx/html
-      #- ./nginx.tmpl:/app/nginx.tmpl
-      #- /var/docker/htpasswd:/etc/nginx/htpasswd
-    #environment:
-     #HTTPS_METHOD: noredirect
-     #DEFAULT_HOST: hermod.syntithenai.com
-  #nginxproxysslgen:
-    ##image: alastaircoote/docker-letsencrypt-nginx-proxy-companion
-    #image: jrcs/letsencrypt-nginx-proxy-companion:latest
-    #container_name: nginxproxysslgen
-    #restart: always
-    #volumes_from:
-      #- nginxproxy
-    #volumes:
-      #- /var/run/docker.sock:/var/run/docker.sock:ro
-      #- /etc/nginxcerts:/etc/nginx/certs
-      #- /var/docker/nginxproxy/vhosts:/etc/nginx/vhost.d
-      #- /var/www:/usr/share/nginx/html
-    #environment:
-          #VIRTUAL_HOST: hermod.syntithenai.com
-          #VIRTUAL_PORT: 3000
-          #LETSENCRYPT_HOST: hermod.syntithenai.com
-          #LETSENCRYPT_EMAIL: stever@syntithenai.com
-      
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/

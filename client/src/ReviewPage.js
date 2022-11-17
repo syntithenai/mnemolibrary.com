@@ -36,8 +36,8 @@ export default class ReviewPage extends Component {
     }
     
     componentDidUpdate(props) {
-		if (props.token !== this.props.token) {
-			if (!this.props.user) this.props.openLoginWindow('review')
+		if (props.token !== this.props.token && this.props.token) {
+			this.reviewQuestions()
 		}
 	}
         
@@ -53,7 +53,7 @@ export default class ReviewPage extends Component {
 		this.setState({modalDialog: null})
       //console.log('getQuestionsForReview');
       //let topic = this.props.getCurrentTopic();
-      this.props.getQuestionsForReview();
+      this.props.getQuestionsForReview(this.props.user);
     };
     
     
@@ -87,16 +87,16 @@ export default class ReviewPage extends Component {
 		 if (this.props.match && this.props.match.params.topic && this.props.match.params.topic.length > 0) {
                 setTimeout(function() {
                    // console.log(['REVIEW PAGE call ',that.props.match]); 
-                    that.props.setReviewFromTopic(that.props.match.params.topic,that.props.match.params.topicquestion);
+                    that.props.setReviewFromTopic(that.props.match.params.topic,that.props.match.params.topicquestion, that.props.user);
                 },1000);
             } else if (this.props.match && this.props.match.params && this.props.match.params.band && this.props.match.params.band.length > 0) {
                 setTimeout(function() {
                    // console.log(['REV review from band',that.props.match.params.band,that.props.reviewBySuccessBand]);
-                    that.props.reviewBySuccessBand(that.props.match.params.band);
+                    that.props.reviewBySuccessBand(that.props.match.params.band, that.props.user);
                 },1000);
             } else {
                 setTimeout(function() {
-                    that.props.getQuestionsForReview();
+                    that.props.getQuestionsForReview(that.props.user);
                 },1000);
             }
         //let topic = this.props.getCurrentTopic();
@@ -113,7 +113,7 @@ export default class ReviewPage extends Component {
     
     handleKeyDown(e) {
 		let that = this
-		console.log(['review key',e])
+		//console.log(['review key',e])
 		if (e.code === "ArrowRight") {
 			that.reviewQuestions()
 			this.setState({modalDialog: null})
@@ -142,7 +142,7 @@ export default class ReviewPage extends Component {
             },
             {
               label: 'Discover',
-              onClick: () => this.discoverQuestions()
+              onClick: () => this.discoverQuestions(that.props.user)
             },
             {
               label: 'Search',
@@ -168,9 +168,9 @@ export default class ReviewPage extends Component {
         } else if (this.state.modalDialog) {
             return <ModalDialog {...this.state.modalDialog} />
         } else {
-			////console.log(['REVIEW',this.props.user]);
+		    //console.log(['REVIEW',this.props.user]);
 		   if (this.props.isLoggedIn()) {
-				////console.log(['REVIEW USER',this.props.questions]);
+				//console.log(['REVIEW USER',this.props.questions]);
 				if (this.props.questions && this.props.questions.length > 0) {
 				   //  //console.log(['REVIEW questions']);
 					return (

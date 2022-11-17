@@ -350,7 +350,7 @@ export default class WikipediaSearch extends MashupSearch {
 									releasejson['releases'].map(function(release) {
 										//if (!release['secondary-types'] || release['secondary-types'].length == 0) { 
 											//if (!albumIndex.hasOwnProperty(release.title)) {
-												console.log('rel',release['cover-art-archive'])
+												//console.log('rel',release['cover-art-archive'])
 												let image = '';
 												if (release['cover-art-archive'] && release['cover-art-archive'].artwork) {
 													image = 'https://coverartarchive.org/release/'+release.id+'/front'

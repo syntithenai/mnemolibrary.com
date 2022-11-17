@@ -29,7 +29,7 @@ export default class SettingsPage extends Component {
 	}   
       
     change(e) {
-        let state = {...this.state.user};
+        let state = {...this.props.user};
         var key = e.target.name;
         if (e.target.name.startsWith('fake_')) {
             key = e.target.name.slice(5);
@@ -93,11 +93,7 @@ export default class SettingsPage extends Component {
 						<label htmlFor="avatar" className='row'>Avatar </label><input autoComplete="falseavatar" id="avatar" type='text' name='avatar' onChange={this.change} value={this.state.user.avatar} />
 					
 						
-						<label htmlFor="avatar" className='row'>Email Me </label><select autoComplete="email_me" id="email_me" type='text' name='email_me' onChange={this.change} value={this.state.user.email_me} >
-							<option value="" >Newsletters AND Replies to my comments</option>
-							<option value="comments" >Replies to my comments</option>
-							<option value="none" >Never</option>
-						</select>
+					
 							
 						<br/>
 						<br/>
@@ -110,6 +106,12 @@ export default class SettingsPage extends Component {
 			}
 	}
 }
+	//<label htmlFor="avatar" className='row'>Email Me </label><select autoComplete="email_me" id="email_me" type='text' name='email_me' onChange={this.change} value={this.state.user.email_me} >
+							//<option value="" >Newsletters AND Replies to my comments</option>
+							//<option value="comments" >Replies to my comments</option>
+							//<option value="none" >Never</option>
+						//</select>
+
 //<label htmlFor="password" className='row'>Password</label> <input  autoComplete="falsepassword" id="password" type='password' name='fake_password' onChange={this.change}  value={this.state.user.password}  />
 					//<label htmlFor="password2" className='row'>Repeat Password</label><input  autoComplete="falsepassword2" id="password2" type='password' name='fake_password2' onChange={this.change} value={this.state.user.password2} />
 					//<input id="id" type='hidden' name='_id' value={this.state.user._id} />

@@ -7,7 +7,8 @@ export default class Utils {
 }
 
 Utils.devUriPrefix = function() {
-    return (process.env.NODE_ENV !== 'production') ? "http://localhost:4000" : ''
+    console.log(process.env)
+    return (process.env.NODE_ENV !== 'production') ? "http://localhost:4000/dev" : ''
 }
 
 Utils.snakeToCamel = function(s){

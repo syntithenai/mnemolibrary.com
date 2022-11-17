@@ -1,19 +1,19 @@
 /* eslint-disable */ 
 import React, { Component } from 'react';
 
-import {
-  FacebookShareButton,
-  TwitterShareButton,
-  //EmailShareButton,
-  //FacebookShareCount
-  //GooglePlusShareButton,
-  //LinkedinShareButton,
-  //WhatsappShareButton,
-  //PinterestShareButton,
-  //RedditShareButton,
-  //TumblrShareButton,
-} from 'react-share';
-//import Utils from './Utils';
+//import {
+  //FacebookShareButton,
+  //TwitterShareButton,
+  ////EmailShareButton,
+  ////FacebookShareCount
+  ////GooglePlusShareButton,
+  ////LinkedinShareButton,
+  ////WhatsappShareButton,
+  ////PinterestShareButton,
+  ////RedditShareButton,
+  ////TumblrShareButton,
+//} from 'react-share';
+////import Utils from './Utils';
           
 
 import Email from 'react-icons/lib/fa/envelope-o';
@@ -64,7 +64,7 @@ export default class ShareTopicDialog extends Component {
                   <div className="modal-body">
                     <a className='btn btn-primary' href={mailTo} target='_new' ><Email size={26} />&nbsp;Email</a>
                     <br/>
-                    <br/><TwitterShareButton className='btn btn-primary' title={twitterTitle}  url={question.link}  hashtags={["MnemosLibrary"]}><Twitter size={26} />&nbsp;Twitter</TwitterShareButton>
+                    
                     
                   </div>
                 </div>

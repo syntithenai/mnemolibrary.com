@@ -57,7 +57,7 @@ export default class RecentSingleComment extends Component {
 		if (this.state.comments && this.state.comments.length > 0) {
 			// single comment from last 10
 			let comments = [this.state.comments[random]]; 
-			console.log(['RENDERSINGLECOMMENT',this.state.comments,comments,random])
+			//console.log(['RENDERSINGLECOMMENT',this.state.comments,comments,random])
 			let renderedComments = comments.map(function(comment) {
 				let current_datetime = new Date(comment.createDate)
 				let formatted_date = current_datetime.getDate() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getFullYear()

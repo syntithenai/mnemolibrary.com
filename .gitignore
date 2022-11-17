@@ -12,3 +12,5 @@ node_modules
 hermod
 
 rasa/models/
+
+secrets.prod3.yml

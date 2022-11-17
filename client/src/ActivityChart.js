@@ -23,11 +23,11 @@ export default class ActivityChart extends React.Component {
         //usersuccessprogress
         //useractivity
         let user = this.props.user;
-        that.props.fetch(Utils.devUriPrefix() + '/api/useractivity?user='+this.props.user._id)
+        that.props.fetch('/api/useractivity', {},{user: this.props.user._id})
         .then(function(response) {
             return response.json()
         }).then(function(json) {
-            //console.log(['got response', json]);
+            console.log(['got response', json]);
             let seenDateKeys={};
             let successDateKeys={};
             let now = new Date();
@@ -89,16 +89,16 @@ export default class ActivityChart extends React.Component {
                     //maxStreakDays=0;
                 //}
             //}
-            console.log(['ADD STREAK AWARD ',user.streak,that.props.user])
+            //console.log(['ADD STREAK AWARD ',user.streak,that.props.user])
             that.props.addAward('streak',user.streak); //Math.max(...streaks));
            // that.props.addAward('recall',successRateTotal/successRateCount);
             //json.seen//
-            //console.log(['ACT CHART MOUNT',seriesObject]);
+            console.log(['ACT CHART MOUNT',seriesObject]);
             
             that.setState({series:Object.values(seriesObject).reverse()});
                 
         }).catch(function(ex) {
-            //console.log(['test request failed', ex])
+            console.log(['activ request failed', ex])
         })        
     };
          

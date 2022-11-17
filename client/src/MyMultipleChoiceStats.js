@@ -14,14 +14,32 @@ export default class MyMultipleChoiceStats extends Component {
 	}
     
     
-    componentDidMount(props) {
+    componentDidMount() {
+	console.log('mount',this.props.user)
 		let that = this;
-		this.props.fetch('/api/mymcstats').then(function(response) {
-			return response.json();
-		}).then(function(stats) {
-		//	console.log(['stats',stats])
-			that.setState({stats:stats})
-		})
+		if (this.props.user) {
+		    this.props.fetch('/api/mymcstats',{},{user: this.props.user ? this.props.user._id : null}).then(function(response) {
+			    return response.json();
+		    }).then(function(stats) {
+		    //	console.log(['stats',stats])
+			    that.setState({stats:stats})
+		    })
+		} 
+	}
+	
+	componentDidUpdate(props) {
+	    console.log('update',props.user,this.props.user)
+		let that = this;
+		if (props.user && JSON.stringify(props.user) != JSON.stringify(this.props.user)) {
+		    this.props.fetch('/api/mymcstats',{},{user: this.props.user ? this.props.user._id : null}).then(function(response) {
+			    return response.json();
+		    }).then(function(stats) {
+		    //	console.log(['stats',stats])
+			    that.setState({stats:stats})
+		    })
+		} else if (!props.user && JSON.stringify(props.user) != JSON.stringify(this.props.user)) {
+		    that.setState({})
+		}
 	}
     
     render() {
@@ -39,9 +57,9 @@ export default class MyMultipleChoiceStats extends Component {
         <h4>Multiple Choice Quizzes</h4>
         	{stats.map(function(topic) {
 				let details = that.state.stats[topic] 
-				let correct = parseInt(details.correct,10) !== NaN ? parseInt(details.correct,10) : 0;
-				let attempts = parseInt(details.attempts,10) !== NaN ? parseInt(details.attempts,10) : 0;
-				let total = parseInt(details.total,10) !== NaN ? parseInt(details.total,10) : 0;
+				let correct = details.correct > 0 ? parseInt(details.correct,10) : 0;
+				let attempts = details.attempts > 0 ? parseInt(details.attempts,10) : 0;
+				let total = details.total> 0 ? parseInt(details.total,10) : 0;
 				let percentCorrect = attempts > 0 && correct > 0 ? parseInt(correct/attempts*100,10) : 0;
 				return <div key={topic} ><div style={{marginTop:'0.6em'}}><Link to={'/multiplechoicequestions/'+encodeURI(topic)}><b>{topic}</b></Link></div> <div><i>{percentCorrect}% correct of {attempts} answers.</i> {total - attempts} questions remaining in this topic.</div></div>
 			 })}

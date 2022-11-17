@@ -1,8 +1,8 @@
 /* eslint-disable */ 
 import React, { Component } from 'react';
-import ActivityChart from './ActivityChart' 
+//import ActivityChart from './ActivityChart' 
 import TopicsChart from './TopicsChart'
-import ProgressChart from './ProgressChart'
+//import ProgressChart from './ProgressChart'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'     
@@ -45,30 +45,28 @@ export default class ProfilePage extends Component {
     
     componentDidMount() {
 		// load recent user into state
-		let that = this;
-		if (this.props.token) {
-			that.props.fetch('/api/me?id_token='+(this.props.token && this.props.token.id_token ? this.props.token.id_token : ''), {
-			  method: 'GET',
-			}).then(function(response) {
-				return response.json();
+		//let that = this;
+		//if (this.props.token) {
+			//that.props.fetch('/api/me').then(function(response) {
+				//return response.json();
 				
-			}).then(function(res) {
-			 //  console.log(['REFRESH LOGIN me',res]);
-				let state={};
-				state.user = res.user;
-				that.setState(state);
-			})
-			.catch(function(err) {
-				console.log(['ERR',err]);
-			});
-		}
+			//}).then(function(res) {
+			 ////  console.log(['REFRESH LOGIN me',res]);
+				//let state={};
+				//state.user = res.user;
+				//that.setState(state);
+			//})
+			//.catch(function(err) {
+				//console.log(['ERR',err]);
+			//});
+		//}
 		
 	}
 	
 	componentDidUpdate(props) {
-		if (props.token !== this.props.token) {
-			if (!this.props.user) this.props.openLoginWindow('profile')
-		}
+		//if (props.token !== this.props.token) {
+			//if (!this.props.user) this.props.openLoginWindow('profile')
+		//}
 	}
 	
 	showTopButtons() {
@@ -190,7 +188,7 @@ export default class ProfilePage extends Component {
 //            <a className='btn btn-info' onClick={() => this.allowAlexa.bind(this)(true)} >Yes</a>
     
     refreshindexes() {
-        that.props.fetch('/api/indexes?rand='+Math.random(), {});
+        that.props.fetch('/api/indexes', {});
     };
     
     render() { //req,vars/
@@ -227,11 +225,8 @@ export default class ProfilePage extends Component {
                 let buttonStyle={margin:'0.1em',padding:'0.1em'}
                 return (<div>
 							<div style={{position:'fixed', right:'10px', top:'7em',zIndex:9999999, padding:'0.1em', backgroundColor:'lightgrey' }} ><a  href='#topics' style={buttonStyle} className='btn btn-info' onClick={this.hideTopButtons}>Topics</a>
-							<a  href='#progress'  style={buttonStyle}  className='btn btn-info' onClick={this.hideTopButtons} >Progress</a>
 							<a  href='#quizzes'  style={buttonStyle}  className='btn btn-info' onClick={this.hideTopButtons} >Quizzes</a>
-							<a  href='#activity'  className='btn btn-info' style={buttonStyle}  onClick={this.hideTopButtons} >Activity</a>
 							
-							<Link to='/settings'    className='btn btn-info' style={buttonStyle}  onClick={this.hideTopButtons} >Settings</Link>
 
 						  </div>
 						  <br/><br/>
@@ -245,9 +240,7 @@ export default class ProfilePage extends Component {
 							  
 							  <div className="modaldialog-body" onClick={this.hideTopButtons} >
 								  <a  href='#topics' style={buttonStyle} className='btn btn-info' onClick={this.hideTopButtons}>Topics</a>
-								  <a  href='#progress'  style={buttonStyle}  className='btn btn-info' onClick={this.hideTopButtons} >Progress</a>
-								  <a  href='#activity'  className='btn btn-info' style={buttonStyle}  onClick={this.hideTopButtons} >Activity</a>
-							  
+								 
 
 							  </div>
 							  <div className="modaldialog-footer">
@@ -267,15 +260,9 @@ export default class ProfilePage extends Component {
                                   <TopicsChart addAward={this.addAward} setCurrentPage={this.props.setCurrentPage} setQuizFromDiscovery={this.props.setQuizFromDiscovery} setReviewFromTopic={this.props.setReviewFromTopic} setQuizFromTopic={this.props.setQuizFromTopic} searchQuizFromTopic={this.props.searchQuizFromTopic}  user={this.props.user} fetch={this.props.fetch} />
                             </div>
                            
-                            <div className="col-12" style={{height: '500px'}} >
-                                  <ProgressChart addAward={this.addAward} reviewBySuccessBand={this.props.reviewBySuccessBand} user={this.props.user}  fetch={this.props.fetch} />
-                            </div>
-                            <div className="col-12" style={{height: '700px'}}>
-                                  <ActivityChart  fetch={this.props.fetch} addAward={this.addAward} user={this.props.user}  />
-                            </div>
                             <div className="col-12" style={{marginBottom:'2em'}} >
                             	<a name="quizzes" />
-                            	<MyMultipleChoiceStats fetch={this.props.fetch} />
+                            	<MyMultipleChoiceStats fetch={this.props.fetch} user={this.props.user} />
                             </div> 
                             
                         <br/>
@@ -292,5 +279,14 @@ export default class ProfilePage extends Component {
 		}
     }
 }
+
+
+                            //<div className="col-12" style={{height: '500px'}} >
+                                  //<ProgressChart addAward={this.addAward} reviewBySuccessBand={this.props.reviewBySuccessBand} user={this.props.user}  fetch={this.props.fetch} />
+                            //</div>
+                           
+
 //<a id="edit" style={{position:'relative',x:'-40em',y:'-40em'}}></a>
-                    
+        //<div className="col-12" style={{height: '700px'}}>
+                                  //<ActivityChart  fetch={this.props.fetch} addAward={this.addAward} user={this.props.user}  />
+                            //</div>             

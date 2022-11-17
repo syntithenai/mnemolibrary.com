@@ -18,7 +18,7 @@ custom:
   # CUSTOMISE ME 
   servicename: mnemolibrary
   region: us-west-2
-  stage: prod2
+  stage: prod3
   fromEmail: syntithenai@gmail.com
   websiteDomain: mnemolibrary.com
   redirectUrl_live: https://${self:custom.websiteDomain}/
@@ -62,7 +62,7 @@ package:
     
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   region: ${self:custom.region}  
   stage: ${self:custom.stage}
   environment:
@@ -72,21 +72,11 @@ provider:
     authUrl: ${self:custom.authUrl}
     authClientId: ${self:custom.secrets.clientId}
     authClientSecret: ${self:custom.secrets.clientSecret}
-    emailSmtpServer: ${self:custom.secrets.emailSmtpServer}
-    emailSmtpPort: ${self:custom.secrets.emailSmtpPort}
-    emailUsername: ${self:custom.secrets.emailUsername}
-    emailPassword: ${self:custom.secrets.emailPassword}
-    importSheets_0: ${self:custom.secrets.importSheets.0}
-    importSheets_1: ${self:custom.secrets.importSheets.1}
-    importSheets_2: ${self:custom.secrets.importSheets.2}
-    importSheets_3: ${self:custom.secrets.importSheets.3}
-    importSheets_4: ${self:custom.secrets.importSheets.4}
-    importSheets_5: ${self:custom.secrets.importSheets.5}
-    importSheets_6: ${self:custom.secrets.importSheets.6}
-    importSheets_7: ${self:custom.secrets.importSheets.7}
-    importSheets_8: ${self:custom.secrets.importSheets.8}
-    importMultipleChoice_0: ${self:custom.secrets.importMultipleChoice.0} 
-    importMultipleChoice_1: ${self:custom.secrets.importMultipleChoice.1} 
+    googleClientId: ${self:custom.secrets.GOOGLE_CLIENT_ID}
+    googleClientSecret: ${self:custom.secrets.GOOGLE_CLIENT_SECRET}
+    
+    REACT_APP_GOOGLE_CLIENT_ID: ${self:custom.secrets.GOOGLE_CLIENT_ID}
+    #REACT_APP_GOOGLE_CLIENT_SECRET: ${self:custom.secrets.GOOGLE_CLIENT_SECRET}
     REACT_APP_USER_POOL_ARN: ${self:custom.cognitoUserPoolArn}
     REACT_APP_IDENTITY_POOL_ID: ${self:custom.cognitoPoolId}
     REACT_APP_AUTH_DOMAIN: ${self:custom.authDomain}
@@ -95,14 +85,13 @@ provider:
     REACT_APP_REDIRECT_URL: ${self:custom.redirectUrl_live}
     REACT_APP_REGION: ${self:custom.region}
     REACT_APP_S3_BUCKET: ${self:custom.websiteDomain}-${self:custom.stage}-files
-    REACT_APP_ANALYTICS_KEY: ${self:custom.secrets.analyticsKey}
     
   iamRoleStatements:
-    - Effect: "Allow"
-      Action:
-        - "ses:SendEmail"
-      Resource:
-        - "*"
+    #- Effect: "Allow"
+      #Action:
+        #- "ses:SendEmail"
+      #Resource:
+        #- "*"
         
     -  Effect: "Allow"
        Action:
@@ -120,220 +109,224 @@ functions:
       - http:
           path: ${self:custom.fullstack.apiPath}/{proxy+}
           method: ANY
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: 
-              Ref: ApiGatewayAuthorizer
+          #authorizer:
+            #type: COGNITO_USER_POOLS
+            #authorizerId: 
+              #Ref: ApiGatewayAuthorizer
+          cors:
+            origin: 'mnemolibrary.com'
+            maxAge: 86400
 
-  importmessage:
-    handler: api/api_import.handler
-    timeout: 300
-    memorySize: 2048
-   # reservedConcurrency: 1
+
+  #importmessage:
+    #handler: api/api_import.handler
+    #timeout: 300
+    #memorySize: 2048
+   ## reservedConcurrency: 1
     
-    events:
-      - http:
-          path: import/{proxy+}
-          method: POST
-          authorizer:
-            type: COGNITO_USER_POOLS
-            authorizerId: 
-              Ref: ApiGatewayAuthorizer
+    #events:
+      #- http:
+          #path: import/{proxy+}
+          #method: POST
+          #authorizer:
+            #type: COGNITO_USER_POOLS
+            #authorizerId: 
+              #Ref: ApiGatewayAuthorizer
 
 
 resources:  
   Resources: 
 
-    ApiGatewayAuthorizer: 
-      Type: AWS::ApiGateway::Authorizer
-      Properties: 
-        AuthorizerResultTtlInSeconds: 300
-        IdentitySource: method.request.header.Authorization
-        Name: ${self:custom.servicename}_authorizer
-        RestApiId: 
-          Ref: "ApiGatewayRestApi"
-        Type: COGNITO_USER_POOLS
-        ProviderARNs: 
-          - ${self:custom.cognitoUserPoolArn}
+    #ApiGatewayAuthorizer: 
+      #Type: AWS::ApiGateway::Authorizer
+      #Properties: 
+        #AuthorizerResultTtlInSeconds: 300
+        #IdentitySource: method.request.header.Authorization
+        #Name: ${self:custom.servicename}_authorizer
+        #RestApiId: 
+          #Ref: "ApiGatewayRestApi"
+        #Type: COGNITO_USER_POOLS
+        #ProviderARNs: 
+          #- ${self:custom.cognitoUserPoolArn}
           
-    SNSRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        AssumeRolePolicyDocument: 
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal: 
-                Service: 
-                  - "cognito-idp.amazonaws.com"
-              Action: 
-                - "sts:AssumeRole"
-        Policies:
-          - PolicyName: "CognitoSNSPolicy"
-            PolicyDocument: 
-              Version: "2012-10-17"
-              Statement: 
-                - Effect: "Allow"
-                  Action: "sns:publish"
-                  Resource: "*"
+    #SNSRole:
+      #Type: "AWS::IAM::Role"
+      #Properties:
+        #AssumeRolePolicyDocument: 
+          #Version: "2012-10-17"
+          #Statement:
+            #- Effect: "Allow"
+              #Principal: 
+                #Service: 
+                  #- "cognito-idp.amazonaws.com"
+              #Action: 
+                #- "sts:AssumeRole"
+        #Policies:
+          #- PolicyName: "CognitoSNSPolicy"
+            #PolicyDocument: 
+              #Version: "2012-10-17"
+              #Statement: 
+                #- Effect: "Allow"
+                  #Action: "sns:publish"
+                  #Resource: "*"
 
   # Creates a user pool in cognito for your app to auth against
   # This example requires MFA and validates the phone number to use as MFA
   # Other fields can be added to the schema
-    UserPool:
-      Type: "AWS::Cognito::UserPool"
-      Properties:
-        UserPoolName: !Sub ${self:custom.AuthName}-user-pool
-        AutoVerifiedAttributes:
-          - phone_number
-        MfaConfiguration: "ON"
-        SmsConfiguration:
-          ExternalId: !Sub ${self:custom.AuthName}-external
-          SnsCallerArn: !GetAtt SNSRole.Arn
-        Schema:
-          - Name: email
-            AttributeDataType: String
-            Mutable: true
-            Required: true
-          - Name: name
-            AttributeDataType: String
-            Mutable: true
-  # Creates a User Pool Client to be used by the identity pool
-    UserPoolClient:
-      Type: "AWS::Cognito::UserPoolClient"
-      Properties:
-        ClientName: !Sub ${self:custom.AuthName}-client
-        UserPoolId: !Ref UserPool
-        AllowedOAuthFlows: 
-          - implicit
-        AllowedOAuthFlowsUserPoolClient: true
-        AllowedOAuthScopes: 
-          - email
-          - openid 
-        CallbackURLs: 
-          - ${self:custom.redirectUrl_live}
-          - ${self:custom.redirectUrl_live}review
-          - ${self:custom.redirectUrl_live}profile
-          - ${self:custom.redirectUrl_live}settings
-          - ${self:custom.redirectUrl_live}create
-          - ${self:custom.redirectUrl_live}ala
-          - ${self:custom.redirectUrl_live}musicbrainz
-          - ${self:custom.redirectUrl_live}leaderboard
-          - ${self:custom.redirectUrl_live}newsletter
-          - ${self:custom.redirectUrl_live}feedmuncher
-          - ${self:custom.redirectUrl_live}quickmemo
-          - ${self:custom.redirectUrl_dev}
-          - ${self:custom.redirectUrl_dev}review
-          - ${self:custom.redirectUrl_dev}profile
-          - ${self:custom.redirectUrl_dev}settings
-          - ${self:custom.redirectUrl_dev}create
-          - ${self:custom.redirectUrl_dev}ala
-          - ${self:custom.redirectUrl_dev}musicbrainz
-          - ${self:custom.redirectUrl_dev}leaderboard
-          - ${self:custom.redirectUrl_dev}newsletter
-          - ${self:custom.redirectUrl_dev}feedmuncher
-          - ${self:custom.redirectUrl_dev}quickmemo  
+    #UserPool:
+      #Type: "AWS::Cognito::UserPool"
+      #Properties:
+        #UserPoolName: !Sub ${self:custom.AuthName}-user-pool
+        #AutoVerifiedAttributes:
+          #- phone_number
+        #MfaConfiguration: "ON"
+        #SmsConfiguration:
+          #ExternalId: !Sub ${self:custom.AuthName}-external
+          #SnsCallerArn: !GetAtt SNSRole.Arn
+        #Schema:
+          #- Name: email
+            #AttributeDataType: String
+            #Mutable: true
+            #Required: true
+          #- Name: name
+            #AttributeDataType: String
+            #Mutable: true
+  ## Creates a User Pool Client to be used by the identity pool
+    #UserPoolClient:
+      #Type: "AWS::Cognito::UserPoolClient"
+      #Properties:
+        #ClientName: !Sub ${self:custom.AuthName}-client
+        #UserPoolId: !Ref UserPool
+        #AllowedOAuthFlows: 
+          #- implicit
+        #AllowedOAuthFlowsUserPoolClient: true
+        #AllowedOAuthScopes: 
+          #- email
+          #- openid 
+        #CallbackURLs: 
+          #- ${self:custom.redirectUrl_live}
+          #- ${self:custom.redirectUrl_live}review
+          #- ${self:custom.redirectUrl_live}profile
+          #- ${self:custom.redirectUrl_live}settings
+          #- ${self:custom.redirectUrl_live}create
+          #- ${self:custom.redirectUrl_live}ala
+          #- ${self:custom.redirectUrl_live}musicbrainz
+          #- ${self:custom.redirectUrl_live}leaderboard
+          #- ${self:custom.redirectUrl_live}newsletter
+          #- ${self:custom.redirectUrl_live}feedmuncher
+          #- ${self:custom.redirectUrl_live}quickmemo
+          #- ${self:custom.redirectUrl_dev}
+          #- ${self:custom.redirectUrl_dev}review
+          #- ${self:custom.redirectUrl_dev}profile
+          #- ${self:custom.redirectUrl_dev}settings
+          #- ${self:custom.redirectUrl_dev}create
+          #- ${self:custom.redirectUrl_dev}ala
+          #- ${self:custom.redirectUrl_dev}musicbrainz
+          #- ${self:custom.redirectUrl_dev}leaderboard
+          #- ${self:custom.redirectUrl_dev}newsletter
+          #- ${self:custom.redirectUrl_dev}feedmuncher
+          #- ${self:custom.redirectUrl_dev}quickmemo  
                   
-        DefaultRedirectURI: ${self:custom.redirectUrl_live}
-        GenerateSecret: true
-        LogoutURLs: 
-          - ${self:custom.redirectUrl_live}
-          - ${self:custom.redirectUrl_dev}
-        RefreshTokenValidity: 3650
-        SupportedIdentityProviders: 
-          - COGNITO
-          #- Facebook
-          #- Google 
-          #- LoginWithAmazon
+        #DefaultRedirectURI: ${self:custom.redirectUrl_live}
+        #GenerateSecret: true
+        #LogoutURLs: 
+          #- ${self:custom.redirectUrl_live}
+          #- ${self:custom.redirectUrl_dev}
+        #RefreshTokenValidity: 3650
+        #SupportedIdentityProviders: 
+          #- COGNITO
+          ##- Facebook
+          ##- Google 
+          ##- LoginWithAmazon
         
       
-  # Creates a federeated Identity pool
-    IdentityPool:
-      Type: "AWS::Cognito::IdentityPool"
-      Properties:
-        IdentityPoolName: !Sub ${self:custom.AuthName}Identity
-        AllowUnauthenticatedIdentities: true
-        CognitoIdentityProviders: 
-          - ClientId: !Ref UserPoolClient
-            ProviderName: !GetAtt UserPool.ProviderName
-       # SupportedLoginProviders: 
-        #  - graph.facebook.com : ${self:custom.secrets.federatedLoginClientIds.facebook} 
-        #  - accounts.google.com : ${self:custom.secrets.federatedLoginClientIds.google}
-       #   - www.amazon.com : ${self:custom.secrets.federatedLoginClientIds.amazon}
-       #   - api.twitter.com : ${self:custom.secrets.federatedLoginClientIds.twitter}
+  ## Creates a federeated Identity pool
+    #IdentityPool:
+      #Type: "AWS::Cognito::IdentityPool"
+      #Properties:
+        #IdentityPoolName: !Sub ${self:custom.AuthName}Identity
+        #AllowUnauthenticatedIdentities: true
+        #CognitoIdentityProviders: 
+          #- ClientId: !Ref UserPoolClient
+            #ProviderName: !GetAtt UserPool.ProviderName
+       ## SupportedLoginProviders: 
+        ##  - graph.facebook.com : ${self:custom.secrets.federatedLoginClientIds.facebook} 
+        ##  - accounts.google.com : ${self:custom.secrets.federatedLoginClientIds.google}
+       ##   - www.amazon.com : ${self:custom.secrets.federatedLoginClientIds.amazon}
+       ##   - api.twitter.com : ${self:custom.secrets.federatedLoginClientIds.twitter}
         
 
 
-  # Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
-    CognitoUnAuthorizedRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        AssumeRolePolicyDocument: 
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal: 
-                Federated: "cognito-identity.amazonaws.com"
-              Action: 
-                - "sts:AssumeRoleWithWebIdentity"
-              Condition:
-                StringEquals: 
-                  "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
-                "ForAnyValue:StringLike":
-                  "cognito-identity.amazonaws.com:amr": unauthenticated
-        Policies:
-          - PolicyName: "CognitoUnauthorizedPolicy"
-            PolicyDocument: 
-              Version: "2012-10-17"
-              Statement: 
-                - Effect: "Allow"
-                  Action:
-                    - "mobileanalytics:PutEvents"
-                    - "cognito-sync:*"
-                  Resource: "*"
+  ## Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
+    #CognitoUnAuthorizedRole:
+      #Type: "AWS::IAM::Role"
+      #Properties:
+        #AssumeRolePolicyDocument: 
+          #Version: "2012-10-17"
+          #Statement:
+            #- Effect: "Allow"
+              #Principal: 
+                #Federated: "cognito-identity.amazonaws.com"
+              #Action: 
+                #- "sts:AssumeRoleWithWebIdentity"
+              #Condition:
+                #StringEquals: 
+                  #"cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+                #"ForAnyValue:StringLike":
+                  #"cognito-identity.amazonaws.com:amr": unauthenticated
+        #Policies:
+          #- PolicyName: "CognitoUnauthorizedPolicy"
+            #PolicyDocument: 
+              #Version: "2012-10-17"
+              #Statement: 
+                #- Effect: "Allow"
+                  #Action:
+                    #- "mobileanalytics:PutEvents"
+                    #- "cognito-sync:*"
+                  #Resource: "*"
 
-  # Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
-  # Only allows users in the previously created Identity Pool
-    CognitoAuthorizedRole:
-      Type: "AWS::IAM::Role"
-      Properties:
-        AssumeRolePolicyDocument: 
-          Version: "2012-10-17"
-          Statement:
-            - Effect: "Allow"
-              Principal: 
-                Federated: "cognito-identity.amazonaws.com"
-              Action: 
-                - "sts:AssumeRoleWithWebIdentity"
-              Condition:
-                StringEquals: 
-                  "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
-                "ForAnyValue:StringLike":
-                  "cognito-identity.amazonaws.com:amr": authenticated
-        Policies:
-          - PolicyName: "CognitoAuthorizedPolicy"
-            PolicyDocument: 
-              Version: "2012-10-17"
-              Statement: 
-                - Effect: "Allow"
-                  Action:
-                    - "mobileanalytics:PutEvents"
-                    - "cognito-sync:*"
-                    - "cognito-identity:*"
-                  Resource: "*"
-                - Effect: "Allow"
-                  Action:
-                    - "lambda:InvokeFunction"
-                  Resource: "*"
+  ## Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
+  ## Only allows users in the previously created Identity Pool
+    #CognitoAuthorizedRole:
+      #Type: "AWS::IAM::Role"
+      #Properties:
+        #AssumeRolePolicyDocument: 
+          #Version: "2012-10-17"
+          #Statement:
+            #- Effect: "Allow"
+              #Principal: 
+                #Federated: "cognito-identity.amazonaws.com"
+              #Action: 
+                #- "sts:AssumeRoleWithWebIdentity"
+              #Condition:
+                #StringEquals: 
+                  #"cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+                #"ForAnyValue:StringLike":
+                  #"cognito-identity.amazonaws.com:amr": authenticated
+        #Policies:
+          #- PolicyName: "CognitoAuthorizedPolicy"
+            #PolicyDocument: 
+              #Version: "2012-10-17"
+              #Statement: 
+                #- Effect: "Allow"
+                  #Action:
+                    #- "mobileanalytics:PutEvents"
+                    #- "cognito-sync:*"
+                    #- "cognito-identity:*"
+                  #Resource: "*"
+                #- Effect: "Allow"
+                  #Action:
+                    #- "lambda:InvokeFunction"
+                  #Resource: "*"
   
-  # Assigns the roles to the Identity Pool
-    IdentityPoolRoleMapping:
-      Type: "AWS::Cognito::IdentityPoolRoleAttachment"
-      Properties:
-        IdentityPoolId: !Ref IdentityPool
-        Roles:
-          authenticated: !GetAtt CognitoAuthorizedRole.Arn
-          unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
+  ## Assigns the roles to the Identity Pool
+    #IdentityPoolRoleMapping:
+      #Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+      #Properties:
+        #IdentityPoolId: !Ref IdentityPool
+        #Roles:
+          #authenticated: !GetAtt CognitoAuthorizedRole.Arn
+          #unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
 
     S3WebsiteUploads:
       Type: AWS::S3::Bucket
@@ -402,16 +395,16 @@ resources:
 
 
 
-outputs:
-  UserPoolId:
-    Value: !Ref UserPool
-    Export:
-      Name: "UserPool::Id"
-  UserPoolClientId:
-    Value: !Ref UserPoolClient
-    Export:
-      Name: "UserPoolClient::Id"
-  IdentityPoolId:
-    Value: !Ref IdentityPool
-    Export:
-      Name: "IdentityPool::Id"
+#outputs:
+  #UserPoolId:
+    #Value: !Ref UserPool
+    #Export:
+      #Name: "UserPool::Id"
+  #UserPoolClientId:
+    #Value: !Ref UserPoolClient
+    #Export:
+      #Name: "UserPoolClient::Id"
+  #IdentityPoolId:
+    #Value: !Ref IdentityPool
+    #Export:
+      #Name: "IdentityPool::Id"

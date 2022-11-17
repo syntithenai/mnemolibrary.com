@@ -22,4 +22,3 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
-@import "react-share-button/dist/ShareBtn" 

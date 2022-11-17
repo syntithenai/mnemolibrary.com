@@ -7,7 +7,7 @@ import QuizCollection from './QuizCollection';
 import FaChild from 'react-icons/lib/fa/child';
 import scrollToComponent from 'react-scroll-to-component';
 import {BrowserRouter as Router,Route,Link,Switch,Redirect} from 'react-router-dom'
-import RecentSingleComment from './RecentSingleComment'
+//import RecentSingleComment from './RecentSingleComment'
 import {debounce}  from 'throttle-debounce' 
 
 export default class TopicsPage extends Component {
@@ -65,7 +65,7 @@ export default class TopicsPage extends Component {
 		if (that.filterTimeout) clearTimeout(that.filterTimeout);
 		that.filterTimeout = setTimeout(function() {
 			if (title && title.length > 0) {
-				that.props.fetch('/api/topics?title='+title )
+				that.props.fetch('/api/topics',{},{title:title} )
 				.then(function(response) {
 				////console.log(['got response', response])
 				return response.json()
